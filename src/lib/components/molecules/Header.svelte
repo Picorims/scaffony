@@ -20,7 +20,7 @@
         justify-content: space-between;
         padding: 0.5rem 1.5rem;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        background-color: var(--background-lighter-1);
+        background-color: var(--background-lighter-2);
         color: var(--text);
         font-family: var(--font-header);
         font-size: 1.25rem;

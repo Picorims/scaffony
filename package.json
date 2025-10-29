@@ -20,6 +20,7 @@
   },
   "license": "MPL-2.0",
   "dependencies": {
+    "@lucide/svelte": "^0.548.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2"
   },

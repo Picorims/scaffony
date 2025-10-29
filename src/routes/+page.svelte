@@ -1,10 +1,16 @@
 <script lang="ts">
-    import Header from "../lib/components/molecules/header.svelte";
+    import Menu from "$lib/components/molecules/Menu.svelte";
+    import type { PageType } from "$lib/components/molecules/Page.svelte";
+    import Header from "../lib/components/molecules/Header.svelte";
+    import Page from "$lib/components/molecules/Page.svelte";
 
+    let activePage: PageType = "libraries";
 </script>
 
-<main class="container">
-    <Header />
+<Header />
+<main>
+    <Menu onnavigate={(p) => activePage = p} />
+    <Page {activePage} />
 </main>
 
 <style>
@@ -21,5 +27,14 @@
         min-height: 100vh;
         overflow: hidden;
         font-family: "Quicksand", sans-serif;
+    }
+
+    main {
+        flex: 1;
+        width: 100vw;
+        height: 100%;
+        min-height: 0;
+        
+        display: flex;
     }
 </style>
