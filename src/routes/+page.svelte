@@ -1,25 +1,25 @@
 <script lang="ts">
+    import Header from "../lib/components/molecules/header.svelte";
+
 </script>
 
 <main class="container">
-    
+    <Header />
 </main>
 
 <style>
-    :root {
-        font-synthesis: none;
-        text-rendering: optimizeLegibility;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        -webkit-text-size-adjust: 100%;
-    }
-
-    button {
-        cursor: pointer;
-    }
-
-    input,
-    button {
-        outline: none;
+    :global(body) {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        width: 100vw;
+        max-width: 100vw;
+        min-width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        min-height: 100vh;
+        overflow: hidden;
+        font-family: "Quicksand", sans-serif;
     }
 </style>

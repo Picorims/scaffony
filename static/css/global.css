@@ -1,0 +1,36 @@
+@import url("./fonts/playwrite_de_grund.css");
+@import url("./fonts/quicksand.css");
+
+:root {
+    --text: #e9fbfa;
+    --background: #061c1d;
+    --background-lighter-1: oklch(from var(--background) calc(l + 0.1) c h);
+    --primary: #26e2e5;
+    --secondary: #175275;
+    --accent: #39d976;
+
+    --font-header: "Playwrite DE Grund", sans-serif;
+    --font-body: "Quicksand", sans-serif;
+
+    color: var(--text);
+    background-color: var(--background);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+button {
+    cursor: pointer;
+}
+
+input,
+button {
+    outline: none;
+}
