@@ -13,8 +13,11 @@
     "windows": [
       {
         "title": "scaffony",
-        "width": 800,
-        "height": 600
+        "width": 1280,
+        "height": 720,
+        "resizable": true,
+        "minWidth": 500,
+        "minHeight": 300
       }
     ],
     "security": {
