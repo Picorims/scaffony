@@ -31,8 +31,8 @@ pub fn run() {
                 ))
                 .build(),
         )
+        .plugin(tauri_plugin_fs::init()) // fs MUST BE before persisted scope!
         .plugin(tauri_plugin_persisted_scope::init())
-        .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

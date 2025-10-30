@@ -14,6 +14,8 @@
     "dialog:default",
     "fs:default",
     "fs:allow-cache-read",
-    "fs:allow-cache-write"
+    "fs:allow-cache-write",
+    "fs:allow-app-read",
+    "fs:allow-app-write"
   ]
 }

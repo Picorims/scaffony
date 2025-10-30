@@ -7,10 +7,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
 import { path } from "@tauri-apps/api";
-import { invoke } from "@tauri-apps/api/core";
-import { cacheDir } from "@tauri-apps/api/path";
-import { open, BaseDirectory, exists } from "@tauri-apps/plugin-fs";
-import { writable } from "svelte/store";
+import { appDataDir } from "@tauri-apps/api/path";
+import { open, exists, mkdir,  } from "@tauri-apps/plugin-fs";
 
 const LIBRARY_PATH_FILE_NAME = "scaffony_current_library.txt";
 const DATA_FILE_NAME = "scaffony_data.json";
@@ -24,6 +22,18 @@ const DEFAULT_CONFIG: IConfig = {
 };
 
 let config = $state<IConfig>(DEFAULT_CONFIG);
+
+async function getCacheFilePath(): Promise<string> {
+    return await path.join(await appDataDir(), LIBRARY_PATH_FILE_NAME);
+}
+
+async function ensureAppDataDirExists(): Promise<void> {
+    const appDataDirPath = await appDataDir();
+    const dirExists = await exists(appDataDirPath);
+    if (!dirExists) {
+        await mkdir(appDataDirPath, { recursive: true });
+    }
+}
 
 async function createLibraryPathCacheIfNotExists(pathStr: string): Promise<void> {
     const fileExists = await exists(pathStr);
@@ -42,18 +52,18 @@ async function createLibraryPathCacheIfNotExists(pathStr: string): Promise<void>
  * @returns 
  */
 async function getCurrentLibraryFromCache(): Promise<string | null> {
-    const cacheFilePath = await path.join(await cacheDir(), LIBRARY_PATH_FILE_NAME);
+    const cacheFilePath = await getCacheFilePath();
+    await ensureAppDataDirExists();
     await createLibraryPathCacheIfNotExists(cacheFilePath);
     const file = await open(cacheFilePath, {
         read: true,
     });
-
+    
     const stat = await file.stat();
     const buf = new Uint8Array(stat.size);
     await file.read(buf);
     const textContents = new TextDecoder().decode(buf);
     await file.close();
-
     // If it is a valid path, return it, else return null
     if (textContents.length > 0 && await path.isAbsolute(textContents)) {
         if (!await exists(textContents)) {
@@ -70,7 +80,8 @@ async function getCurrentLibraryFromCache(): Promise<string | null> {
  * @param libraryPath 
  */
 async function writeCurrentLibraryToCache(libraryPath: string): Promise<void> {
-    const cacheFilePath = await path.join(await cacheDir(), LIBRARY_PATH_FILE_NAME);
+    const cacheFilePath = await getCacheFilePath();
+    await ensureAppDataDirExists();
     await createLibraryPathCacheIfNotExists(cacheFilePath);
     const file = await open(cacheFilePath, {
         write: true,
@@ -108,10 +119,10 @@ export async function setLibraryPath(libraryPath: string): Promise<boolean> {
     return true;
 }
 
-async function ensureDataFileExists(libraryPath: string): Promise<void> {
-    const dataFilePath = await path.join(libraryPath, DATA_FILE_NAME);
+async function ensureDataFileExists(dataFilePath: string): Promise<void> {
     const fileExists = await exists(dataFilePath);
     if (!fileExists) {
+        console.info(`Data file does not exist at ${dataFilePath}, creating default data file...`);
         const file = await open(dataFilePath, {
             write: true,
             create: true,
@@ -135,9 +146,10 @@ export async function readData(): Promise<boolean> {
         console.warn("No valid library path found in cache, cannot read data.");
         return false;
     }
+
     const readPath = await path.join(libraryPath, DATA_FILE_NAME);
     console.info(`Reading user data from ${readPath}...`);
-    await ensureDataFileExists(libraryPath);
+    await ensureDataFileExists(readPath);
     const file = await open(readPath, {
         read: true,
         create: false,
