@@ -30,4 +30,4 @@ export function forwardConsoleToLogs() {
     forwardConsole('info', info);
     forwardConsole('warn', warn);
     forwardConsole('error', error);
-} 
+}
