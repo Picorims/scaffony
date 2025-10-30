@@ -2,9 +2,18 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capability for the main window",
-  "windows": ["main"],
+  "windows": [
+    "main"
+  ],
   "permissions": [
     "core:default",
-    "opener:default"
+    "log:allow-log",
+    "log:default",
+    "opener:default",
+    "opener:allow-open-path",
+    "dialog:default",
+    "fs:default",
+    "fs:allow-cache-read",
+    "fs:allow-cache-write"
   ]
 }

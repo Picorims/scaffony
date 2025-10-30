@@ -16,7 +16,7 @@
 	// 	"description": "Log output to console"
 	// }
 	"license": {
-		"scope": "typescript, javascript, html, css",
+		"scope": "typescript, javascript, html, css, rust, svelte",
 		"prefix": "license",
 		"body": [
 			"$BLOCK_COMMENT_START",
@@ -28,7 +28,7 @@
 			"$BLOCK_COMMENT_END",
 		],
 		"description": "Insert the Mozilla Public License 2.0 header"
-	}
+	},
 	"script:ts": {
 		"scope": "svelte",
 		"prefix": "script:ts",

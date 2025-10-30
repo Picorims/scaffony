@@ -3,8 +3,16 @@
     import type { PageType } from "$lib/components/molecules/Page.svelte";
     import Header from "../lib/components/molecules/Header.svelte";
     import Page from "$lib/components/molecules/Page.svelte";
+    import { onMount } from "svelte";
+    import { readData } from "$lib/user_data.svelte";
+    import { forwardConsoleToLogs } from "$lib/log";
 
     let activePage: PageType = "libraries";
+
+    onMount(() => {
+        forwardConsoleToLogs();
+        readData();
+    });
 </script>
 
 <Header />
@@ -34,7 +42,7 @@
         width: 100vw;
         height: 100%;
         min-height: 0;
-        
+
         display: flex;
     }
 </style>
