@@ -10,8 +10,14 @@
     --background-darker-1: oklch(from var(--background) calc(l - 0.05) c h);
     --background-darker-2: oklch(from var(--background) calc(l - 0.1) c h);
     --primary: #26e2e5;
+    --primary-darker-1: oklch(from var(--primary) calc(l - 0.05) c h);
+    --primary-darker-2: oklch(from var(--primary) calc(l - 0.1) c h);
     --secondary: #175275;
+    --secondary-darker-1: oklch(from var(--secondary) calc(l - 0.05) c h);
+    --secondary-darker-2: oklch(from var(--secondary) calc(l - 0.1) c h);
     --accent: #39d976;
+    --accent-darker-1: oklch(from var(--accent) calc(l - 0.05) c h);
+    --accent-darker-2: oklch(from var(--accent) calc(l - 0.1) c h);
 
     --font-header: "Playwrite DE Grund", sans-serif;
     --font-body: "Quicksand", sans-serif;

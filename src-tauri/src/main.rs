@@ -12,7 +12,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 fn main() {
     // TODO demander dossier depuis front, utiliser scope persistent.
     // + pas de libraries mais librarY dans laquelle la config est stockée + éventuellement lié à d'autre dossiers externes.
-    
+
     // from there, the web part will be launched.
     scaffony_lib::run();
 }

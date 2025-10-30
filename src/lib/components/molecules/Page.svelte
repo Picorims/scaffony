@@ -7,10 +7,15 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
     
-    export type PageType = "libraries" | "playlists" | "tags";
+    export type PageType = "library" | "playlists" | "tags";
 </script>
 
 <script lang="ts">
+    import LibraryPage from "../pages/LibraryPage.svelte";
+import Library from "../pages/LibraryPage.svelte";
+    import PlaylistsPage from "../pages/PlaylistsPage.svelte";
+    import TagsPage from "../pages/TagsPage.svelte";
+
     interface IProps {
         activePage: PageType;
     }
@@ -18,5 +23,11 @@
 </script>
 
 <span>
-    {activePage}
+    {#if activePage === "library"}
+        <LibraryPage />
+    {:else if activePage === "playlists"}
+        <PlaylistsPage />
+    {:else if activePage === "tags"}
+        <TagsPage />
+    {/if}
 </span>

@@ -8,7 +8,7 @@
     }
 
     const { onnavigate }: IProps = $props();
-    let page = $state<PageType>("libraries");
+    let page = $state<PageType>("library");
 
     $effect(() => {
         onnavigate(page);
@@ -22,7 +22,7 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
     const entries: Array<{ text: string; Icon: typeof Icon; page: PageType }> = [
-        { text: "Libraries", Icon: LibraryBig, page: "libraries" },
+        { text: "Library", Icon: LibraryBig, page: "library" },
         { text: "Playlists", Icon: ListMusic, page: "playlists" },
         { text: "Tags", Icon: Tags, page: "tags" },
     ];
