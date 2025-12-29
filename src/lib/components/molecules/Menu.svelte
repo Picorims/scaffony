@@ -10,9 +10,11 @@
     const { onnavigate }: IProps = $props();
     let page = $state<PageType>("library");
 
-    $effect(() => {
-        onnavigate(page);
-    });
+    function navigateTo(p: PageType) {
+        console.log(`Navigating to page: '${p}'`);
+        page = p;
+        onnavigate(p);
+    }
 
     /*
     Copyright (c) 2025 Charly Schmidt aka Picorims (picorims.contact@gmail.com), all rights reserved.
@@ -34,7 +36,7 @@
             text={entry.text}
             Icon={entry.Icon}
             active={page === entry.page}
-            onclick={() => (page = entry.page)}
+            onclick={() => {navigateTo(entry.page);}}
         />
     {/each}
 </nav>

@@ -7,7 +7,7 @@
     import { readData, scan } from "$lib/user_data.svelte";
     import { forwardConsoleToLogs } from "$lib/log";
 
-    let activePage: PageType = "library";
+    let activePage = $state<PageType>("library");
     let mounted: boolean = $state<boolean>(false);
 
     onMount(() => {
