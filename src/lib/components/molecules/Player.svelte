@@ -9,12 +9,12 @@
 
     import { appState } from "$lib/app_state.svelte";
     import {
-        CirclePause,
-        CirclePlay,
-        CircleStop,
         Disc3,
+        Pause,
+        Play,
         SkipBack,
         SkipForward,
+        Square,
         Volume,
         Volume1,
         Volume2,
@@ -131,13 +131,13 @@
         <div class="controls-m-buttons">
             <IconButton onClick={togglePause}>
                 {#if paused}
-                    <CirclePlay />
+                    <Play />
                 {:else}
-                    <CirclePause />
+                    <Pause />
                 {/if}
             </IconButton>
             <IconButton onClick={stopAudio}>
-                <CircleStop />
+                <Square />
             </IconButton>
             <IconButton onClick={seekToStart}>
                 <SkipBack />
