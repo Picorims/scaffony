@@ -8,10 +8,20 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import { path } from "@tauri-apps/api";
 import { appDataDir, join } from "@tauri-apps/api/path";
-import { open, exists, mkdir, readDir, type DirEntry,  } from "@tauri-apps/plugin-fs";
+import {
+    open,
+    exists,
+    mkdir,
+    readDir,
+    type DirEntry,
+} from "@tauri-apps/plugin-fs";
 
 const LIBRARY_PATH_FILE_NAME = "scaffony_current_library.txt";
 const DATA_FILE_NAME = "scaffony_data.json";
+/**
+ * Sorted from worst to best.
+ */
+const PREFERRED_AUDIO_EXTENSIONS = [".aac", ".mp3", ".ogg", ".wav", ".flac"];
 
 export interface LibraryEntry {
     name: string;
@@ -47,7 +57,9 @@ async function ensureAppDataDirExists(): Promise<void> {
     }
 }
 
-async function createLibraryPathCacheIfNotExists(pathStr: string): Promise<void> {
+async function createLibraryPathCacheIfNotExists(
+    pathStr: string
+): Promise<void> {
     const fileExists = await exists(pathStr);
     if (!fileExists) {
         const file = await open(pathStr, {
@@ -61,7 +73,7 @@ async function createLibraryPathCacheIfNotExists(pathStr: string): Promise<void>
 
 /**
  * Checks the cache file for a stored library path and returns it if valid. Otherwise returns null.
- * @returns 
+ * @returns
  */
 async function getCurrentLibraryFromCache(): Promise<string | null> {
     const cacheFilePath = await getCacheFilePath();
@@ -70,15 +82,15 @@ async function getCurrentLibraryFromCache(): Promise<string | null> {
     const file = await open(cacheFilePath, {
         read: true,
     });
-    
+
     const stat = await file.stat();
     const buf = new Uint8Array(stat.size);
     await file.read(buf);
     const textContents = new TextDecoder().decode(buf);
     await file.close();
     // If it is a valid path, return it, else return null
-    if (textContents.length > 0 && await path.isAbsolute(textContents)) {
-        if (!await exists(textContents)) {
+    if (textContents.length > 0 && (await path.isAbsolute(textContents))) {
+        if (!(await exists(textContents))) {
             return null;
         }
         return textContents;
@@ -89,7 +101,7 @@ async function getCurrentLibraryFromCache(): Promise<string | null> {
 
 /**
  * Writes the current library path to cache file.
- * @param libraryPath 
+ * @param libraryPath
  */
 async function writeCurrentLibraryToCache(libraryPath: string): Promise<void> {
     const cacheFilePath = await getCacheFilePath();
@@ -106,7 +118,7 @@ async function writeCurrentLibraryToCache(libraryPath: string): Promise<void> {
 
 /**
  * Returns the currently set library path from cache. Otherwise returns null if not set.
- * @returns 
+ * @returns
  */
 export function getLibraryPath(): Promise<string | null> {
     return getCurrentLibraryFromCache();
@@ -115,14 +127,14 @@ export function getLibraryPath(): Promise<string | null> {
 /**
  * Writes the provided library path to cache after validating it.
  * @param libraryPath
- * @returns 
+ * @returns
  */
 export async function setLibraryPath(libraryPath: string): Promise<boolean> {
-    if (!await path.isAbsolute(libraryPath)) {
+    if (!(await path.isAbsolute(libraryPath))) {
         console.error(`Provided library path is not absolute: ${libraryPath}`);
         return false;
     }
-    if (!await exists(libraryPath)) {
+    if (!(await exists(libraryPath))) {
         console.error(`Provided library path does not exist: ${libraryPath}`);
         return false;
     }
@@ -134,7 +146,9 @@ export async function setLibraryPath(libraryPath: string): Promise<boolean> {
 async function ensureDataFileExists(dataFilePath: string): Promise<void> {
     const fileExists = await exists(dataFilePath);
     if (!fileExists) {
-        console.info(`Data file does not exist at ${dataFilePath}, creating default data file...`);
+        console.info(
+            `Data file does not exist at ${dataFilePath}, creating default data file...`
+        );
         const file = await open(dataFilePath, {
             write: true,
             create: true,
@@ -186,8 +200,8 @@ export async function readData(): Promise<boolean> {
 
 /**
  * Not guaranteed to not mutate the input object.
- * @param data 
- * @returns 
+ * @param data
+ * @returns
  */
 function addMissingFieldsToConfig(data: IConfig): IConfig {
     if (!data.library) {
@@ -199,7 +213,9 @@ function addMissingFieldsToConfig(data: IConfig): IConfig {
 export async function writeData(): Promise<boolean> {
     const libraryPath = await getCurrentLibraryFromCache();
     if (libraryPath === null) {
-        console.error("No valid library path found in cache, cannot write data.");
+        console.error(
+            "No valid library path found in cache, cannot write data."
+        );
         return false;
     }
 
@@ -222,7 +238,7 @@ export async function writeData(): Promise<boolean> {
  */
 export async function scan() {
     const libraryPath = await getCurrentLibraryFromCache();
-        if (libraryPath === null) {
+    if (libraryPath === null) {
         console.error("No valid library path found in cache, cannot scan.");
         return false;
     }
@@ -241,14 +257,24 @@ async function scanDirectory(pathStr: string) {
             continue; // skip symlinks
         }
         const path = await join(pathStr, entry.name);
-        if (isAudioFile(entry) && !libraryHasFile(path)) {
-            console.info(`Found new audio file: ${path}, adding to library...`);
-            const newEntry: LibraryEntry = {
-                name: entry.name,
-                artist: "Unknown Artist",
-                path: path,
-            };
-            config.library.push(newEntry);
+        if (isAudioFile(entry)) {
+            const index = libraryIndex(path);
+            if (index === -1) {
+                console.info(
+                    `Found new audio file: ${path}, adding to library...`
+                );
+                const newEntry: LibraryEntry = {
+                    name: entry.name.slice(0, entry.name.lastIndexOf(".")),
+                    artist: "Unknown Artist",
+                    path: path,
+                };
+                config.library.push(newEntry);
+            } else if (hasBetterQualityExtension(path, config.library[index])) {
+                console.info(
+                    `Found better quality audio file: ${path}, updating library entry...`
+                );
+                config.library[index].path = path;
+            }
         } else if (entry.isDirectory) {
             await scanDirectory(path);
         }
@@ -260,10 +286,37 @@ function isAudioFile(entry: DirEntry): boolean {
     if (!entry.isFile) {
         return false;
     }
-    const extension = entry.name.slice(entry.name.lastIndexOf(".")).toLowerCase();
+    const extension = entry.name
+        .slice(entry.name.lastIndexOf("."))
+        .toLowerCase();
     return audioExtensions.includes(extension);
 }
 
-function libraryHasFile(filePath: string): boolean {
-    return config.library.some(entry => entry.path === filePath);
+function libraryIndex(filePath: string): number {
+    const pathWithoutExtension = filePath.slice(0, filePath.lastIndexOf("."));
+    return config.library.findIndex(
+        (entry) => entry.path.slice(0, entry.path.lastIndexOf(".")) === pathWithoutExtension
+    );
+}
+
+function hasBetterQualityExtension(
+    filePath: string,
+    libraryEntry: LibraryEntry
+): boolean {
+    const fileExtension = filePath
+        .slice(filePath.lastIndexOf("."))
+        .toLowerCase();
+    const existingEntryExtension = libraryEntry.path
+        .slice(libraryEntry.path.lastIndexOf("."))
+        .toLowerCase();
+    const fileExtensionIndex =
+        PREFERRED_AUDIO_EXTENSIONS.indexOf(fileExtension);
+    const existingEntryExtensionIndex = PREFERRED_AUDIO_EXTENSIONS.indexOf(
+        existingEntryExtension
+    );
+    return (
+        fileExtensionIndex > -1 &&
+        existingEntryExtensionIndex > -1 &&
+        fileExtensionIndex > existingEntryExtensionIndex
+    );
 }
