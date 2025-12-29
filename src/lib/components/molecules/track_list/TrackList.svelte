@@ -17,8 +17,8 @@
 </script>
 
 <div class="container">
-{#each tracks as track}
-    <Track name={track.name} />
+{#each tracks as track, index}
+    <Track entry={track} {index} />
 {/each}
 </div>
 
@@ -29,5 +29,10 @@
         background-color: var(--background-darker-0);
         width: 100%;
         height: 100%;
+        border-radius: 4px;
+
+        display: grid;
+        grid-template-columns: repeat(3, 1fr) 3rem;
+        grid-auto-rows: min-content;
     }
 </style>

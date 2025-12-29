@@ -3,10 +3,12 @@
 
 :root {
     --text: #e9fbfa;
+    --text-darker-1: oklch(from var(--text) calc(l - 0.05) c h);
     --background: #061c1d;
     --background-lighter-0: oklch(from var(--background) calc(l + 0.025) c h);
     --background-lighter-1: oklch(from var(--background) calc(l + 0.05) c h);
     --background-lighter-2: oklch(from var(--background) calc(l + 0.1) c h);
+    --background-lighter-3: oklch(from var(--background) calc(l + 0.15) c h);
     --background-darker-0: oklch(from var(--background) calc(l - 0.025) c h);
     --background-darker-1: oklch(from var(--background) calc(l - 0.05) c h);
     --background-darker-2: oklch(from var(--background) calc(l - 0.1) c h);
@@ -44,4 +46,23 @@ button {
 input,
 button {
     outline: none;
+}
+
+input[type="range"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--background-lighter-3);
+}
+input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    border: none;
 }

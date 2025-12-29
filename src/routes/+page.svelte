@@ -6,6 +6,7 @@
     import { onMount } from "svelte";
     import { readData, scan } from "$lib/user_data.svelte";
     import { forwardConsoleToLogs } from "$lib/log";
+    import Player from "$lib/components/molecules/Player.svelte";
 
     let activePage = $state<PageType>("library");
     let mounted: boolean = $state<boolean>(false);
@@ -23,9 +24,12 @@
 
 <Header />
 <main>
-    <Menu onnavigate={(p) => activePage = p} />
-    <Page {activePage} />
+    <div class="menu-and-page">
+        <Menu onnavigate={(p) => activePage = p} />
+        <Page {activePage} />
+    </div>
 </main>
+<Player />
 
 <style>
     :global(body) {
@@ -44,6 +48,11 @@
     }
 
     main {
+        width: 100%;
+        height: 100%;
+    }
+
+    div.menu-and-page {
         flex: 1;
         width: 100vw;
         height: 100%;
