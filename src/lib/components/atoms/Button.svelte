@@ -41,6 +41,7 @@
 
     button.primary {
         background-color: var(--primary);
+        color: var(--on-primary);
     }
     button.primary:hover {
         background-color: var(--primary-darker-1);

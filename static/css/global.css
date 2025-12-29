@@ -4,6 +4,7 @@
 :root {
     --text: #e9fbfa;
     --text-darker-1: oklch(from var(--text) calc(l - 0.05) c h);
+    --text-darker-2: oklch(from var(--text) calc(l - 0.1) c h);
     --background: #061c1d;
     --background-lighter-0: oklch(from var(--background) calc(l + 0.025) c h);
     --background-lighter-1: oklch(from var(--background) calc(l + 0.05) c h);
@@ -15,12 +16,14 @@
     --primary: #26e2e5;
     --primary-darker-1: oklch(from var(--primary) calc(l - 0.05) c h);
     --primary-darker-2: oklch(from var(--primary) calc(l - 0.1) c h);
+    --on-primary: #061c1d;
     --secondary: #175275;
     --secondary-darker-1: oklch(from var(--secondary) calc(l - 0.05) c h);
     --secondary-darker-2: oklch(from var(--secondary) calc(l - 0.1) c h);
     --accent: #39d976;
     --accent-darker-1: oklch(from var(--accent) calc(l - 0.05) c h);
     --accent-darker-2: oklch(from var(--accent) calc(l - 0.1) c h);
+    --error: #ff4c82;
 
     --font-header: "Playwrite DE Grund", sans-serif;
     --font-body: "Quicksand", sans-serif;
@@ -46,6 +49,19 @@ button {
 input,
 button {
     outline: none;
+}
+
+input[type="text"],
+input[type="color"] {
+    padding: 0.5rem;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--background-lighter-2);
+    color: var(--text);
+}
+input[type="color"] {
+    padding: 0;
+    min-width: 40px;
 }
 
 input[type="range"] {

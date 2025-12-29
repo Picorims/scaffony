@@ -35,6 +35,11 @@ export interface LibraryEntry {
     tags: Record<string, boolean>;
 }
 
+/**
+ * warning: used with the spread operator, avoid nested objects.
+ * 
+ * global search ISSUE_TAG_SPREAD_OPERATOR
+ */
 export interface TagEntry {
     /**
      * colon separates the category from the value, e.g. "mood:happy"
@@ -234,6 +239,7 @@ export async function readData(): Promise<boolean> {
         const data: IConfig = JSON.parse(textContents);
         // TODO data validation with zod or typia or jsv
         config = addMissingFieldsToConfig(data);
+        sortTags();
     } else if (textContents.length === 0) {
         // empty, write current config
         await writeData();
@@ -251,7 +257,41 @@ function addMissingFieldsToConfig(data: IConfig): IConfig {
     if (!data.library) {
         data.library = [];
     }
+    if (!data.tags) {
+        data.tags = [];
+    }
     return data;
+}
+
+function sortTags() {
+    config.tags.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function editTag(oldTagName: string, newTag: TagEntry) {
+    const tagIndex = config.tags.findIndex((tag) => tag.name === oldTagName);
+    if (tagIndex === -1) {
+        throw new Error(`Tag with name ${oldTagName} not found.`);
+    }
+    config.tags[tagIndex] = newTag;
+    for (const entry of config.library) {
+        if (oldTagName in entry.tags) {
+            const value = entry.tags[oldTagName];
+            delete entry.tags[oldTagName];
+            entry.tags[newTag.name] = value;
+        }
+    }
+    sortTags();
+    writeData();
+}
+
+export function deleteTag(tagName: string) {
+    config.tags = config.tags.filter((tag) => tag.name !== tagName);
+    for (const entry of config.library) {
+        if (tagName in entry.tags) {
+            delete entry.tags[tagName];
+        }
+    }
+    writeData();
 }
 
 export async function writeData(): Promise<boolean> {

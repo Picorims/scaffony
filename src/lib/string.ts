@@ -8,7 +8,36 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 export function fromKebabToPascalCase(str: string) {
     return str
-        .split('-')
+        .split("-")
         .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-        .join('');
+        .join("");
+}
+
+export function fromPascalToKebabCase(str: string) {
+    const chars = str.split("");
+    let result = "";
+    for (let i = 0; i < chars.length; i++) {
+        const char = chars[i];
+        if (
+            (char === char.toUpperCase() ||
+                [
+                    "0",
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7",
+                    "8",
+                    "9",
+                    "0",
+                ].includes(char)) &&
+            i !== 0
+        ) {
+            result += "-";
+        }
+        result += char.toLowerCase();
+    }
+    return result;
 }

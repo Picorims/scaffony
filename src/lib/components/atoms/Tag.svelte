@@ -20,7 +20,7 @@
 </script>
 
 <div class="tag" style:--color={tag.colorHex}>
-    <div class="icon"><LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} width="0.5em" height="0.5em" stroke={tag.colorHex} /></div>
+    <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
     <span class="label">{tag.name}</span>
 </div>
 
@@ -35,5 +35,12 @@
         color: var(--text);
         background-color: var(--background-lighter-2);
         margin: 0.2em;
+    }
+
+    div.tag > :global(svg) {
+        stroke: var(--color);
+        width: 1.2em;
+        height: 1.2em;
+        margin-right: 0.3em;
     }
 </style>
