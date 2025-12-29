@@ -12,7 +12,6 @@
 
 <script lang="ts">
     import LibraryPage from "../pages/LibraryPage.svelte";
-import Library from "../pages/LibraryPage.svelte";
     import PlaylistsPage from "../pages/PlaylistsPage.svelte";
     import TagsPage from "../pages/TagsPage.svelte";
 
@@ -22,7 +21,7 @@ import Library from "../pages/LibraryPage.svelte";
     const { activePage }: IProps = $props();
 </script>
 
-<span>
+<div class="page">
     {#if activePage === "library"}
         <LibraryPage />
     {:else if activePage === "playlists"}
@@ -30,4 +29,12 @@ import Library from "../pages/LibraryPage.svelte";
     {:else if activePage === "tags"}
         <TagsPage />
     {/if}
-</span>
+</div>
+
+<style>
+    div.page {
+        flex: 1;
+        width: 100%;
+        height: 100%;
+    }
+</style>

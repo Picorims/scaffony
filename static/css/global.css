@@ -7,6 +7,7 @@
     --background-lighter-0: oklch(from var(--background) calc(l + 0.025) c h);
     --background-lighter-1: oklch(from var(--background) calc(l + 0.05) c h);
     --background-lighter-2: oklch(from var(--background) calc(l + 0.1) c h);
+    --background-darker-0: oklch(from var(--background) calc(l - 0.025) c h);
     --background-darker-1: oklch(from var(--background) calc(l - 0.05) c h);
     --background-darker-2: oklch(from var(--background) calc(l - 0.1) c h);
     --primary: #26e2e5;

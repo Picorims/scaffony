@@ -31,6 +31,10 @@ const DEFAULT_CONFIG: IConfig = {
 
 let config = $state<IConfig>(DEFAULT_CONFIG);
 
+export function getConfig(): IConfig {
+    return config;
+}
+
 async function getCacheFilePath(): Promise<string> {
     return await path.join(await appDataDir(), LIBRARY_PATH_FILE_NAME);
 }
