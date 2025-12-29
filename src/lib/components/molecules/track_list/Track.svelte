@@ -2,7 +2,7 @@
     import { appState } from "$lib/app_state.svelte";
     import IconButton from "$lib/components/atoms/IconButton.svelte";
     import type { LibraryEntry } from "$lib/user_data.svelte";
-    import { Play } from "@lucide/svelte";
+    import { Disc3, Play } from "@lucide/svelte";
     import { convertFileSrc } from "@tauri-apps/api/core";
 
     /*
@@ -18,7 +18,8 @@
         index: number;
     }
 
-    const {entry, index}: Props = $props();
+    const { entry, index }: Props = $props();
+    let imageInError = $state(false);
 
     function play() {
         appState.activeTrack = entry;
@@ -26,7 +27,17 @@
 </script>
 
 <div class="container" class:odd={index % 2 === 1}>
-    <img class="cover" src={entry.coverPath ? convertFileSrc(entry.coverPath) : ""} alt="">
+    {#if imageInError}
+        <Disc3 stroke="var(--text-darker-1)" width="1rem" height="1rem" />
+    {:else}
+        <img
+            class="cover"
+            class:error={imageInError}
+            src={entry.coverPath ? convertFileSrc(entry.coverPath) : ""}
+            alt={`${entry.name} by ${entry.artist} - cover`}
+            onerror={() => (imageInError = true)}
+        />
+    {/if}
     <span class="name">{entry.name}</span>
     <span class="artist">{entry.artist}</span>
     <div class="tags"></div>
@@ -43,6 +54,7 @@
         height: 1rem;
         object-fit: cover;
     }
+
     div.container {
         padding: 0.25em 1em;
         border-bottom: 1px solid var(--background-lighter-2);
@@ -55,5 +67,17 @@
     }
     div.container.odd {
         background-color: var(--background-lighter-0);
+    }
+
+    span.artist,
+    span.name {
+        padding: 0 0.5em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    span.artist {
+        font-size: 0.875rem;
+        color: var(--text-darker-1);
     }
 </style>

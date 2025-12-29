@@ -12,6 +12,7 @@
         CirclePause,
         CirclePlay,
         CircleStop,
+        Disc3,
         SkipBack,
         SkipForward,
         Volume,
@@ -27,6 +28,7 @@
     let rangePositionElement = $state<HTMLInputElement | null>(null);
     let rangeVolumeElement = $state<HTMLInputElement | null>(null);
     let volume = $state(1);
+    let imageOnError = $state(false);
 
     const POSITION_REFRESH_INTERVAL_MS = 500;
 
@@ -37,6 +39,7 @@
     });
 
     $effect(() => {
+        imageOnError = false;
         const current = appState.activeTrack;
         if (audioElement && current) {
             audioElement.src = convertFileSrc(current.path);
@@ -106,12 +109,19 @@
 
 <div class="container">
     <div class="meta">
-        <img
-            src={appState.activeTrack?.coverPath
-                ? convertFileSrc(appState.activeTrack?.coverPath)
-                : ""}
-            alt=""
-        />
+        <div class="cover">
+            {#if imageOnError}
+                <Disc3 stroke="var(--text-darker-1)" width="48" height="48" />
+            {:else}
+                <img
+                    src={appState.activeTrack?.coverPath
+                        ? convertFileSrc(appState.activeTrack?.coverPath)
+                        : ""}
+                    alt={`${appState.activeTrack?.name} by ${appState.activeTrack?.artist} - cover`}
+                    onerror={() => (imageOnError = true)}
+                />
+            {/if}
+        </div>
         <div class="meta-text">
             <span class="title">{appState.activeTrack?.name ?? "-"}</span>
             <span class="artist">{appState.activeTrack?.artist ?? "-"}</span>
@@ -199,6 +209,15 @@
         gap: 1em;
     }
 
+    div.cover {
+        border: 1px solid var(--background-lighter-2);
+        width: 48px;
+        height: 48px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
     img {
         width: 48px;
         height: 48px;
@@ -234,6 +253,7 @@
         min-width: 256px;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         gap: 0.5em;
     }
 
@@ -242,6 +262,7 @@
         display: flex;
         align-items: center;
         gap: 1em;
+        margin-right: 1em;
     }
 
     div.controls-m-buttons {
