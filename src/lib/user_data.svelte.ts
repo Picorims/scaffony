@@ -27,6 +27,7 @@ export interface LibraryEntry {
     name: string;
     artist: string;
     path: string;
+    coverPath: string | null;
 }
 
 export interface IConfig {
@@ -251,6 +252,10 @@ export async function scan() {
 async function scanDirectory(pathStr: string) {
     console.info(`Scanning directory: ${pathStr}`);
     const entries = await readDir(pathStr);
+    const cover = findCoverInDirectory(entries);
+    if (cover) {
+        console.info(`Found cover image in directory: ${cover}`);
+    }
     for (const entry of entries) {
         if (entry.isSymlink) {
             console.info(`Skipping symlink: ${entry.name}`);
@@ -267,6 +272,7 @@ async function scanDirectory(pathStr: string) {
                     name: entry.name.slice(0, entry.name.lastIndexOf(".")),
                     artist: "Unknown Artist",
                     path: path,
+                    coverPath: cover ? await join(pathStr, cover) : null,
                 };
                 config.library.push(newEntry);
             } else if (hasBetterQualityExtension(path, config.library[index])) {
@@ -281,6 +287,22 @@ async function scanDirectory(pathStr: string) {
     }
 }
 
+/**
+ * Returns the first found image with 'cover' in its name from the provided directory entries.
+ * @param entries 
+ */
+function findCoverInDirectory(entries: DirEntry[]): string | null {
+    for (const entry of entries) {
+        if (entry.isFile && isImageFile(entry)) {
+            const nameHasCover = entry.name.toLowerCase().includes("cover");
+            if (nameHasCover) {
+                return entry.name;
+            }
+        }
+    }
+    return null;
+}
+
 function isAudioFile(entry: DirEntry): boolean {
     const audioExtensions = [".mp3", ".wav", ".flac", ".aac", ".ogg", ".m4a"];
     if (!entry.isFile) {
@@ -290,6 +312,17 @@ function isAudioFile(entry: DirEntry): boolean {
         .slice(entry.name.lastIndexOf("."))
         .toLowerCase();
     return audioExtensions.includes(extension);
+}
+
+function isImageFile(entry: DirEntry): boolean {
+    const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"];
+    if (!entry.isFile) {
+        return false;
+    }
+    const extension = entry.name
+        .slice(entry.name.lastIndexOf("."))
+        .toLowerCase();
+    return imageExtensions.includes(extension);
 }
 
 function libraryIndex(filePath: string): number {

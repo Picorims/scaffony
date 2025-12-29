@@ -32,7 +32,7 @@
         border-radius: 4px;
 
         display: grid;
-        grid-template-columns: repeat(3, 1fr) 3rem;
+        grid-template-columns: 3rem repeat(3, 1fr) 3rem;
         grid-auto-rows: min-content;
     }
 </style>

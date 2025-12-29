@@ -106,7 +106,12 @@
 
 <div class="container">
     <div class="meta">
-        <img src="" alt="" />
+        <img
+            src={appState.activeTrack?.coverPath
+                ? convertFileSrc(appState.activeTrack?.coverPath)
+                : ""}
+            alt=""
+        />
         <div class="meta-text">
             <span class="title">{appState.activeTrack?.name ?? "-"}</span>
             <span class="artist">{appState.activeTrack?.artist ?? "-"}</span>
@@ -165,7 +170,13 @@
         />
     </div>
 </div>
-<audio bind:this={audioElement} src="" onended={() => {paused = true}}></audio>
+<audio
+    bind:this={audioElement}
+    src=""
+    onended={() => {
+        paused = true;
+    }}
+></audio>
 
 <style>
     div.container {
@@ -189,7 +200,9 @@
     }
 
     img {
-        height: 100%;
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
         min-width: 50px;
         min-height: 50px;
         background-color: var(--background-lighter-0);
