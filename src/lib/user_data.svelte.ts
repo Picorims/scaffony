@@ -7,18 +7,26 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
 import { path } from "@tauri-apps/api";
-import { appDataDir } from "@tauri-apps/api/path";
-import { open, exists, mkdir,  } from "@tauri-apps/plugin-fs";
+import { appDataDir, join } from "@tauri-apps/api/path";
+import { open, exists, mkdir, readDir, type DirEntry,  } from "@tauri-apps/plugin-fs";
 
 const LIBRARY_PATH_FILE_NAME = "scaffony_current_library.txt";
 const DATA_FILE_NAME = "scaffony_data.json";
 
+export interface LibraryEntry {
+    name: string;
+    artist: string;
+    path: string;
+}
+
 export interface IConfig {
     version: 1;
+    library: LibraryEntry[];
 }
 
 const DEFAULT_CONFIG: IConfig = {
     version: 1,
+    library: [],
 };
 
 let config = $state<IConfig>(DEFAULT_CONFIG);
@@ -163,13 +171,25 @@ export async function readData(): Promise<boolean> {
     if (textContents.length > 0) {
         const data: IConfig = JSON.parse(textContents);
         // TODO data validation with zod or typia or jsv
-        config = data;
+        config = addMissingFieldsToConfig(data);
     } else if (textContents.length === 0) {
         // empty, write current config
         await writeData();
     }
 
     return true;
+}
+
+/**
+ * Not guaranteed to not mutate the input object.
+ * @param data 
+ * @returns 
+ */
+function addMissingFieldsToConfig(data: IConfig): IConfig {
+    if (!data.library) {
+        data.library = [];
+    }
+    return data;
 }
 
 export async function writeData(): Promise<boolean> {
@@ -191,4 +211,55 @@ export async function writeData(): Promise<boolean> {
     await file.close();
 
     return true;
+}
+
+/**
+ * Scans the current library path for media files and updates the user data accordingly.
+ */
+export async function scan() {
+    const libraryPath = await getCurrentLibraryFromCache();
+        if (libraryPath === null) {
+        console.error("No valid library path found in cache, cannot scan.");
+        return false;
+    }
+
+    console.info(`Scanning library path ${libraryPath} for new audio files...`);
+    await scanDirectory(libraryPath);
+    await writeData();
+}
+
+async function scanDirectory(pathStr: string) {
+    console.info(`Scanning directory: ${pathStr}`);
+    const entries = await readDir(pathStr);
+    for (const entry of entries) {
+        if (entry.isSymlink) {
+            console.info(`Skipping symlink: ${entry.name}`);
+            continue; // skip symlinks
+        }
+        const path = await join(pathStr, entry.name);
+        if (isAudioFile(entry) && !libraryHasFile(path)) {
+            console.info(`Found new audio file: ${path}, adding to library...`);
+            const newEntry: LibraryEntry = {
+                name: entry.name,
+                artist: "Unknown Artist",
+                path: path,
+            };
+            config.library.push(newEntry);
+        } else if (entry.isDirectory) {
+            await scanDirectory(path);
+        }
+    }
+}
+
+function isAudioFile(entry: DirEntry): boolean {
+    const audioExtensions = [".mp3", ".wav", ".flac", ".aac", ".ogg", ".m4a"];
+    if (!entry.isFile) {
+        return false;
+    }
+    const extension = entry.name.slice(entry.name.lastIndexOf(".")).toLowerCase();
+    return audioExtensions.includes(extension);
+}
+
+function libraryHasFile(filePath: string): boolean {
+    return config.library.some(entry => entry.path === filePath);
 }

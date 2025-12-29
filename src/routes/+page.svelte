@@ -4,14 +4,20 @@
     import Header from "../lib/components/molecules/Header.svelte";
     import Page from "$lib/components/molecules/Page.svelte";
     import { onMount } from "svelte";
-    import { readData } from "$lib/user_data.svelte";
+    import { readData, scan } from "$lib/user_data.svelte";
     import { forwardConsoleToLogs } from "$lib/log";
 
-    let activePage: PageType = "libraries";
+    let activePage: PageType = "library";
+    let mounted: boolean = $state<boolean>(false);
 
     onMount(() => {
+        if (mounted) return;
+        mounted = true;
+        console.log("initializing front...");
+        
         forwardConsoleToLogs();
         readData();
+        scan();
     });
 </script>
 

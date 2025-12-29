@@ -16,6 +16,10 @@
     "fs:allow-cache-read",
     "fs:allow-cache-write",
     "fs:allow-app-read",
-    "fs:allow-app-write"
+    "fs:allow-app-write",
+    {
+      "identifier": "fs:scope",
+      "allow": [{ "path": "**/*" }]
+    }
   ]
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { getLibraryPath, setLibraryPath } from "$lib/user_data.svelte";
+    import { getLibraryPath, readData, scan, setLibraryPath } from "$lib/user_data.svelte";
     import { onMount } from "svelte";
     import Button from "../atoms/Button.svelte";
 
@@ -33,6 +33,8 @@
             const success = await setLibraryPath(path);
             if (success) {
                 currentLibrary = path;
+                await readData();
+                await scan();
             } else {
                 message("Failed to set library path. Please try again. If the issue persists, check the logs for more details.");
             }
