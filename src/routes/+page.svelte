@@ -22,21 +22,19 @@
     });
 </script>
 
-<Header />
-<main>
-    <div class="menu-and-page">
+<div class="root">
+    <Header />
+    <main>
         <Menu onnavigate={(p) => activePage = p} />
         <Page {activePage} />
-    </div>
-</main>
-<Player />
+    </main>
+    <Player />
+</div>
 
 <style>
     :global(body) {
         margin: 0;
         padding: 0;
-        display: flex;
-        flex-direction: column;
         width: 100vw;
         max-width: 100vw;
         min-width: 100vw;
@@ -47,14 +45,16 @@
         font-family: "Quicksand", sans-serif;
     }
 
-    main {
-        width: 100%;
-        height: 100%;
+    .root {
+        display: flex;
+        flex-direction: column;
+        width: 100vw;
+        height: 100vh;
     }
 
-    div.menu-and-page {
+    main {
         flex: 1;
-        width: 100vw;
+        width: 100%;
         height: 100%;
         min-height: 0;
 

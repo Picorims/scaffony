@@ -28,22 +28,65 @@ export interface LibraryEntry {
     artist: string;
     path: string;
     coverPath: string | null;
+    /**
+     * tag_name: true if assigned, false if not (explicitly).
+     * absent for unset state / to be decided by user.
+     */
+    tags: Record<string, boolean>;
+}
+
+export interface TagEntry {
+    /**
+     * colon separates the category from the value, e.g. "mood:happy"
+     */
+    name: string;
+    colorHex: string;
+    lucideIcon: string;
 }
 
 export interface IConfig {
     version: 1;
     library: LibraryEntry[];
+    tags: TagEntry[];
 }
 
 const DEFAULT_CONFIG: IConfig = {
     version: 1,
     library: [],
+    tags: [
+        { name: "rate:5", colorHex: "#FFD700", lucideIcon: "star" },
+        { name: "rate:4", colorHex: "#C0C0C0", lucideIcon: "star" },
+        { name: "rate:3", colorHex: "#CD7F32", lucideIcon: "star" },
+        { name: "mood:happy", colorHex: "#69ff8a", lucideIcon: "smile" },
+        { name: "mood:sad", colorHex: "#4b87f7", lucideIcon: "frown" },
+        { name: "mood:chill", colorHex: "#ffbe69", lucideIcon: "coffee" },
+        { name: "mood:angry", colorHex: "#ff4c4c", lucideIcon: "angry" },
+        { name: "genre:pop_rock", colorHex: "#ff69b4", lucideIcon: "guitar" },
+        { name: "genre:classical", colorHex: "#dbdbdbff", lucideIcon: "piano" },
+        { name: "genre:orchestral", colorHex: "#ff9969", lucideIcon: "drum" },
+        { name: "genre:electronic", colorHex: "#69d1ff", lucideIcon: "keyboard-music" },
+        { name: "genre:lofi", colorHex: "#a369ff", lucideIcon: "library-big" },
+        { name: "energy:dynamic", colorHex: "#ff6969", lucideIcon: "zap" },
+        { name: "energy:chill_dynamic", colorHex: "#ffda69", lucideIcon: "activity" },
+        { name: "energy:calm", colorHex: "#69ffec", lucideIcon: "haze" },
+    ]
 };
 
 let config = $state<IConfig>(DEFAULT_CONFIG);
 
 export function getConfig(): IConfig {
     return config;
+}
+
+export function getTagCategories(): string[] {
+    const categories = new Set<string>();
+    for (const tag of config.tags) {
+        const parts = tag.name.split(":");
+        if (parts.length === 2) {
+            categories.add(parts[0]);
+        }
+    }
+    return Array.from(categories);
 }
 
 async function getCacheFilePath(): Promise<string> {
@@ -273,6 +316,7 @@ async function scanDirectory(pathStr: string) {
                     artist: "Unknown Artist",
                     path: path,
                     coverPath: cover ? await join(pathStr, cover) : null,
+                    tags: {},
                 };
                 config.library.push(newEntry);
             } else if (hasBetterQualityExtension(path, config.library[index])) {
