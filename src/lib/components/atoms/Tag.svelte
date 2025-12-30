@@ -21,7 +21,7 @@
 
 <div class="tag" style:--color={tag.colorHex}>
     <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
-    <span class="label">{tag.name}</span>
+    <span class="label">{tag.name.replace(":", " / ")}</span>
 </div>
 
 <style>
@@ -32,6 +32,7 @@
         border: 1px solid var(--color);
         border-radius: 1em;
         font-size: 0.875em;
+        letter-spacing: 0.05em;
         color: var(--text);
         background-color: var(--background-lighter-2);
         margin: 0.2em;
