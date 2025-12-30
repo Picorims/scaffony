@@ -7,3 +7,5 @@
 /gen/schemas
 
 *.lnk
+*.jks
+/gen/android/keystore.properties
