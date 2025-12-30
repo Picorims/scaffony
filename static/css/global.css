@@ -23,6 +23,7 @@
     --accent: #39d976;
     --accent-darker-1: oklch(from var(--accent) calc(l - 0.05) c h);
     --accent-darker-2: oklch(from var(--accent) calc(l - 0.1) c h);
+    --on-accent: #061d0f;
     --error: #ff4c82;
 
     --font-header: "Playwrite DE Grund", sans-serif;

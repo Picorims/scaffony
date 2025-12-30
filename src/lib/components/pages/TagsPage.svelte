@@ -1,12 +1,4 @@
 <script lang="ts">
-    import { deleteTag, editTag, getConfig, getTagCategories, type TagEntry } from "$lib/user_data.svelte";
-    import { Pencil, Trash2 } from "@lucide/svelte";
-    import IconButton from "../atoms/IconButton.svelte";
-    import Tag from "../atoms/Tag.svelte";
-    import Modal from "../atoms/Modal.svelte";
-    import { getRandomIcon, ICON_NAMES_KEBAB } from "$lib/lucide";
-    import Button from "../atoms/Button.svelte";
-
     /*
     Copyright (c) 2025 Charly Schmidt aka Picorims (picorims.contact@gmail.com), all rights reserved.
     
@@ -15,9 +7,18 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
+    import { addTag, deleteTag, editTag, getConfig, getTagCategories, type TagEntry } from "$lib/user_data.svelte";
+    import { Pencil, Trash2 } from "@lucide/svelte";
+    import IconButton from "../atoms/IconButton.svelte";
+    import Tag from "../atoms/Tag.svelte";
+    import Modal from "../atoms/Modal.svelte";
+    import { getRandomIcon, ICON_NAMES_KEBAB } from "$lib/lucide";
+    import Button from "../atoms/Button.svelte";
+
     let categories = $state<string[]>([]);
     let tags = $state<TagEntry[]>([]);
     let dialog = $state<HTMLDialogElement>(document.createElement('dialog'));
+    let dialogMode = $state<"add" | "edit">("add");
     let editedTag: TagEntry | null = $state<TagEntry | null>(null);
 
     $effect(() => {
@@ -27,6 +28,15 @@
 </script>
 
 <div class="container">
+    <Button variant="accent" text="Add Tag" onclick={() => {
+        editedTag = {
+            name: "",
+            colorHex: "#000000",
+            lucideIcon: getRandomIcon(),
+        };
+        dialogMode = "add";
+        dialog.showModal();
+    }} />
     {#each categories as category}
         <h2>{category}</h2>
         <div class="tag-category">
@@ -46,6 +56,7 @@
                 <IconButton onClick={() => {
                     // global search ISSUE_TAG_SPREAD_OPERATOR
                     editedTag = {...tag};
+                    dialogMode = "edit";
                     dialog.showModal();
                 }}>
                     <Pencil />
@@ -93,14 +104,17 @@
             const nameInput = document.getElementById("tag-dialog-text") as HTMLInputElement;
             const colorInput = document.getElementById("tag-dialog-color") as HTMLInputElement
             const iconInput = document.getElementById("tag-dialog-icon") as HTMLInputElement;
-            if (oldName) {
+            if (oldName !== undefined) {
                 const newTag: TagEntry = {
                     name: nameInput.value,
                     colorHex: colorInput.value,
                     lucideIcon: iconInput.value,
                 };
-
-                editTag(oldName, newTag);
+                if (dialogMode === "add") {
+                    addTag(newTag);
+                } else if (dialogMode === "edit") {
+                    editTag(oldName, newTag);
+                }
             }
             editedTag = null;
             dialog.close();

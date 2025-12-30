@@ -33,6 +33,7 @@
         border-radius: 4px;
         cursor: pointer;
         font-size: 1rem;
+        font-weight: bold;
         transition: 0.1s;
     }
     button:active {
@@ -62,6 +63,7 @@
 
     button.accent {
         background-color: var(--accent);
+        color: var(--on-accent);
     }
     button.accent:hover {
         background-color: var(--accent-darker-1);

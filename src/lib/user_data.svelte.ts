@@ -267,6 +267,12 @@ function sortTags() {
     config.tags.sort((a, b) => a.name.localeCompare(b.name));
 }
 
+export function addTag(newTag: TagEntry) {
+    config.tags.push(newTag);
+    sortTags();
+    writeData();
+}
+
 export function editTag(oldTagName: string, newTag: TagEntry) {
     const tagIndex = config.tags.findIndex((tag) => tag.name === oldTagName);
     if (tagIndex === -1) {
