@@ -71,6 +71,8 @@
 		padding: 1em;
 		margin: 0;
 		min-width: 300px;
+		max-height: 90vh;
+		overflow-y: auto;
 		color: var(--text);
         background-color: var(--background);
 		border: none;

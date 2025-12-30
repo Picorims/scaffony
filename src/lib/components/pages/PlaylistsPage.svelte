@@ -7,7 +7,7 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
-    import { addPlaylist, deletePlaylist, editPlaylist, getConfig, type PlaylistEntry } from "$lib/user_data.svelte";
+    import { addPlaylist, deletePlaylist, editPlaylist, getConfig, getTagCategories, type Filter, type FilterExcludesCategory, type FilterExcludesTag, type FilterIncludesCategory, type FilterIncludesTag, type PlaylistEntry } from "$lib/user_data.svelte";
     import { Pencil, Trash2 } from "@lucide/svelte";
     import IconButton from "../atoms/IconButton.svelte";
     import Modal from "../atoms/Modal.svelte";
@@ -43,6 +43,7 @@
                 </div>
                 <span>{playlist.name}</span>
             </div>
+
             <div class="playlist-actions">
                 <IconButton onClick={() => {
                     // global search ISSUE_PLAYLIST_SPREAD_OPERATOR
@@ -67,24 +68,113 @@
     {/each}
 </div>
 
-<Modal bind:dialog title={editedPlaylist ? `Edit Tag: ${editedPlaylist.name}` : "Edit Tag"}>
-    <label class="modal-field">
-        Name:
-        <input id="tag-dialog-text" type="text" value={editedPlaylist?.name ?? ""} />
-    </label>
+<Modal bind:dialog title={dialogMode === "add" ? "Add Playlist" : editedPlaylist ? `Edit Playlist: ${editedPlaylist.name}` : "Edit Playlist"}>
+    {#if editedPlaylist}
         <label class="modal-field">
-        Color:
-        <input id="tag-dialog-color" type="color" value={editedPlaylist?.colorHex ?? "#000000"} />
-    </label>
-    <label class="modal-field">
-        Icon:
-        <input id="tag-dialog-icon" type="text" value={editedPlaylist?.lucideIcon ?? getRandomIcon()} list="tag-dialog-icons-list" />
-    </label>
-    <datalist id="tag-dialog-icons-list">
-        {#each ICON_NAMES_KEBAB as iconName}
-            <option value={iconName}></option>
-        {/each}
-    </datalist>
+            Name:
+            <input id="playlist-dialog-text" type="text" value={editedPlaylist.name ?? ""} />
+        </label>
+            <label class="modal-field">
+            Color:
+            <input id="playlist-dialog-color" type="color" value={editedPlaylist.colorHex ?? "#000000"} />
+        </label>
+        <label class="modal-field">
+            Icon:
+            <input id="playlist-dialog-icon" type="text" value={editedPlaylist.lucideIcon ?? getRandomIcon()} list="playlist-dialog-icons-list" />
+        </label>
+        <datalist id="playlist-dialog-icons-list">
+            {#each ICON_NAMES_KEBAB as iconName}
+                <option value={iconName}></option>
+            {/each}
+        </datalist>
+
+        <fieldset class="filters">
+            <legend>
+                <h3>Filters</h3>
+            </legend>
+            <div>
+
+                <select id="">
+                    <option value="" disabled selected>Add filter...</option>
+                    <option value="includes_tag">Includes Tag</option>
+                    <option value="excludes_tag">Excludes Tag</option>
+                    <option value="includes_category">Includes Category</option>
+                    <option value="excludes_category">Excludes Category</option>
+                </select>
+                <Button variant="secondary" text="Add Filter" onclick={() => {
+                    const select = document.querySelector("fieldset.filters select") as HTMLSelectElement;
+                    const selectedValue = select.value;
+                    if (selectedValue && editedPlaylist) {
+                        let newFilter: unknown; // HACK find a more type-safe way
+                        switch (selectedValue) {
+                            case "includes_tag":
+                                newFilter = { type: "includes_tag", tagName: "" };
+                                break;
+                            case "excludes_tag":
+                                newFilter = { type: "excludes_tag", tagName: "" };
+                                break;
+                            case "includes_category":
+                                newFilter = { type: "includes_category", categoryName: "" };
+                                break;
+                            case "excludes_category":
+                                newFilter = { type: "excludes_category", categoryName: "" };
+                                break;
+                        }
+                        if (newFilter) {
+                            editedPlaylist.filters.push(newFilter as Filter); // HACK find a more type-safe way
+                        }
+                    }
+                }} />
+            </div>
+
+            {#each editedPlaylist?.filters as filter, index}
+                <div class="filter-entry">
+                    <h4>{filter.type}</h4>
+
+                    {#if filter.type === "includes_tag" || filter.type === "excludes_tag"}
+                        <label
+                            >Tag Name:
+                            <input
+                                type="text"
+                                bind:value={(editedPlaylist.filters[index] as FilterIncludesTag | FilterExcludesTag).tag}
+                                list="tag-names-list"
+                            />
+                        </label>
+                    {/if}
+
+                    {#if filter.type === "includes_category" || filter.type === "excludes_category"}
+                        <label
+                            >Category Name:
+                            <input
+                                type="text"
+                                bind:value={(editedPlaylist.filters[index] as FilterIncludesCategory | FilterExcludesCategory).category}
+                                list="tag-categories-list"
+                            />
+                        </label>
+                    {/if}
+
+                    <IconButton onClick={() => {
+                        editedPlaylist?.filters.splice(index, 1);
+                    }}>
+                        <Trash2 />
+                    </IconButton>
+                </div>
+                
+            {/each}
+
+            <datalist id="tag-names-list">
+                {#each getConfig().tags as tag}
+                    <option value={tag.name}></option>
+                {/each}
+            </datalist>
+
+            <datalist id="tag-categories-list">
+                {#each getTagCategories() as category}
+                    <option value={category}></option>
+                {/each}
+            </datalist>
+        </fieldset>
+    {/if}
 
     {#snippet buttons()}
         <Button variant="secondary" text="Cancel" onclick={() => {
@@ -93,9 +183,9 @@
         }} />
         <Button variant="primary" text="Save" onclick={() => {
             const oldName = editedPlaylist?.name;
-            const nameInput = document.getElementById("tag-dialog-text") as HTMLInputElement;
-            const colorInput = document.getElementById("tag-dialog-color") as HTMLInputElement
-            const iconInput = document.getElementById("tag-dialog-icon") as HTMLInputElement;
+            const nameInput = document.getElementById("playlist-dialog-text") as HTMLInputElement;
+            const colorInput = document.getElementById("playlist-dialog-color") as HTMLInputElement
+            const iconInput = document.getElementById("playlist-dialog-icon") as HTMLInputElement;
 
             if (oldName !== undefined) {
                 const newPlaylist: PlaylistEntry = {
@@ -182,5 +272,20 @@
         flex-direction: column;
         margin-bottom: 1em;
         gap: 0.25em;
+    }
+
+    fieldset.filters {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5em;
+    }
+    div.filter-entry {
+        padding: 0.5em;
+        background-color: var(--background);
+        border-radius: 4px;
+        border: 1px solid var(--background-lighter-2);
+    }
+    div.filter-entry h4 {
+        margin-bottom: 0.5em;
     }
 </style>

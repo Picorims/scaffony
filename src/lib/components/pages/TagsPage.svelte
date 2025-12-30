@@ -7,7 +7,14 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
-    import { addTag, deleteTag, editTag, getConfig, getTagCategories, type TagEntry } from "$lib/user_data.svelte";
+    import {
+        addTag,
+        deleteTag,
+        editTag,
+        getConfig,
+        getTagCategories,
+        type TagEntry,
+    } from "$lib/user_data.svelte";
     import { Pencil, Trash2 } from "@lucide/svelte";
     import IconButton from "../atoms/IconButton.svelte";
     import Tag from "../atoms/Tag.svelte";
@@ -17,7 +24,7 @@
 
     let categories = $state<string[]>([]);
     let tags = $state<TagEntry[]>([]);
-    let dialog = $state<HTMLDialogElement>(document.createElement('dialog'));
+    let dialog = $state<HTMLDialogElement>(document.createElement("dialog"));
     let dialogMode = $state<"add" | "edit">("add");
     let editedTag: TagEntry | null = $state<TagEntry | null>(null);
 
@@ -29,15 +36,19 @@
 
 <div class="container">
     <div class="header">
-        <Button variant="accent" text="Add Tag" onclick={() => {
-            editedTag = {
-                name: "",
-                colorHex: "#000000",
-                lucideIcon: getRandomIcon(),
-            };
-            dialogMode = "add";
-            dialog.showModal();
-        }} />
+        <Button
+            variant="accent"
+            text="Add Tag"
+            onclick={() => {
+                editedTag = {
+                    name: "",
+                    colorHex: "#000000",
+                    lucideIcon: getRandomIcon(),
+                };
+                dialogMode = "add";
+                dialog.showModal();
+            }}
+        />
     </div>
 
     {#each categories as category}
@@ -49,28 +60,36 @@
 </div>
 
 {#snippet tagCategory(category: string)}
-    {#each tags.filter(tag => tag.name.startsWith(category + ":")) as tag}
+    {#each tags.filter((tag) => tag.name.startsWith(category + ":")) as tag}
         <div class="tag-entry">
             <!-- force refresh when edited tag value changes -->
-            {#key editedTag} 
-                <Tag tag={tag} />
+            {#key editedTag}
+                <Tag {tag} />
             {/key}
             <div class="tag-actions">
-                <IconButton onClick={() => {
-                    // global search ISSUE_TAG_SPREAD_OPERATOR
-                    editedTag = {...tag};
-                    dialogMode = "edit";
-                    dialog.showModal();
-                }}>
+                <IconButton
+                    onClick={() => {
+                        // global search ISSUE_TAG_SPREAD_OPERATOR
+                        editedTag = { ...tag };
+                        dialogMode = "edit";
+                        dialog.showModal();
+                    }}
+                >
                     <Pencil />
                 </IconButton>
-                <IconButton onClick={async () => {
-                    // In Tauri, native box functions are asynchronous (return a Promise):
-                    // https://github.com/tauri-apps/tauri/issues/12576
-                    if (await confirm(`Are you sure you want to delete the tag "${tag.name}"? This action cannot be undone.`)) {
-                        deleteTag(tag.name);
-                    }
-                }}>
+                <IconButton
+                    onClick={async () => {
+                        // In Tauri, native box functions are asynchronous (return a Promise):
+                        // https://github.com/tauri-apps/tauri/issues/12576
+                        if (
+                            await confirm(
+                                `Are you sure you want to delete the tag "${tag.name}"? This action cannot be undone.`
+                            )
+                        ) {
+                            deleteTag(tag.name);
+                        }
+                    }}
+                >
                     <Trash2 />
                 </IconButton>
             </div>
@@ -78,18 +97,34 @@
     {/each}
 {/snippet}
 
-<Modal bind:dialog title={editedTag ? `Edit Tag: ${editedTag.name}` : "Edit Tag"}>
+<Modal
+    bind:dialog
+    title={dialogMode === "add"
+        ? "Add Tag"
+        : editedTag
+          ? `Edit Tag: ${editedTag.name}`
+          : "Edit Tag"}
+>
     <label class="modal-field">
         Name:
         <input id="tag-dialog-text" type="text" value={editedTag?.name ?? ""} />
     </label>
     <label class="modal-field">
         Color:
-        <input id="tag-dialog-color" type="color" value={editedTag?.colorHex ?? "#000000"} />
+        <input
+            id="tag-dialog-color"
+            type="color"
+            value={editedTag?.colorHex ?? "#000000"}
+        />
     </label>
     <label class="modal-field">
         Icon:
-        <input id="tag-dialog-icon" type="text" value={editedTag?.lucideIcon ?? getRandomIcon()} list="tag-dialog-icons-list" />
+        <input
+            id="tag-dialog-icon"
+            type="text"
+            value={editedTag?.lucideIcon ?? getRandomIcon()}
+            list="tag-dialog-icons-list"
+        />
     </label>
     <datalist id="tag-dialog-icons-list">
         {#each ICON_NAMES_KEBAB as iconName}
@@ -98,30 +133,44 @@
     </datalist>
 
     {#snippet buttons()}
-        <Button variant="secondary" text="Cancel" onclick={() => {
-            editedTag = null;
-            dialog.close();
-        }} />
-        <Button variant="primary" text="Save" onclick={() => {
-            const oldName = editedTag?.name;
-            const nameInput = document.getElementById("tag-dialog-text") as HTMLInputElement;
-            const colorInput = document.getElementById("tag-dialog-color") as HTMLInputElement
-            const iconInput = document.getElementById("tag-dialog-icon") as HTMLInputElement;
-            if (oldName !== undefined) {
-                const newTag: TagEntry = {
-                    name: nameInput.value,
-                    colorHex: colorInput.value,
-                    lucideIcon: iconInput.value,
-                };
-                if (dialogMode === "add") {
-                    addTag(newTag);
-                } else if (dialogMode === "edit") {
-                    editTag(oldName, newTag);
+        <Button
+            variant="secondary"
+            text="Cancel"
+            onclick={() => {
+                editedTag = null;
+                dialog.close();
+            }}
+        />
+        <Button
+            variant="primary"
+            text="Save"
+            onclick={() => {
+                const oldName = editedTag?.name;
+                const nameInput = document.getElementById(
+                    "tag-dialog-text"
+                ) as HTMLInputElement;
+                const colorInput = document.getElementById(
+                    "tag-dialog-color"
+                ) as HTMLInputElement;
+                const iconInput = document.getElementById(
+                    "tag-dialog-icon"
+                ) as HTMLInputElement;
+                if (oldName !== undefined) {
+                    const newTag: TagEntry = {
+                        name: nameInput.value,
+                        colorHex: colorInput.value,
+                        lucideIcon: iconInput.value,
+                    };
+                    if (dialogMode === "add") {
+                        addTag(newTag);
+                    } else if (dialogMode === "edit") {
+                        editTag(oldName, newTag);
+                    }
                 }
-            }
-            editedTag = null;
-            dialog.close();
-        }} />
+                editedTag = null;
+                dialog.close();
+            }}
+        />
     {/snippet}
 </Modal>
 
