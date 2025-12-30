@@ -18,28 +18,47 @@
         mode?: "display" | "classify";
         status?: "yes" | "no" | "unknown";
         onStatusChange?: (newStatus: "yes" | "no" | "unknown") => void;
+        size: "header" | "normal";
     }
 
-    let { tag, mode = "display", status = "yes", onStatusChange = () => {} }: Props = $props();
+    let {
+        tag,
+        mode = "display",
+        status = "yes",
+        onStatusChange = () => {},
+        size = "normal",
+    }: Props = $props();
 </script>
 
-<div class="tag" style:--color={tag.colorHex}>
+<div class="tag" style:--color={tag.colorHex} class:header={size === "header"}>
     <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
     <span class="label">{tag.name.replace(":", " / ")}</span>
     {#if mode === "classify"}
         <span class="buttons">
             <span class="icon-toggled yes" class:active={status === "yes"}>
-                <IconButton variant="correct" onClick={() => onStatusChange("yes")}>
+                <IconButton
+                    variant="correct"
+                    onClick={() => onStatusChange("yes")}
+                >
                     <Check />
                 </IconButton>
             </span>
             <span class="icon-toggled no" class:active={status === "no"}>
-                <IconButton variant="error" onClick={() => onStatusChange("no")}>
+                <IconButton
+                    variant="error"
+                    onClick={() => onStatusChange("no")}
+                >
                     <X />
                 </IconButton>
             </span>
-            <span class="icon-toggled unknown" class:active={status === "unknown"}>
-                <IconButton variant="warning" onClick={() => onStatusChange("unknown")}>
+            <span
+                class="icon-toggled unknown"
+                class:active={status === "unknown"}
+            >
+                <IconButton
+                    variant="warning"
+                    onClick={() => onStatusChange("unknown")}
+                >
                     <CircleQuestionMark />
                 </IconButton>
             </span>
@@ -59,6 +78,10 @@
         color: var(--text);
         background-color: oklch(from var(--color) calc(l - 0.7) c h);
         margin: 0.2em;
+    }
+    div.tag.header {
+        font-size: 1.25em;
+        padding: 0.4em 0.8em;
     }
 
     div.tag > :global(svg) {

@@ -64,6 +64,7 @@
                             : "no"
                         : "unknown"}
                     onStatusChange={(newStatus) => onStatusChange(newStatus, tag.name)}
+                    size="normal"
                 />
             {/each}
         {/if}

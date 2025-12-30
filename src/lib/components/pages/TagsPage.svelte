@@ -15,12 +15,13 @@
         getTagCategories,
         type TagEntry,
     } from "$lib/user_data.svelte";
-    import { Pencil, Trash2 } from "@lucide/svelte";
+    import { ListVideo, Pencil, Trash2 } from "@lucide/svelte";
     import IconButton from "../atoms/IconButton.svelte";
     import Tag from "../atoms/Tag.svelte";
     import Modal from "../atoms/Modal.svelte";
     import { getRandomIcon, ICON_NAMES_KEBAB } from "$lib/lucide";
     import Button from "../atoms/Button.svelte";
+    import { navigateTo } from "$lib/app_state.svelte";
 
     let categories = $state<string[]>([]);
     let tags = $state<TagEntry[]>([]);
@@ -64,9 +65,14 @@
         <div class="tag-entry">
             <!-- force refresh when edited tag value changes -->
             {#key editedTag}
-                <Tag {tag} />
+                <Tag {tag} size="normal" />
             {/key}
             <div class="tag-actions">
+                <IconButton onClick={() => {
+                    navigateTo("tag", tag.name);
+                }}>
+                    <ListVideo />
+                </IconButton>
                 <IconButton
                     onClick={() => {
                         // global search ISSUE_TAG_SPREAD_OPERATOR

@@ -165,6 +165,64 @@ export function getTagCategories(): string[] {
     return Array.from(categories);
 }
 
+export function getTag(tagName: string): TagEntry | null {
+    const tag = config.tags.find((tag) => tag.name === tagName);
+    return tag || null; 
+}
+
+export function getPlaylist(playlistName: string): PlaylistEntry | null {
+    const playlist = config.playlists.find(
+        (playlist) => playlist.name === playlistName
+    );
+    return playlist || null;
+}
+
+export function getTagLibraryEntries(tagName: string): LibraryEntry[] {
+    return config.library.filter((entry => entry.tags[tagName] === true));
+}
+
+export function getPlaylistLibraryEntries(playlistName: string): LibraryEntry[] {
+    const playlist = getPlaylist(playlistName);
+    if (!playlist) {
+        console.warn(`Playlist '${playlistName}' not found, returning empty list of library entries.`);
+        return [];
+    }
+    let result = [...config.library];
+    for (const filter of playlist.filters) {
+        switch (filter.type) {
+            case "includes_category": {
+                result = result.filter((entry) => hasTagWithCategory(entry, filter.category));
+                break;
+            }
+            case "excludes_category": {
+                result = result.filter((entry) => !hasTagWithCategory(entry, filter.category));
+                break;
+            }
+            case "includes_tag": {
+                result = result.filter((entry) => hasTag(entry, filter.tag));
+                break;
+            }
+            case "excludes_tag": {
+                result = result.filter((entry) => !hasTag(entry, filter.tag));
+                break;
+            }
+        }
+    }
+    return result;
+}
+
+function hasTagWithCategory(entry: LibraryEntry, category: string): boolean {
+    for (const tagName in entry.tags) {
+        if (tagName.startsWith(category + ":") && entry.tags[tagName] === true) {
+            return true;
+        }
+    }
+    return false;
+}
+function hasTag(entry: LibraryEntry, tagName: string): boolean {
+    return entry.tags[tagName] === true;
+}
+
 async function getCacheFilePath(): Promise<string> {
     return await path.join(await appDataDir(), LIBRARY_PATH_FILE_NAME);
 }

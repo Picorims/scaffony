@@ -2,17 +2,16 @@
     import { Icon, LibraryBig, ListMusic, Shapes, Tags } from "@lucide/svelte";
     import MenuEntry from "../atoms/MenuEntry.svelte";
     import type { PageType } from "./Page.svelte";
+    import { appState, navigateTo } from "$lib/app_state.svelte";
 
     interface IProps {
-        onnavigate: (page: PageType) => void;
+        onnavigate?: (page: PageType) => void;
     }
 
-    const { onnavigate }: IProps = $props();
-    let page = $state<PageType>("library");
+    const { onnavigate = () => {} }: IProps = $props();
 
-    function navigateTo(p: PageType) {
-        console.log(`Navigating to page: '${p}'`);
-        page = p;
+    function navigateToPage(p: PageType) {
+        navigateTo(p, null);
         onnavigate(p);
     }
 
@@ -36,8 +35,8 @@
         <MenuEntry
             text={entry.text}
             Icon={entry.Icon}
-            active={page === entry.page}
-            onclick={() => {navigateTo(entry.page);}}
+            active={appState.activePage === entry.page}
+            onclick={() => {navigateToPage(entry.page);}}
         />
     {/each}
 </nav>

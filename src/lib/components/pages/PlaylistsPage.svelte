@@ -8,13 +8,14 @@
     */
 
     import { addPlaylist, deletePlaylist, editPlaylist, getConfig, getTagCategories, type Filter, type FilterExcludesCategory, type FilterExcludesTag, type FilterIncludesCategory, type FilterIncludesTag, type PlaylistEntry } from "$lib/user_data.svelte";
-    import { Pencil, Trash2 } from "@lucide/svelte";
+    import { ListVideo, Pencil, Trash2 } from "@lucide/svelte";
     import IconButton from "../atoms/IconButton.svelte";
     import Modal from "../atoms/Modal.svelte";
     import { getRandomIcon, ICON_NAMES_KEBAB } from "$lib/lucide";
     import Button from "../atoms/Button.svelte";
     import LucideIcon from "../atoms/LucideIcon.svelte";
     import { fromKebabToPascalCase } from "$lib/string";
+    import { navigateTo } from "$lib/app_state.svelte";
 
     let dialog = $state<HTMLDialogElement>(document.createElement('dialog'));
     let dialogMode = $state<"add" | "edit">("add");
@@ -45,6 +46,11 @@
             </div>
 
             <div class="playlist-actions">
+                <IconButton onClick={() => {
+                    navigateTo("playlist", playlist.name);
+                }}>
+                    <ListVideo />
+                </IconButton>
                 <IconButton onClick={() => {
                     // global search ISSUE_PLAYLIST_SPREAD_OPERATOR
                     editedPlaylist = {...playlist};

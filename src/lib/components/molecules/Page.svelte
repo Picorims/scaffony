@@ -7,7 +7,7 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
     
-    export type PageType = "library" | "playlists" | "tags" | "classify";
+    export type PageType = "library" | "playlists" | "tags" | "classify" | "tag" | "playlist";
 </script>
 
 <script lang="ts">
@@ -15,12 +15,14 @@
 
     import LibraryPage from "../pages/LibraryPage.svelte";
     import PlaylistsPage from "../pages/PlaylistsPage.svelte";
+    import TagPlaylistPage from "../pages/TagPlaylistPage.svelte";
     import TagsPage from "../pages/TagsPage.svelte";
 
     interface IProps {
         activePage: PageType;
+        subPage: string | null;
     }
-    const { activePage }: IProps = $props();
+    const { activePage, subPage }: IProps = $props();
 </script>
 
 <div class="page">
@@ -32,6 +34,10 @@
         <TagsPage />
     {:else if activePage === "classify"}
         <ClassifyPage />
+    {:else if activePage === "tag" }
+        <TagPlaylistPage type="tag" name={subPage ?? "Unknown Tag"} />
+    {:else if activePage === "playlist" }
+        <TagPlaylistPage type="playlist" name={subPage ?? "Unknown Playlist"} />
     {/if}
 </div>
 

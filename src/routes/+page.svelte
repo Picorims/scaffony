@@ -7,8 +7,8 @@
     import { readData, scan } from "$lib/user_data.svelte";
     import { forwardConsoleToLogs } from "$lib/log";
     import Player from "$lib/components/molecules/Player.svelte";
+    import { appState } from "$lib/app_state.svelte";
 
-    let activePage = $state<PageType>("library");
     let mounted: boolean = $state<boolean>(false);
 
     onMount(() => {
@@ -25,8 +25,8 @@
 <div class="root">
     <Header />
     <main>
-        <Menu onnavigate={(p) => activePage = p} />
-        <Page {activePage} />
+        <Menu />
+        <Page activePage={appState.activePage} subPage={appState.activeSubPage} />
     </main>
     <Player />
 </div>
