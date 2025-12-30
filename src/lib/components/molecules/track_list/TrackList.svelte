@@ -20,7 +20,7 @@
 
 <div class="container">
 {#each tracks as track, index}
-    <Track bind:entry={tracks[index]} {index} {mode} {classifyFilter} />
+    <Track entry={track} {index} {mode} {classifyFilter} />
 {/each}
 </div>
 

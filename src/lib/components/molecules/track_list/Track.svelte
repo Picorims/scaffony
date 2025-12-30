@@ -9,7 +9,7 @@
 
     import { appState } from "$lib/app_state.svelte";
     import IconButton from "$lib/components/atoms/IconButton.svelte";
-    import { commit, getConfig, type LibraryEntry } from "$lib/user_data.svelte";
+    import { commit, getConfig, setTagState, type LibraryEntry } from "$lib/user_data.svelte";
     import { Disc3, Play } from "@lucide/svelte";
     import Tag from "$lib/components/atoms/Tag.svelte";
     import { convertFileSrc } from "@tauri-apps/api/core";
@@ -23,7 +23,7 @@
         classifyFilter?: string;
     }
 
-    const { entry = $bindable(), index, mode, classifyFilter }: Props = $props();
+    const { entry, index, mode, classifyFilter }: Props = $props();
     let imageInError = $state(false);
     let metadata = $state<Metadata>({
         title: entry.name,
@@ -40,12 +40,7 @@
     }
 
     function onStatusChange(newStatus: "yes" | "no" | "unknown", name: string) {
-        if (newStatus === "unknown") {
-            delete entry.tags[name];
-        } else {
-            entry.tags[name] = newStatus === "yes";
-        }
-        commit();
+        setTagState(entry, name, newStatus);
     }
 
     onMount(async () => {

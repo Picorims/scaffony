@@ -223,6 +223,26 @@ function hasTag(entry: LibraryEntry, tagName: string): boolean {
     return entry.tags[tagName] === true;
 }
 
+export function setTagState(entry: LibraryEntry, tagName: string, state: "yes" | "no" | "unknown"): void {
+    const srcEntry = config.library.find((e) => e.path === entry.path);
+    if (!srcEntry) {
+        throw new Error(`Library entry with path ${entry.path} not found.`);
+    }
+    if (state === "unknown") {
+        delete srcEntry.tags[tagName];
+    } else {
+        srcEntry.tags[tagName] = state === "yes";
+    }
+    writeData();
+}
+
+
+
+
+
+
+
+
 async function getCacheFilePath(): Promise<string> {
     return await path.join(await appDataDir(), LIBRARY_PATH_FILE_NAME);
 }
