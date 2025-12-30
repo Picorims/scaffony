@@ -10,11 +10,14 @@
     import { appState } from "$lib/app_state.svelte";
     import {
         Disc3,
+        Icon,
         Pause,
         Play,
         SkipBack,
         SkipForward,
         Square,
+        StepBack,
+        StepForward,
         Volume,
         Volume1,
         Volume2,
@@ -22,6 +25,9 @@
     } from "@lucide/svelte";
     import IconButton from "../atoms/IconButton.svelte";
     import { convertFileSrc } from "@tauri-apps/api/core";
+    import type { LibraryEntry } from "$lib/user_data.svelte";
+    import { onMount } from "svelte";
+    import { getNextWaitListEntry, getPreviousWaitListEntry, onRequestPlay } from "$lib/playback";
 
     let paused = $state(true);
     let audioElement = $state<HTMLAudioElement | null>(null);
@@ -29,6 +35,7 @@
     let rangeVolumeElement = $state<HTMLInputElement | null>(null);
     let volume = $state(1);
     let imageOnError = $state(false);
+    let activeTrack = $state<LibraryEntry | null>(null);
 
     const POSITION_REFRESH_INTERVAL_MS = 500;
 
@@ -40,12 +47,13 @@
 
     $effect(() => {
         imageOnError = false;
-        const current = appState.activeTrack;
-        if (audioElement && current) {
-            audioElement.src = convertFileSrc(current.path);
+        if (audioElement && activeTrack !== null) {
+            audioElement.src = convertFileSrc(activeTrack.path);
             audioElement.load();
             audioElement.play();
             paused = false;
+        } else {
+            paused = true;
         }
     });
 
@@ -100,11 +108,33 @@
         }
     }
 
+    function playNextTrack() {
+        const newTrack = getNextWaitListEntry();
+        if (newTrack !== null) {
+            activeTrack = newTrack;
+        }
+    }
+    function playPreviousTrack() {
+        const newTrack = getPreviousWaitListEntry();
+        if (newTrack !== null) {
+            activeTrack = newTrack;
+        }
+    }
+
     function updatePosition() {
         if (audioElement && rangePositionElement) {
             audioElement.currentTime = rangePositionElement.valueAsNumber;
         }
     }
+
+    onMount(() => {
+        const unsubscribe = onRequestPlay(() => {
+            activeTrack = getNextWaitListEntry();
+        });
+        return () => {
+            unsubscribe();
+        };
+    });
 </script>
 
 <div class="container">
@@ -114,17 +144,17 @@
                 <Disc3 stroke="var(--text-darker-1)" width="48" height="48" />
             {:else}
                 <img
-                    src={appState.activeTrack?.coverPath
-                        ? convertFileSrc(appState.activeTrack?.coverPath)
+                    src={activeTrack?.coverPath
+                        ? convertFileSrc(activeTrack?.coverPath)
                         : ""}
-                    alt={`${appState.activeTrack?.name} by ${appState.activeTrack?.artist} - cover`}
+                    alt={`${activeTrack?.name} by ${activeTrack?.artist} - cover`}
                     onerror={() => (imageOnError = true)}
                 />
             {/if}
         </div>
         <div class="meta-text">
-            <span class="title">{appState.activeTrack?.name ?? "-"}</span>
-            <span class="artist">{appState.activeTrack?.artist ?? "-"}</span>
+            <span class="title">{activeTrack?.name ?? "-"}</span>
+            <span class="artist">{activeTrack?.artist ?? "-"}</span>
         </div>
     </div>
     <div class="controls-middle">
@@ -139,11 +169,17 @@
             <IconButton onClick={stopAudio}>
                 <Square />
             </IconButton>
+            <IconButton onClick={playPreviousTrack}>
+                <StepBack />
+            </IconButton>
             <IconButton onClick={seekToStart}>
                 <SkipBack />
             </IconButton>
             <IconButton onClick={seekToEnd}>
                 <SkipForward />
+            </IconButton>
+            <IconButton onClick={playNextTrack}>
+                <StepForward />
             </IconButton>
         </div>
         <input
@@ -184,7 +220,12 @@
     bind:this={audioElement}
     src=""
     onended={() => {
-        paused = true;
+        const newTrack = getNextWaitListEntry();
+        if (newTrack !== null) {
+            activeTrack = newTrack;
+        } else {
+            paused = true;
+        }
     }}
 ></audio>
 

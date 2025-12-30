@@ -15,6 +15,7 @@
     import { convertFileSrc } from "@tauri-apps/api/core";
     import { getMetadata, type Metadata } from "$lib/metadata";
     import { onMount } from "svelte";
+    import { requestPlay, setWaitList } from "$lib/playback";
 
     interface Props {
         entry: LibraryEntry;
@@ -36,7 +37,8 @@
     });
 
     function play() {
-        appState.activeTrack = entry;
+        setWaitList([entry]);
+        requestPlay();
     }
 
     function onStatusChange(newStatus: "yes" | "no" | "unknown", name: string) {

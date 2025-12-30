@@ -7,25 +7,66 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
+    import IconButton from "$lib/components/atoms/IconButton.svelte";
     import type { LibraryEntry } from "$lib/user_data.svelte";
+    import { ListVideo, Shuffle } from "@lucide/svelte";
     import Track from "./Track.svelte";
+    import { setWaitList, requestPlay } from "$lib/playback";
 
     interface Props {
-        tracks: LibraryEntry[]
+        tracks: LibraryEntry[];
         mode?: "playback" | "classify";
         classifyFilter?: string;
     }
-    const {tracks, mode = "playback", classifyFilter}: Props = $props();
+    const { tracks, mode = "playback", classifyFilter }: Props = $props();
+
+    function playAll() {
+        setWaitList(tracks);
+        requestPlay();
+    }
+    function playRandom() {
+        const shuffled = tracks
+            .map(value => ({ value, sort: Math.random() }))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ value }) => value);
+        setWaitList(shuffled);
+        requestPlay();
+    }
 </script>
 
 <div class="container">
-{#each tracks as track, index}
-    <Track entry={track} {index} {mode} {classifyFilter} />
-{/each}
+    <div class="track-list-header">
+        <IconButton onClick={playAll}>
+            <ListVideo />
+        </IconButton>
+        <IconButton onClick={playRandom}>
+            <Shuffle />
+        </IconButton>
+    </div>
+    <div class="track-list">
+        {#each tracks as track, index}
+            <Track entry={track} {index} {mode} {classifyFilter} />
+        {/each}
+    </div>
 </div>
 
 <style>
     div.container {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        width: 100%;
+        height: 100%;
+        gap: 0.5rem;
+    }
+    div.track-list-header {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 1rem;
+    }
+    div.track-list {
         overflow-x: hidden;
         overflow-y: scroll;
         background-color: var(--background-darker-0);

@@ -10,13 +10,11 @@ import type { PageType } from "./components/molecules/Page.svelte";
 import type { LibraryEntry } from "./user_data.svelte"
 
 export interface AppState {
-    activeTrack: LibraryEntry | null;
     activePage: PageType;
     activeSubPage: string | null;
 }
 
 export let appState = $state<AppState>({
-    activeTrack: null,
     activePage: "library",
     activeSubPage: null,
 });
