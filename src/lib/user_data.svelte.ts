@@ -37,7 +37,7 @@ export interface LibraryEntry {
 
 /**
  * warning: used with the spread operator, avoid nested objects.
- * 
+ *
  * global search ISSUE_TAG_SPREAD_OPERATOR
  */
 export interface TagEntry {
@@ -49,10 +49,45 @@ export interface TagEntry {
     lucideIcon: string;
 }
 
+/**
+ * A playlist is defined by a set of filters.
+ * 
+ * global search ISSUE_PLAYLIST_SPREAD_OPERATOR
+ */
+export interface PlaylistEntry {
+    name: string;
+    colorHex: string;
+    lucideIcon: string;
+    filters: Filter[];
+}
+
+export interface FilterIncludesCategory {
+    type: "includes_category";
+    category: string;
+}
+export interface FilterExcludesCategory {
+    type: "excludes_category";
+    category: string;
+}
+export interface FilterIncludesTag {
+    type: "includes_tag";
+    tag: string;
+}
+export interface FilterExcludesTag {
+    type: "excludes_tag";
+    tag: string;
+}
+export type Filter =
+    | FilterIncludesCategory
+    | FilterIncludesTag
+    | FilterExcludesCategory
+    | FilterExcludesTag;
+
 export interface IConfig {
     version: 1;
     library: LibraryEntry[];
     tags: TagEntry[];
+    playlists: PlaylistEntry[];
 }
 
 const DEFAULT_CONFIG: IConfig = {
@@ -69,12 +104,48 @@ const DEFAULT_CONFIG: IConfig = {
         { name: "genre:pop_rock", colorHex: "#ff69b4", lucideIcon: "guitar" },
         { name: "genre:classical", colorHex: "#dbdbdbff", lucideIcon: "piano" },
         { name: "genre:orchestral", colorHex: "#ff9969", lucideIcon: "drum" },
-        { name: "genre:electronic", colorHex: "#69d1ff", lucideIcon: "keyboard-music" },
+        {
+            name: "genre:electronic",
+            colorHex: "#69d1ff",
+            lucideIcon: "keyboard-music",
+        },
         { name: "genre:lofi", colorHex: "#a369ff", lucideIcon: "library-big" },
         { name: "energy:dynamic", colorHex: "#ff6969", lucideIcon: "zap" },
-        { name: "energy:chill_dynamic", colorHex: "#ffda69", lucideIcon: "activity" },
+        {
+            name: "energy:chill_dynamic",
+            colorHex: "#ffda69",
+            lucideIcon: "activity",
+        },
         { name: "energy:calm", colorHex: "#69ffec", lucideIcon: "haze" },
-    ]
+    ],
+    playlists: [
+        {
+            name: "Not rated",
+            colorHex: "#888888",
+            lucideIcon: "circle-question-mark",
+            filters: [
+                {
+                    type: "excludes_category",
+                    category: "rate",
+                },
+            ],
+        },
+        {
+            name: "Good stuff",
+            colorHex: "#69ff87",
+            lucideIcon: "thumbs-up",
+            filters: [
+                {
+                    type: "includes_tag",
+                    tag: "rate:5",
+                },
+                {
+                    type: "includes_tag",
+                    tag: "rate:4",
+                },
+            ],
+        },
+    ],
 };
 
 let config = $state<IConfig>(DEFAULT_CONFIG);
@@ -260,6 +331,9 @@ function addMissingFieldsToConfig(data: IConfig): IConfig {
     if (!data.tags) {
         data.tags = [];
     }
+    if (!data.playlists) {
+        data.playlists = [];
+    }
     return data;
 }
 
@@ -302,6 +376,32 @@ export function deleteTag(tagName: string) {
             delete entry.tags[tagName];
         }
     }
+    writeData();
+}
+
+export function addPlaylist(newPlaylist: PlaylistEntry) {
+    config.playlists.push(newPlaylist);
+    writeData();
+}
+
+export function editPlaylist(
+    oldPlaylistName: string,
+    newPlaylist: PlaylistEntry
+) {
+    const playlistIndex = config.playlists.findIndex(
+        (playlist) => playlist.name === oldPlaylistName
+    );
+    if (playlistIndex === -1) {
+        throw new Error(`Playlist with name ${oldPlaylistName} not found.`);
+    }
+    config.playlists[playlistIndex] = newPlaylist;
+    writeData();
+}
+
+export function deletePlaylist(playlistName: string) {
+    config.playlists = config.playlists.filter(
+        (playlist) => playlist.name !== playlistName
+    );
     writeData();
 }
 
@@ -384,7 +484,7 @@ async function scanDirectory(pathStr: string) {
 
 /**
  * Returns the first found image with 'cover' in its name from the provided directory entries.
- * @param entries 
+ * @param entries
  */
 function findCoverInDirectory(entries: DirEntry[]): string | null {
     for (const entry of entries) {
@@ -423,7 +523,9 @@ function isImageFile(entry: DirEntry): boolean {
 function libraryIndex(filePath: string): number {
     const pathWithoutExtension = filePath.slice(0, filePath.lastIndexOf("."));
     return config.library.findIndex(
-        (entry) => entry.path.slice(0, entry.path.lastIndexOf(".")) === pathWithoutExtension
+        (entry) =>
+            entry.path.slice(0, entry.path.lastIndexOf(".")) ===
+            pathWithoutExtension
     );
 }
 

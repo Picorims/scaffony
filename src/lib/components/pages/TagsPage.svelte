@@ -28,15 +28,18 @@
 </script>
 
 <div class="container">
-    <Button variant="accent" text="Add Tag" onclick={() => {
-        editedTag = {
-            name: "",
-            colorHex: "#000000",
-            lucideIcon: getRandomIcon(),
-        };
-        dialogMode = "add";
-        dialog.showModal();
-    }} />
+    <div class="header">
+        <Button variant="accent" text="Add Tag" onclick={() => {
+            editedTag = {
+                name: "",
+                colorHex: "#000000",
+                lucideIcon: getRandomIcon(),
+            };
+            dialogMode = "add";
+            dialog.showModal();
+        }} />
+    </div>
+
     {#each categories as category}
         <h2>{category}</h2>
         <div class="tag-category">
@@ -133,6 +136,11 @@
         height: 100%;
         overflow-x: hidden;
         overflow-y: auto;
+    }
+
+    div.header {
+        flex: 0 0 auto;
+        margin-bottom: 1em;
     }
 
     h2 {
