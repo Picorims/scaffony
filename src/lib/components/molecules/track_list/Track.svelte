@@ -13,6 +13,8 @@
     import { Disc3, Play } from "@lucide/svelte";
     import Tag from "$lib/components/atoms/Tag.svelte";
     import { convertFileSrc } from "@tauri-apps/api/core";
+    import { getMetadata, type Metadata } from "$lib/metadata";
+    import { onMount } from "svelte";
 
     interface Props {
         entry: LibraryEntry;
@@ -23,6 +25,15 @@
 
     const { entry = $bindable(), index, mode, classifyFilter }: Props = $props();
     let imageInError = $state(false);
+    let metadata = $state<Metadata>({
+        title: entry.name,
+        artist: entry.artist,
+        album_name: "",
+        comment: "",
+        genre: "",
+        track_number: 0,
+        year: 0,
+    });
 
     function play() {
         appState.activeTrack = entry;
@@ -36,6 +47,10 @@
         }
         commit();
     }
+
+    onMount(async () => {
+        metadata = await getMetadata(entry.path);
+    });
 </script>
 
 <div class="container" class:odd={index % 2 === 1}>
@@ -50,8 +65,8 @@
             onerror={() => (imageInError = true)}
         />
     {/if}
-    <span class="name">{entry.name}</span>
-    <span class="artist">{entry.artist}</span>
+    <span class="name">{metadata.title ?? entry.name}</span>
+    <span class="artist">{metadata.artist ?? entry.artist}</span>
     <div class="tags">
         {#if mode === "classify"}
             {#each getConfig().tags.filter(v => v.name.startsWith(classifyFilter ?? "")) as tag}
