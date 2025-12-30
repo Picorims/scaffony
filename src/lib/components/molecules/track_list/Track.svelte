@@ -1,10 +1,4 @@
 <script lang="ts">
-    import { appState } from "$lib/app_state.svelte";
-    import IconButton from "$lib/components/atoms/IconButton.svelte";
-    import type { LibraryEntry } from "$lib/user_data.svelte";
-    import { Disc3, Play } from "@lucide/svelte";
-    import { convertFileSrc } from "@tauri-apps/api/core";
-
     /*
     Copyright (c) 2025 Charly Schmidt aka Picorims (picorims.contact@gmail.com), all rights reserved.
     
@@ -13,16 +7,34 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
+    import { appState } from "$lib/app_state.svelte";
+    import IconButton from "$lib/components/atoms/IconButton.svelte";
+    import { commit, getConfig, type LibraryEntry } from "$lib/user_data.svelte";
+    import { Disc3, Play } from "@lucide/svelte";
+    import Tag from "$lib/components/atoms/Tag.svelte";
+    import { convertFileSrc } from "@tauri-apps/api/core";
+
     interface Props {
         entry: LibraryEntry;
         index: number;
+        mode: "playback" | "classify";
+        classifyFilter?: string;
     }
 
-    const { entry, index }: Props = $props();
+    const { entry = $bindable(), index, mode, classifyFilter }: Props = $props();
     let imageInError = $state(false);
 
     function play() {
         appState.activeTrack = entry;
+    }
+
+    function onStatusChange(newStatus: "yes" | "no" | "unknown", name: string) {
+        if (newStatus === "unknown") {
+            delete entry.tags[name];
+        } else {
+            entry.tags[name] = newStatus === "yes";
+        }
+        commit();
     }
 </script>
 
@@ -40,7 +52,22 @@
     {/if}
     <span class="name">{entry.name}</span>
     <span class="artist">{entry.artist}</span>
-    <div class="tags"></div>
+    <div class="tags">
+        {#if mode === "classify"}
+            {#each getConfig().tags.filter(v => v.name.startsWith(classifyFilter ?? "")) as tag}
+                <Tag
+                    {tag}
+                    mode="classify"
+                    status={Object.keys(entry.tags).includes(tag.name)
+                        ? entry.tags[tag.name]
+                            ? "yes"
+                            : "no"
+                        : "unknown"}
+                    onStatusChange={(newStatus) => onStatusChange(newStatus, tag.name)}
+                />
+            {/each}
+        {/if}
+    </div>
     <div class="actions">
         <IconButton onClick={play}>
             <Play />

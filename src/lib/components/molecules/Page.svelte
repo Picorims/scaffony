@@ -7,10 +7,12 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
     
-    export type PageType = "library" | "playlists" | "tags";
+    export type PageType = "library" | "playlists" | "tags" | "classify";
 </script>
 
 <script lang="ts">
+    import ClassifyPage from "../pages/ClassifyPage.svelte";
+
     import LibraryPage from "../pages/LibraryPage.svelte";
     import PlaylistsPage from "../pages/PlaylistsPage.svelte";
     import TagsPage from "../pages/TagsPage.svelte";
@@ -28,6 +30,8 @@
         <PlaylistsPage />
     {:else if activePage === "tags"}
         <TagsPage />
+    {:else if activePage === "classify"}
+        <ClassifyPage />
     {/if}
 </div>
 

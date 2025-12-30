@@ -12,13 +12,15 @@
 
     interface Props {
         tracks: LibraryEntry[]
+        mode?: "playback" | "classify";
+        classifyFilter?: string;
     }
-    const {tracks}: Props = $props();
+    const {tracks, mode = "playback", classifyFilter}: Props = $props();
 </script>
 
 <div class="container">
 {#each tracks as track, index}
-    <Track entry={track} {index} />
+    <Track bind:entry={tracks[index]} {index} {mode} {classifyFilter} />
 {/each}
 </div>
 

@@ -11,7 +11,7 @@
 
 	interface Props {
 		onClick?: () => void;
-		variant?: 'primary' | 'secondary' | 'accent';
+		variant?: 'primary' | 'secondary' | 'accent' | "correct" | "warning" | "error";
 		children?: Snippet;
 		togglable?: boolean;
 		toggled?: boolean;
@@ -82,6 +82,18 @@
 	button.icon-button.toggled.accent > :global(svg) {
 		stroke: var(--accent);
 	}
+	button.icon-button.correct:hover > :global(svg),
+	button.icon-button.toggled.correct > :global(svg) {
+		stroke: var(--correct);
+	}
+	button.icon-button.warning:hover > :global(svg),
+	button.icon-button.toggled.warning > :global(svg) {
+		stroke: var(--warning);
+	}
+	button.icon-button.error:hover > :global(svg),
+	button.icon-button.toggled.error > :global(svg) {
+		stroke: var(--error);
+	}
 
 	button.icon-button:active,
 	button.icon-button.toggled {
@@ -95,6 +107,15 @@
 	}
 	button.icon-button.accent.toggled {
 		border: 2px solid var(--accent);
+	}
+	button.icon-button.correct.toggled {
+		border: 2px solid var(--correct);
+	}
+	button.icon-button.warning.toggled {
+		border: 2px solid var(--warning);
+	}
+	button.icon-button.error.toggled {
+		border: 2px solid var(--error);
 	}
 	button.icon-button.toggled:focus-visible {
 		border-width: 4px;

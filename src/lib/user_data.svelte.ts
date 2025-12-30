@@ -263,6 +263,11 @@ function addMissingFieldsToConfig(data: IConfig): IConfig {
     return data;
 }
 
+export function commit() {
+    sortTags();
+    writeData();
+}
+
 function sortTags() {
     config.tags.sort((a, b) => a.name.localeCompare(b.name));
 }
