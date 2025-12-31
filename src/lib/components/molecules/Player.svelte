@@ -242,6 +242,15 @@
         padding: 0.5em;
     }
 
+    @media screen and (max-width: 600px) {
+        div.container {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 1em;
+            padding: 0.5em 1em;
+        }
+    }
+
     div.meta {
         min-width: 256px;
         height: 100%;
