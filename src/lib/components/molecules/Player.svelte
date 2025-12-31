@@ -28,6 +28,7 @@
     import type { LibraryEntry } from "$lib/user_data.svelte";
     import { onMount } from "svelte";
     import { getNextWaitListEntry, getPreviousWaitListEntry, onRequestPlay } from "$lib/playback";
+    import { platform } from "@tauri-apps/plugin-os";
 
     let paused = $state(true);
     let audioElement = $state<HTMLAudioElement | null>(null);
@@ -137,7 +138,7 @@
     });
 </script>
 
-<div class="container">
+<div class="container" class:mobile={platform() === "android"}>
     <div class="meta">
         <div class="cover">
             {#if imageOnError}
@@ -240,6 +241,13 @@
         grid-template-columns: repeat(2, 1fr) 128px;
         gap: 4em;
         padding: 0.5em;
+    }
+    div.container.mobile {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        gap: 1em;
+        padding: 0.5em 1em;
+        padding-bottom: 8vh;
     }
 
     @media screen and (max-width: 600px) {

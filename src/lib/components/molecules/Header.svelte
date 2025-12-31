@@ -10,9 +10,10 @@
     import { Menu } from "@lucide/svelte";
     import IconButton from "../atoms/IconButton.svelte";
     import { appState } from "$lib/app_state.svelte";
+    import { platform } from "@tauri-apps/plugin-os";
 </script>
 
-<header>
+<header class:mobile={platform() === "android"}>
     <IconButton onClick={() => {
         appState.menuVisible = !appState.menuVisible;
     }}>
@@ -35,5 +36,8 @@
         font-family: var(--font-header);
         font-size: 1.25rem;
         font-weight: 400;
+    }
+    header.mobile {
+        padding-top: 3vh;
     }
 </style>
