@@ -30,4 +30,5 @@ serde_json = "1"
 tauri-plugin-fs = "2"
 tauri-plugin-persisted-scope = "2"
 audiotags = {git = "https://github.com/picorims/audiotags", branch = "main" }
+tauri-plugin-os = "2"
 

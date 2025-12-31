@@ -3,6 +3,7 @@
     import MenuEntry from "../atoms/MenuEntry.svelte";
     import type { PageType } from "./Page.svelte";
     import { appState, navigateTo } from "$lib/app_state.svelte";
+    import { platform } from "@tauri-apps/plugin-os";
 
     interface IProps {
         onnavigate?: (page: PageType) => void;
@@ -11,6 +12,9 @@
     const { onnavigate = () => {} }: IProps = $props();
 
     function navigateToPage(p: PageType) {
+        if (platform() === "android") {
+            appState.menuVisible = false;
+        }
         navigateTo(p, null);
         onnavigate(p);
     }

@@ -6,9 +6,18 @@
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
+
+    import { Menu } from "@lucide/svelte";
+    import IconButton from "../atoms/IconButton.svelte";
+    import { appState } from "$lib/app_state.svelte";
 </script>
 
 <header>
+    <IconButton onClick={() => {
+        appState.menuVisible = !appState.menuVisible;
+    }}>
+        <Menu />
+    </IconButton>
     <span>Scaffony</span>
 </header>
 

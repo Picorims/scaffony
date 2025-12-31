@@ -19,7 +19,12 @@
     "fs:allow-app-write",
     {
       "identifier": "fs:scope",
-      "allow": [{ "path": "**/*" }]
-    }
+      "allow": [
+        {
+          "path": "**/*"
+        }
+      ]
+    },
+    "os:default"
   ]
 }
