@@ -52,6 +52,8 @@
 
 <style>
     div.container {
+        flex: 1 1 auto;
+        min-height: 5rem;
         display: flex;
         flex-direction: column;
         flex-wrap: nowrap;
