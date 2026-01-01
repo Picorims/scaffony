@@ -564,7 +564,11 @@ async function scanDirectory(pathStr: string) {
                 config.library[index].path = path;
             }
         } else if (entry.isDirectory) {
-            await scanDirectory(path);
+            try {
+                await scanDirectory(path);
+            } catch (error) {
+                console.error(`Error scanning directory ${path}:`, error);
+            }
         }
     }
 }
