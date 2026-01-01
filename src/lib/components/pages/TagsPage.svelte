@@ -65,7 +65,7 @@
         <div class="tag-entry">
             <!-- force refresh when edited tag value changes -->
             {#key editedTag}
-                <Tag {tag} size="normal" />
+                <Tag {tag} size="normal" shrinkable={false} />
             {/key}
             <div class="tag-actions">
                 <IconButton onClick={() => {

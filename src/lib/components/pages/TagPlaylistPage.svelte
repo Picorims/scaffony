@@ -33,7 +33,7 @@ import { getConfig, getPlaylist, getPlaylistLibraryEntries, getTag, getTagLibrar
             <h2>Tag</h2>
             {@const tagEntry = getTag(name)}
             {#if tagEntry}
-                <Tag tag={tagEntry} size="header" />
+                <Tag tag={tagEntry} size="header" shrinkable={false} />
             {/if}
         {/if}
     </div>

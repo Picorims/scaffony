@@ -19,6 +19,7 @@
         status?: "yes" | "no" | "unknown";
         onStatusChange?: (newStatus: "yes" | "no" | "unknown") => void;
         size: "header" | "normal";
+        shrinkable: boolean;
     }
 
     let {
@@ -27,6 +28,7 @@
         status = "yes",
         onStatusChange = () => {},
         size = "normal",
+        shrinkable
     }: Props = $props();
 </script>
 
@@ -36,6 +38,7 @@
     class:header={size === "header"}
     class:normal={size === "normal"}
     class:classify={mode === "classify"}
+    class:shrinkable={shrinkable}
 >
     <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
     <span class="label">{tag.name.replace(":", " / ")}</span>
@@ -137,10 +140,10 @@
         background-color: oklch(from var(--warning) calc(l - 0.5) c h);
     }
     @media screen and (width <= 1000px) {
-        div.tag.normal:not(.classify) span.label {
+        div.tag.normal:not(.classify).shrinkable span.label {
             display: none;
         }
-        div.tag.normal:not(.classify) > :global(svg) {
+        div.tag.normal:not(.classify).shrinkable > :global(svg) {
             margin-right: 0;
         }
     }

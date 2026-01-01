@@ -80,6 +80,7 @@
                         : "unknown"}
                     onStatusChange={(newStatus) => onStatusChange(newStatus, tag.name)}
                     size="normal"
+                    shrinkable={false}
                 />
             {/each}
         {:else if mode === "playback"}
@@ -87,7 +88,7 @@
                 {#if entry.tags[tagName] === true}
                     {@const tagEntry = getTag(tagName)}
                     {#if tagEntry !== null}
-                        <Tag tag={tagEntry} size="normal" />
+                        <Tag tag={tagEntry} size="normal" shrinkable />
                     {/if}
                 {/if}
             {/each}
