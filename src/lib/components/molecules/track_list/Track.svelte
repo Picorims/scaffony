@@ -9,7 +9,7 @@
 
     import { appState } from "$lib/app_state.svelte";
     import IconButton from "$lib/components/atoms/IconButton.svelte";
-    import { commit, getConfig, setTagState, type LibraryEntry } from "$lib/user_data.svelte";
+    import { commit, getConfig, getTag, setTagState, type LibraryEntry } from "$lib/user_data.svelte";
     import { Disc3, Play } from "@lucide/svelte";
     import Tag from "$lib/components/atoms/Tag.svelte";
     import { convertFileSrc } from "@tauri-apps/api/core";
@@ -81,6 +81,15 @@
                     onStatusChange={(newStatus) => onStatusChange(newStatus, tag.name)}
                     size="normal"
                 />
+            {/each}
+        {:else if mode === "playback"}
+            {#each Object.keys(entry.tags) as tagName}
+                {#if entry.tags[tagName] === true}
+                    {@const tagEntry = getTag(tagName)}
+                    {#if tagEntry !== null}
+                        <Tag tag={tagEntry} size="normal" />
+                    {/if}
+                {/if}
             {/each}
         {/if}
     </div>

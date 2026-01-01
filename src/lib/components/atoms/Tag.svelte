@@ -35,6 +35,7 @@
     style:--color={tag.colorHex}
     class:header={size === "header"}
     class:normal={size === "normal"}
+    class:classify={mode === "classify"}
 >
     <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
     <span class="label">{tag.name.replace(":", " / ")}</span>
@@ -101,7 +102,6 @@
     span.label {
         overflow: hidden;
         display: -webkit-box;
-        min-width: 5em;
         -webkit-line-clamp: 2;
         line-clamp: 2;
         -webkit-box-orient: vertical;
@@ -114,6 +114,10 @@
         padding-left: 0.5em;
         border-left: 1px solid var(--color);
         display: flex;
+    }
+    
+    div.tag.normal span.buttons {
+        display: none;
     }
 
     span.icon-toggled.active {
@@ -132,6 +136,14 @@
         border-color: oklch(from var(--warning) calc(l - 0.3) c h);
         background-color: oklch(from var(--warning) calc(l - 0.5) c h);
     }
+    @media screen and (width <= 1000px) {
+        div.tag.normal span.label {
+            display: none;
+        }
+        div.tag.normal > :global(svg) {
+            margin-right: 0;
+        }
+    }
 
     @media screen and (width <= 600px) {
         div.tag {
@@ -148,6 +160,9 @@
             margin-top: 0.3em;
             padding-top: 0.3em;
             border-top: 1px solid var(--color);
+        }
+        span.label {
+            min-width: 5em;
         }
     }
 </style>

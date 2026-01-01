@@ -75,7 +75,7 @@
         border-radius: 4px;
 
         display: grid;
-        grid-template-columns: 3rem repeat(3, 1fr) 3rem;
+        grid-template-columns: 3rem repeat(2, min(min-content, 1fr)) 1fr 3rem;
         grid-auto-rows: min-content;
     }
     @media screen and (width <= 600px) {
