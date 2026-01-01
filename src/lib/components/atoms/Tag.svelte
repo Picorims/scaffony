@@ -116,7 +116,7 @@
         display: flex;
     }
     
-    div.tag.normal span.buttons {
+    div.tag.normal:not(.classify) span.buttons {
         display: none;
     }
 
@@ -137,10 +137,10 @@
         background-color: oklch(from var(--warning) calc(l - 0.5) c h);
     }
     @media screen and (width <= 1000px) {
-        div.tag.normal span.label {
+        div.tag.normal:not(.classify) span.label {
             display: none;
         }
-        div.tag.normal > :global(svg) {
+        div.tag.normal:not(.classify) > :global(svg) {
             margin-right: 0;
         }
     }
