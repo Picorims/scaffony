@@ -6,7 +6,7 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
-import { path } from "@tauri-apps/api";
+import { app, path } from "@tauri-apps/api";
 import { appDataDir, join } from "@tauri-apps/api/path";
 import {
     open,
@@ -16,6 +16,7 @@ import {
     type DirEntry,
 } from "@tauri-apps/plugin-fs";
 import { platform } from "@tauri-apps/plugin-os";
+import { appState } from "./app_state.svelte";
 
 const LIBRARY_PATH_FILE_NAME = "scaffony_current_library.txt";
 const DATA_FILE_NAME = "scaffony_data.json";
@@ -290,10 +291,13 @@ async function getCurrentLibraryFromCache(): Promise<string | null> {
     // If it is a valid path, return it, else return null
     if (textContents.length > 0 && (await path.isAbsolute(textContents))) {
         if (!(await exists(textContents))) {
+            appState.libraryPath = null;
             return null;
         }
+        appState.libraryPath = textContents;
         return textContents;
     } else {
+        appState.libraryPath = null;
         return null;
     }
 }
@@ -338,6 +342,7 @@ export async function setLibraryPath(libraryPath: string): Promise<boolean> {
         return false;
     }
     await writeCurrentLibraryToCache(libraryPath);
+    appState.libraryPath = libraryPath;
     console.info(`Library path set to: ${libraryPath}`);
     return true;
 }
@@ -519,6 +524,7 @@ export async function writeData(): Promise<boolean> {
  * Scans the current library path for media files and updates the user data accordingly.
  */
 export async function scan() {
+    // TODO use relative paths from json position to be device independent
     const libraryPath = await getCurrentLibraryFromCache();
     if (libraryPath === null) {
         console.error("No valid library path found in cache, cannot scan.");
@@ -530,7 +536,7 @@ export async function scan() {
     await writeData();
 }
 
-async function scanDirectory(pathStr: string) {
+async function scanDirectory(pathStr: string, relativePath = ""): Promise<void> {
     console.info(`Scanning directory: ${pathStr}`);
     const entries = await readDir(pathStr);
     const cover = findCoverInDirectory(entries);
@@ -542,32 +548,33 @@ async function scanDirectory(pathStr: string) {
             console.info(`Skipping symlink: ${entry.name}`);
             continue; // skip symlinks
         }
-        const path = await join(pathStr, entry.name);
+        const entryFullPath = await join(pathStr, entry.name);
+        const entryRelativePath = await join(relativePath, entry.name);
         if (isAudioFile(entry)) {
-            const index = libraryIndex(path);
+            const index = libraryIndex(entryRelativePath);
             if (index === -1) {
                 console.info(
-                    `Found new audio file: ${path}, adding to library...`
+                    `Found new audio file: ${entryRelativePath}, adding to library...`
                 );
                 const newEntry: LibraryEntry = {
                     name: entry.name.slice(0, entry.name.lastIndexOf(".")),
                     artist: "Unknown Artist",
-                    path: path,
-                    coverPath: cover ? await join(pathStr, cover) : null,
+                    path: entryRelativePath,
+                    coverPath: cover ? await join(relativePath, cover) : null,
                     tags: {},
                 };
                 config.library.push(newEntry);
-            } else if (hasBetterQualityExtension(path, config.library[index])) {
+            } else if (hasBetterQualityExtension(entryFullPath, config.library[index])) {
                 console.info(
-                    `Found better quality audio file: ${path}, updating library entry...`
+                    `Found better quality audio file: ${entryRelativePath}, updating library entry...`
                 );
-                config.library[index].path = path;
+                config.library[index].path = entryRelativePath;
             }
         } else if (entry.isDirectory) {
             try {
-                await scanDirectory(path);
+                await scanDirectory(entryFullPath, await join(relativePath, entry.name));
             } catch (error) {
-                console.error(`Error scanning directory ${path}:`, error);
+                console.error(`Error scanning directory ${entryRelativePath}:`, error);
             }
         }
     }

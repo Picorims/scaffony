@@ -16,6 +16,7 @@
     import { getMetadata, type Metadata } from "$lib/metadata";
     import { onMount } from "svelte";
     import { requestPlay, setWaitList } from "$lib/playback";
+    import { join } from "@tauri-apps/api/path";
 
     interface Props {
         entry: LibraryEntry;
@@ -51,16 +52,18 @@
 </script>
 
 <div class="container" class:odd={index % 2 === 1}>
-    {#if imageInError}
+    {#if imageInError || entry.coverPath === null || appState.libraryPath === null}
         <Disc3 stroke="var(--text-darker-1)" width="1rem" height="1rem" />
     {:else}
-        <img
-            class="cover"
-            class:error={imageInError}
-            src={entry.coverPath ? convertFileSrc(entry.coverPath) : ""}
-            alt={`${entry.name} by ${entry.artist} - cover`}
-            onerror={() => (imageInError = true)}
-        />
+        {#await join(appState.libraryPath, entry.coverPath) then fullPath}
+            <img
+                class="cover"
+                class:error={imageInError}
+                src={convertFileSrc(fullPath)}
+                alt={`${entry.name} by ${entry.artist} - cover`}
+                onerror={() => (imageInError = true)}
+            />
+        {/await}
     {/if}
     <span class="name">{metadata.title ?? entry.name}</span>
     <span class="artist">{metadata.artist ?? entry.artist}</span>

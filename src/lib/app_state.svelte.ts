@@ -14,12 +14,14 @@ export interface AppState {
     activePage: PageType;
     activeSubPage: string | null;
     menuVisible: boolean;
+    libraryPath: string | null;
 }
 
 export let appState = $state<AppState>({
     activePage: "library",
     activeSubPage: null,
     menuVisible: platform() !== "android",
+    libraryPath: null,
 });
 
 export function navigateTo(page: PageType, subPage: string | null = null) {

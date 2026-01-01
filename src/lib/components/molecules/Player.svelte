@@ -30,6 +30,7 @@
     import { getNextWaitListEntry, getPreviousWaitListEntry, onRequestPlay } from "$lib/playback";
     import { platform } from "@tauri-apps/plugin-os";
     import { readFile } from "@tauri-apps/plugin-fs";
+    import { join } from "@tauri-apps/api/path";
 
     let paused = $state(true);
     let audioElement = $state<HTMLAudioElement | null>(null);
@@ -64,7 +65,12 @@
                         const blobUrl = URL.createObjectURL(blob);
                         audioElement.src = blobUrl;
                     } else {
-                        audioElement.src = convertFileSrc(activeTrack.path);
+                        if (appState.libraryPath === null) {
+                            paused = true;
+                            console.warn("Cannot load audio: library path is null");
+                            return;
+                        }
+                        audioElement.src = convertFileSrc(await join(appState.libraryPath, activeTrack.path));
                     }
                     audioElement.load();
                     audioElement.play();
@@ -163,16 +169,18 @@
 <div class="container" class:mobile={platform() === "android"}>
     <div class="meta">
         <div class="cover">
-            {#if imageOnError}
+            {#if imageOnError || activeTrack === null || activeTrack?.coverPath === null || appState.libraryPath === null}
                 <Disc3 stroke="var(--text-darker-1)" width="48" height="48" />
             {:else}
-                <img
-                    src={activeTrack?.coverPath
-                        ? convertFileSrc(activeTrack?.coverPath)
-                        : ""}
-                    alt={`${activeTrack?.name} by ${activeTrack?.artist} - cover`}
-                    onerror={() => (imageOnError = true)}
-                />
+                {#await join(appState.libraryPath, activeTrack?.coverPath) then fullPath}
+                    <img
+                        src={activeTrack?.coverPath
+                            ? convertFileSrc(fullPath)
+                            : ""}
+                        alt={`${activeTrack?.name} by ${activeTrack?.artist} - cover`}
+                        onerror={() => (imageOnError = true)}
+                    />
+                {/await}
             {/if}
         </div>
         <div class="meta-text">
