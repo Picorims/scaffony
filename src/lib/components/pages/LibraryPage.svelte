@@ -12,6 +12,8 @@
     import Button from "../atoms/Button.svelte";
     import { message, open } from "@tauri-apps/plugin-dialog";
     import TrackList from "../molecules/track_list/TrackList.svelte";
+    import { AndroidFs } from 'tauri-plugin-android-fs-api'
+    import { platform } from "@tauri-apps/plugin-os";
 
     let currentLibrary = $state<string>("No library selected");
 
@@ -23,11 +25,40 @@
     })
 
     async function pickPath() {
-        const path = await open({
-            directory: true,
-            multiple: false,
-            title: "Select Music Library Folder",
-        })
+        let path: string | null = null;
+        if (platform() === "android") {
+            let uri = await AndroidFs.showOpenDirPicker();
+            if (uri === null) {
+                return;
+            }
+            AndroidFs.persistUriPermission(uri);
+            let fsPath: string | URL = await AndroidFs.getFsPath(uri);
+
+            // HACK This is a personal project, nobody else is supposed to use it,
+            // and I do not want to suffer:
+            // https://stackoverflow.com/questions/13209494/how-to-get-the-full-file-path-from-uri#41520090
+            // example:  content://com.android.externalstorage.documents/tree/0000-0000:path/to_dir/document/0000-0000:path/to_dir
+            let decodedUrl = "";
+            if (typeof fsPath === "string") {
+                decodedUrl = fsPath;
+            } else {
+                decodedUrl = fsPath.toString();
+            }
+            decodedUrl = decodeURIComponent(decodedUrl);
+            // TODO fix schenanigans
+            console.log("raw uri: " + decodedUrl);
+            const relativePath = decodedUrl.split(":")[3];
+            // SD Card is mounted under XXXX-XXXX
+            path = `/storage/${decodedUrl.split(":")[1].replace(/.*\//,"")}/${relativePath}`;
+        } else {
+            path = await open({
+                directory: true,
+                multiple: false,
+                title: "Select Music Library Folder",
+            })
+        }
+
+        console.log(`Picked library path: ${path}`);
 
         if (typeof path === "string") {
             const success = await setLibraryPath(path);

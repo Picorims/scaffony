@@ -25,6 +25,7 @@
         }
       ]
     },
-    "os:default"
+    "os:default",
+    "android-fs:all-without-delete"
   ]
 }

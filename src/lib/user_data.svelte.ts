@@ -15,6 +15,7 @@ import {
     readDir,
     type DirEntry,
 } from "@tauri-apps/plugin-fs";
+import { platform } from "@tauri-apps/plugin-os";
 
 const LIBRARY_PATH_FILE_NAME = "scaffony_current_library.txt";
 const DATA_FILE_NAME = "scaffony_data.json";
@@ -328,7 +329,7 @@ export function getLibraryPath(): Promise<string | null> {
  * @returns
  */
 export async function setLibraryPath(libraryPath: string): Promise<boolean> {
-    if (!(await path.isAbsolute(libraryPath))) {
+    if (platform() !== "android" && !(await path.isAbsolute(libraryPath))) {
         console.error(`Provided library path is not absolute: ${libraryPath}`);
         return false;
     }
