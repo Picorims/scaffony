@@ -147,6 +147,39 @@ const DEFAULT_CONFIG: IConfig = {
                 },
             ],
         },
+        {
+            name: "No mood tag",
+            colorHex: "#888888",
+            lucideIcon: "smile-plus",
+            filters: [
+                {
+                    type: "excludes_category",
+                    category: "mood",
+                },
+            ],
+        },
+        {
+            name: "No genre tag",
+            colorHex: "#888888",
+            lucideIcon: "shapes",
+            filters: [
+                {
+                    type: "excludes_category",
+                    category: "genre",
+                },
+            ],
+        },
+        {
+            name: "No energy tag",
+            colorHex: "#888888",
+            lucideIcon: "gauge",
+            filters: [
+                {
+                    type: "excludes_category",
+                    category: "energy",
+                },
+            ],
+        }
     ],
 };
 
