@@ -123,4 +123,21 @@
         font-size: 0.875rem;
         color: var(--text-darker-1);
     }
+
+    @media screen and (width <= 600px) {
+        span.artist,
+        span.name {
+            font-size: 0.875rem;
+        }
+        span.name {
+            grid-column: span 4;
+        }
+        span.artist {
+            grid-column: span 5;
+            margin-left: 1rem;
+        }
+        div.tags {
+            grid-column: span 4;
+        }
+    }
 </style>

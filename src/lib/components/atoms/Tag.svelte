@@ -30,7 +30,12 @@
     }: Props = $props();
 </script>
 
-<div class="tag" style:--color={tag.colorHex} class:header={size === "header"}>
+<div
+    class="tag"
+    style:--color={tag.colorHex}
+    class:header={size === "header"}
+    class:normal={size === "normal"}
+>
     <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
     <span class="label">{tag.name.replace(":", " / ")}</span>
     {#if mode === "classify"}
@@ -86,9 +91,21 @@
 
     div.tag > :global(svg) {
         stroke: var(--color);
+        min-width: 1.2em;
         width: 1.2em;
+        min-height: 1.2em;
         height: 1.2em;
         margin-right: 0.3em;
+    }
+
+    span.label {
+        overflow: hidden;
+        display: -webkit-box;
+        min-width: 5em;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        text-overflow: ellipsis;
     }
 
     span.buttons {
@@ -114,5 +131,23 @@
     span.icon-toggled.unknown.active {
         border-color: oklch(from var(--warning) calc(l - 0.3) c h);
         background-color: oklch(from var(--warning) calc(l - 0.5) c h);
+    }
+
+    @media screen and (width <= 600px) {
+        div.tag {
+            font-size: 0.75em;
+            flex-wrap: wrap;
+        }
+        div.tag.normal {
+            width: min-content;
+        }
+        span.buttons {
+            border-left: 0px;
+            margin-left: 0;
+            padding-left: 0;
+            margin-top: 0.3em;
+            padding-top: 0.3em;
+            border-top: 1px solid var(--color);
+        }
     }
 </style>

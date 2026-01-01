@@ -63,6 +63,13 @@
 		transition: 0.1s;
 	}
 
+	@media screen and (width <= 600px) {
+		button.icon-button {
+			width: 1.3rem;
+			height: 1.3rem;
+		}
+	}
+
 	button.icon-button.accent > :global(svg) {
 		stroke: var(--acent);
 	}
@@ -122,8 +129,8 @@
 	}
 
 	button.icon-button > :global(svg) {
-		width: 24px;
-		height: 24px;
+		width: 90%;
+		height: 90%;
 		stroke: var(--text);
 	}
 </style>

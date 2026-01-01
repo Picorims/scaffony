@@ -49,4 +49,10 @@
         height: 100%;
         gap: 1em;
     }
+    div.header > label {
+        display: inline-block;
+        white-space: nowrap;
+        margin-right: 1em;
+        margin-bottom: 0.5em;
+    }
 </style>

@@ -78,4 +78,9 @@
         grid-template-columns: 3rem repeat(3, 1fr) 3rem;
         grid-auto-rows: min-content;
     }
+    @media screen and (width <= 600px) {
+        div.track-list {
+            grid-template-columns: 2rem repeat(3, 1fr) 2rem;
+        }
+    }
 </style>
