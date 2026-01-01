@@ -284,7 +284,7 @@
         padding-bottom: 8vh;
     }
 
-    @media screen and (max-width: 600px) {
+    @media screen and (max-width: 800px) {
         div.container {
             grid-template-columns: 1fr;
             grid-template-rows: auto auto auto;
