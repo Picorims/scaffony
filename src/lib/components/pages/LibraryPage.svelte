@@ -27,6 +27,7 @@
     async function pickPath() {
         let path: string | null = null;
         if (platform() === "android") {
+            // see also: https://developer.android.com/training/data-storage/manage-all-files?hl=fr
             let uri = await AndroidFs.showOpenDirPicker();
             if (uri === null) {
                 return;

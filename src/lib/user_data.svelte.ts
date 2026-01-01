@@ -374,28 +374,36 @@ export async function readData(): Promise<boolean> {
 
     const readPath = await path.join(libraryPath, DATA_FILE_NAME);
     console.info(`Reading user data from ${readPath}...`);
-    await ensureDataFileExists(readPath);
-    const file = await open(readPath, {
-        read: true,
-        create: false,
-    });
-
-    const stat = await file.stat();
-    const buf = new Uint8Array(stat.size);
-    await file.read(buf);
-    const textContents = new TextDecoder().decode(buf);
-    await file.close();
-    if (textContents.length > 0) {
-        const data: IConfig = JSON.parse(textContents);
-        // TODO data validation with zod or typia or jsv
-        config = addMissingFieldsToConfig(data);
-        sortTags();
-    } else if (textContents.length === 0) {
-        // empty, write current config
-        await writeData();
+    try {
+        await ensureDataFileExists(readPath);
+        const file = await open(readPath, {
+            read: true,
+            create: false,
+        });
+    
+        const stat = await file.stat();
+        const buf = new Uint8Array(stat.size);
+        await file.read(buf);
+        const textContents = new TextDecoder().decode(buf);
+        await file.close();
+        if (textContents.length > 0) {
+            const data: IConfig = JSON.parse(textContents);
+            // TODO data validation with zod or typia or jsv
+            config = addMissingFieldsToConfig(data);
+            sortTags();
+        } else if (textContents.length === 0) {
+            // empty, write current config
+            await writeData();
+        }
+    
+        return true;
+    } catch (error) {
+        console.error(`Error reading user data from ${readPath}:`, error);
+        if (platform() === "android") {
+            alert("Error reading user data. Make sure Scaffony has the necessary file permissions (MANAGE_EXTERNAL_STORAGE).");
+        }
+        return false;
     }
-
-    return true;
 }
 
 /**
