@@ -29,6 +29,7 @@
     import { onMount } from "svelte";
     import { getNextWaitListEntry, getPreviousWaitListEntry, onRequestPlay } from "$lib/playback";
     import { platform } from "@tauri-apps/plugin-os";
+    import { readFile } from "@tauri-apps/plugin-fs";
 
     let paused = $state(true);
     let audioElement = $state<HTMLAudioElement | null>(null);
@@ -49,10 +50,31 @@
     $effect(() => {
         imageOnError = false;
         if (audioElement && activeTrack !== null) {
-            audioElement.src = convertFileSrc(activeTrack.path);
-            audioElement.load();
-            audioElement.play();
-            paused = false;
+            const loadAudio = async () => {
+                if (activeTrack === null || audioElement === null) {
+                    return;
+                }
+                try {
+                    if (platform() === "android") {
+                        // On Android, if using convertFileSrc directly, it fails to play the audio.
+                        // (HTTP 206 on first packet, subsequent packets fail, leading to playback error
+                        // "Audio playback error: PipelineStatus::PIPELINE_ERROR_READ: FFmpegDemuxer: data source error")
+                        const fileData = await readFile(activeTrack.path);
+                        const blob = new Blob([fileData], { type: "audio/mpeg" }); //FIXME mime type
+                        const blobUrl = URL.createObjectURL(blob);
+                        audioElement.src = blobUrl;
+                    } else {
+                        audioElement.src = convertFileSrc(activeTrack.path);
+                    }
+                    audioElement.load();
+                    audioElement.play();
+                    paused = false;
+                } catch (error) {
+                    console.error("Failed to load audio:", error);
+                    paused = true;
+                }
+            };
+            loadAudio();
         } else {
             paused = true;
         }
@@ -220,6 +242,10 @@
 <audio
     bind:this={audioElement}
     src=""
+    crossorigin="anonymous"
+    onerror={(e) => {
+        console.error("Audio playback error: " + audioElement?.error?.message);
+    }}
     onended={() => {
         const newTrack = getNextWaitListEntry();
         if (newTrack !== null) {
