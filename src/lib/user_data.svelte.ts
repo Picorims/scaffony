@@ -28,7 +28,19 @@ const PREFERRED_AUDIO_EXTENSIONS = [".aac", ".mp3", ".ogg", ".wav", ".flac"];
 export interface LibraryEntry {
     name: string;
     artist: string;
+    /**
+     * Path are relative to the library root. They are
+     * normalized with a forward slash '/' as separator.
+     * It should be transformed back on a per-platform basis
+     * when used.
+     */
     path: string;
+    /**
+     * Path are relative to the library root. They are
+     * normalized with a forward slash '/' as separator.
+     * It should be transformed back on a per-platform basis
+     * when used.
+     */
     coverPath: string | null;
     /**
      * tag_name: true if assigned, false if not (explicitly).
@@ -582,7 +594,7 @@ async function scanDirectory(pathStr: string, relativePath = ""): Promise<void> 
             continue; // skip symlinks
         }
         const entryFullPath = await join(pathStr, entry.name);
-        const entryRelativePath = await join(relativePath, entry.name);
+        const entryRelativePath = (await join(relativePath, entry.name)).replaceAll("\\", "/");
         if (isAudioFile(entry)) {
             const index = libraryIndex(entryRelativePath);
             if (index === -1) {
@@ -593,7 +605,7 @@ async function scanDirectory(pathStr: string, relativePath = ""): Promise<void> 
                     name: entry.name.slice(0, entry.name.lastIndexOf(".")),
                     artist: "Unknown Artist",
                     path: entryRelativePath,
-                    coverPath: cover ? await join(relativePath, cover) : null,
+                    coverPath: cover ? (await join(relativePath, cover)) : null,
                     tags: {},
                 };
                 config.library.push(newEntry);
