@@ -605,7 +605,7 @@ async function scanDirectory(pathStr: string, relativePath = ""): Promise<void> 
                     name: entry.name.slice(0, entry.name.lastIndexOf(".")),
                     artist: "Unknown Artist",
                     path: entryRelativePath,
-                    coverPath: cover ? (await join(relativePath, cover)) : null,
+                    coverPath: cover ? (await join(relativePath, cover)).replaceAll("\\", "/") : null,
                     tags: {},
                 };
                 config.library.push(newEntry);
