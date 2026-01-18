@@ -56,27 +56,28 @@
                     return;
                 }
                 try {
+                    if (appState.libraryPath === null) {
+                        paused = true;
+                        console.warn("Cannot load audio: library path is null");
+                        return;
+                    }
                     if (platform() === "android") {
                         // On Android, if using convertFileSrc directly, it fails to play the audio.
                         // (HTTP 206 on first packet, subsequent packets fail, leading to playback error
                         // "Audio playback error: PipelineStatus::PIPELINE_ERROR_READ: FFmpegDemuxer: data source error")
-                        const fileData = await readFile(activeTrack.path);
+                        const fileData = await readFile(await join(appState.libraryPath, activeTrack.path));
                         const blob = new Blob([fileData], { type: "audio/mpeg" }); //FIXME mime type
                         const blobUrl = URL.createObjectURL(blob);
                         audioElement.src = blobUrl;
                     } else {
-                        if (appState.libraryPath === null) {
-                            paused = true;
-                            console.warn("Cannot load audio: library path is null");
-                            return;
-                        }
                         audioElement.src = convertFileSrc(await join(appState.libraryPath, activeTrack.path));
                     }
                     audioElement.load();
                     audioElement.play();
                     paused = false;
                 } catch (error) {
-                    console.error("Failed to load audio:", error);
+                    const errorStr = error instanceof Error ? error.message : String(error);
+                    console.error("Failed to load audio:" + errorStr);
                     paused = true;
                 }
             };
