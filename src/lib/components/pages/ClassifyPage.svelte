@@ -40,7 +40,7 @@
     <div class="tags-completion">
         {#each [...getConfig().tags].sort((a, b) => getTagCompletionRatio(a.name) - getTagCompletionRatio(b.name)) as tag}
             <p>
-                <Tag mode="display" size="normal" tag={tag} />
+                <Tag mode="display" shrinkable={false} size="normal" tag={tag} />
                 {Math.floor(getTagCompletionRatio(tag.name) * 10_000) / 100}%
             </p>
         {/each}
