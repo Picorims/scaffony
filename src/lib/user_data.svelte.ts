@@ -247,8 +247,20 @@ export function getTag(tagName: string): TagEntry | null {
     const tag = config.tags.find((tag) => tag.name === tagName);
     return tag || null; 
 }
+
 export function getTagCategory(tagName: string) {
     return tagName.split(":")[0];
+}
+
+export function getTagCompletionRatio(tagName: string): number {
+    const total = config.library.length;
+    let count = 0;
+    for (const e of config.library) {
+        if (e.tags[tagName] !== undefined) {
+            count += 1;
+        }
+    }
+    return count / total;
 }
 
 export function getPlaylist(playlistName: string): PlaylistEntry | null {

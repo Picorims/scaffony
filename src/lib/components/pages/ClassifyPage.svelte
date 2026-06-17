@@ -7,8 +7,9 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
-    import { getConfig, getTagCategories } from "$lib/user_data.svelte";
+    import { getConfig, getTagCategories, getTagCompletionRatio } from "$lib/user_data.svelte";
     import Button from "../atoms/Button.svelte";
+    import Tag from "../atoms/Tag.svelte";
     import TrackList from "../molecules/track_list/TrackList.svelte";
 
     let categoryFilter = $state("");
@@ -36,7 +37,21 @@
             </select>
         </label>
     </div>
-    <TrackList tracks={getConfig().library} mode={"classify"} classifyFilter={tagFilter !== "" ? tagFilter : categoryFilter !== "" ? categoryFilter : undefined} />
+    <div class="tags-completion">
+        {#each [...getConfig().tags].sort((a, b) => getTagCompletionRatio(a.name) - getTagCompletionRatio(b.name)) as tag}
+            <p>
+                <Tag mode="display" size="normal" tag={tag} />
+                {Math.floor(getTagCompletionRatio(tag.name) * 10_000) / 100}%
+            </p>
+        {/each}
+    </div>
+    {#if tagFilter !== "" || categoryFilter !== ""}
+        <TrackList tracks={getConfig().library} mode={"classify"} classifyFilter={tagFilter !== "" ? tagFilter : categoryFilter !== "" ? categoryFilter : undefined} />
+    {:else}
+        <p>
+            <strong>Please select a category or a tag.</strong>
+        </p>
+    {/if}
 </div>
 
 <style>
@@ -54,5 +69,11 @@
         white-space: nowrap;
         margin-right: 1em;
         margin-bottom: 0.5em;
+    }
+    div.tags-completion {
+        max-height: 20%;
+        overflow-y: scroll;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(256px, 1fr));
     }
 </style>
