@@ -47,6 +47,7 @@ export interface LibraryEntry {
      * absent for unset state / to be decided by user.
      */
     tags: Record<string, boolean>;
+    uuid: string;
 }
 
 /**
@@ -663,7 +664,6 @@ export async function writeData(): Promise<boolean> {
  * Scans the current library path for media files and updates the user data accordingly.
  */
 export async function scan() {
-    // TODO use relative paths from json position to be device independent
     const libraryPath = await getCurrentLibraryFromCache();
     if (libraryPath === null) {
         console.error("No valid library path found in cache, cannot scan.");
@@ -679,9 +679,6 @@ async function scanDirectory(pathStr: string, relativePath = ""): Promise<void> 
     console.info(`Scanning directory: ${pathStr}`);
     const entries = await readDir(pathStr);
     const cover = findCoverInDirectory(entries);
-    if (cover) {
-        console.info(`Found cover image in directory: ${cover}`);
-    }
     for (const entry of entries) {
         if (entry.isSymlink) {
             console.info(`Skipping symlink: ${entry.name}`);
@@ -695,12 +692,16 @@ async function scanDirectory(pathStr: string, relativePath = ""): Promise<void> 
                 console.info(
                     `Found new audio file: ${entryRelativePath}, adding to library...`
                 );
+                if (cover) {
+                    console.info(`Found cover image in directory: ${cover}`);
+                }
                 const newEntry: LibraryEntry = {
                     name: entry.name.slice(0, entry.name.lastIndexOf(".")),
                     artist: "Unknown Artist",
                     path: entryRelativePath,
                     coverPath: cover ? (await join(relativePath, cover)).replaceAll("\\", "/") : null,
                     tags: {},
+                    uuid: self.crypto.randomUUID(),
                 };
                 config.library.push(newEntry);
             } else if (hasBetterQualityExtension(entryFullPath, config.library[index])) {
@@ -708,6 +709,9 @@ async function scanDirectory(pathStr: string, relativePath = ""): Promise<void> 
                     `Found better quality audio file: ${entryRelativePath}, updating library entry...`
                 );
                 config.library[index].path = entryRelativePath;
+            } else if (cover && config.library[index].coverPath === null) {
+                console.info(`Found cover for entry ${config.library[index].name}, updating library entry...`);
+                config.library[index].coverPath = (await join(relativePath, cover)).replaceAll("\\", "/");
             }
         } else if (entry.isDirectory) {
             try {
