@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { TagEntry } from "$lib/user_data.svelte";
+    import { getTagCategory, isCategoryExclusive, type TagEntry } from "$lib/user_data.svelte";
     import { Check, CircleQuestionMark, Icon, X } from "@lucide/svelte";
     import LucideIcon from "./LucideIcon.svelte";
     import { fromKebabToPascalCase } from "$lib/string";
@@ -39,6 +39,7 @@
     class:normal={size === "normal"}
     class:classify={mode === "classify"}
     class:shrinkable={shrinkable}
+    class:exclusive={isCategoryExclusive(getTagCategory(tag.name))}
 >
     <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
     <span class="label">{tag.name.replace(":", " / ")}</span>
@@ -87,6 +88,9 @@
         color: var(--text);
         background-color: oklch(from var(--color) calc(l - 0.7) c h);
         margin: 0.2em;
+    }
+    div.tag.exclusive {
+        border-style: dashed;
     }
     div.tag.header {
         font-size: 1.25em;

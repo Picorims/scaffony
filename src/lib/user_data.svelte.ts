@@ -239,9 +239,16 @@ export function getTagCategories(): string[] {
     return Array.from(categories);
 }
 
+export function getCategoryTags(category: string) {
+    return config.tags.filter(t => getTagCategory(t.name) === category);
+}
+
 export function getTag(tagName: string): TagEntry | null {
     const tag = config.tags.find((tag) => tag.name === tagName);
     return tag || null; 
+}
+export function getTagCategory(tagName: string) {
+    return tagName.split(":")[0];
 }
 
 export function getPlaylist(playlistName: string): PlaylistEntry | null {
@@ -303,9 +310,23 @@ export function setTagState(entry: LibraryEntry, tagName: string, state: "yes" |
         throw new Error(`Library entry with path ${entry.path} not found.`);
     }
     if (state === "unknown") {
+        console.log(`Removing tag ${tagName} from ${entry.name}`);
         delete srcEntry.tags[tagName];
     } else {
+        console.log(`Setting tag ${tagName} of ${entry.name} to: ${state === "yes"}`);
         srcEntry.tags[tagName] = state === "yes";
+    }
+
+    const category = getTagCategory(tagName);
+    if (state === "yes" && isCategoryExclusive(category)) {
+        // set all others to "no"
+        const categoryTags = getCategoryTags(category);
+        for (const tag of categoryTags) {
+            if (tag.name !== tagName) {
+                console.log(`Exclusive mode: setting tag ${tagName} of ${entry.name} to: false`);
+                srcEntry.tags[tag.name] = false;
+            }
+        }
     }
     writeData();
 }
