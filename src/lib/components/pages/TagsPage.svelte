@@ -10,9 +10,11 @@
     import {
         addTag,
         deleteTag,
+        editCategory,
         editTag,
         getConfig,
         getTagCategories,
+        isCategoryExclusive,
         type TagEntry,
     } from "$lib/user_data.svelte";
     import { ListVideo, Pencil, Trash2 } from "@lucide/svelte";
@@ -28,6 +30,7 @@
     let dialog = $state<HTMLDialogElement>(document.createElement("dialog"));
     let dialogMode = $state<"add" | "edit">("add");
     let editedTag: TagEntry | null = $state<TagEntry | null>(null);
+    let editCategories = $state(false);
 
     $effect(() => {
         categories = getTagCategories();
@@ -50,6 +53,11 @@
                 dialog.showModal();
             }}
         />
+        <Button
+            text={editCategories ? "Stop editing categories" : "Edit categories"}
+            variant="primary"
+            onclick={() => editCategories = !editCategories}
+        />
     </div>
 
     {#each categories as category}
@@ -61,6 +69,12 @@
 </div>
 
 {#snippet tagCategory(category: string)}
+    {#if editCategories}
+        <label>
+            Exclusive:
+            <input type="checkbox" checked={isCategoryExclusive(category)} oninput={(v) => {editCategory(category, v.currentTarget.checked)}}>
+        </label>
+    {/if}
     {#each tags.filter((tag) => tag.name.startsWith(category + ":")) as tag}
         <div class="tag-entry">
             <!-- force refresh when edited tag value changes -->

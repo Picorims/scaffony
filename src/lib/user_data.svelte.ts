@@ -63,6 +63,14 @@ export interface TagEntry {
     lucideIcon: string;
 }
 
+export interface CategoryEntry {
+    name: string;
+    /**
+     * if true, only one tag of the category can be assigned at once.
+     */
+    exclusive: boolean;
+}
+
 /**
  * A playlist is defined by a set of filters.
  * 
@@ -102,6 +110,7 @@ export interface IConfig {
     library: LibraryEntry[];
     tags: TagEntry[];
     playlists: PlaylistEntry[];
+    categories: Record<string, CategoryEntry>;
 }
 
 const DEFAULT_CONFIG: IConfig = {
@@ -193,6 +202,24 @@ const DEFAULT_CONFIG: IConfig = {
             ],
         }
     ],
+    categories: {
+        "rate": {
+            name: "rate",
+            exclusive: true,
+        },
+        "mood": {
+            name: "mood",
+            exclusive: false,
+        },
+        "genre": {
+            name: "genre",
+            exclusive: false,
+        },
+        "energy": {
+            name: "energy",
+            exclusive: false,
+        },
+    }
 };
 
 let config = $state<IConfig>(DEFAULT_CONFIG);
@@ -483,10 +510,17 @@ function sortTags() {
     config.tags.sort((a, b) => a.name.localeCompare(b.name));
 }
 
+
 export function addTag(newTag: TagEntry) {
     config.tags.push(newTag);
-    sortTags();
-    writeData();
+    if (!newTag.name.includes(":")) {
+        throw new Error("Missing colon ':' in tag name.");
+    }
+    const category = newTag.name.split(":")[0];
+    if (!hasCategory(category)) {
+        addCategory(category);
+    }
+    commit();
 }
 
 export function editTag(oldTagName: string, newTag: TagEntry) {
@@ -502,8 +536,7 @@ export function editTag(oldTagName: string, newTag: TagEntry) {
             entry.tags[newTag.name] = value;
         }
     }
-    sortTags();
-    writeData();
+    commit();
 }
 
 export function deleteTag(tagName: string) {
@@ -513,12 +546,40 @@ export function deleteTag(tagName: string) {
             delete entry.tags[tagName];
         }
     }
-    writeData();
+    commit();
 }
+
+export function addCategory(category: string) {
+    config.categories[category] = {
+        name: category,
+        exclusive: false,
+    };
+    commit();
+}
+
+export function hasCategory(category: string) {
+    return config.categories[category] !== undefined;
+}
+
+export function editCategory(category: string, exclusive: boolean) {
+    if (!hasCategory(category)) {
+        throw new Error("Trying to edit non-existent category.");
+    }
+    config.categories[category].exclusive = exclusive;
+    console.log(`Category ${category} is now exclusive: ${exclusive}`);
+    commit();
+}
+
+export function isCategoryExclusive(category: string) {
+    if (!hasCategory(category)) {
+        throw new Error("Trying to query non-existent category.");
+    }
+    return config.categories[category].exclusive;
+} 
 
 export function addPlaylist(newPlaylist: PlaylistEntry) {
     config.playlists.push(newPlaylist);
-    writeData();
+    commit();
 }
 
 export function editPlaylist(
@@ -532,14 +593,14 @@ export function editPlaylist(
         throw new Error(`Playlist with name ${oldPlaylistName} not found.`);
     }
     config.playlists[playlistIndex] = newPlaylist;
-    writeData();
+    commit();
 }
 
 export function deletePlaylist(playlistName: string) {
     config.playlists = config.playlists.filter(
         (playlist) => playlist.name !== playlistName
     );
-    writeData();
+    commit();
 }
 
 export async function writeData(): Promise<boolean> {
