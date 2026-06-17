@@ -14,6 +14,7 @@ import {
     mkdir,
     readDir,
     type DirEntry,
+    create,
 } from "@tauri-apps/plugin-fs";
 import { platform } from "@tauri-apps/plugin-os";
 import { appState } from "./app_state.svelte";
@@ -712,6 +713,16 @@ async function scanDirectory(pathStr: string, relativePath = ""): Promise<void> 
             } else if (cover && config.library[index].coverPath === null) {
                 console.info(`Found cover for entry ${config.library[index].name}, updating library entry...`);
                 config.library[index].coverPath = (await join(relativePath, cover)).replaceAll("\\", "/");
+            }
+            const markerName = config.library[index].name + ".scfuuid";
+            const uuidMarkerPath = await join(pathStr, markerName);
+            if (!await exists(uuidMarkerPath)) {
+                console.info(`Creating missing UUID marker: ${markerName}`);
+                const uuidMarker = await create(uuidMarkerPath);
+                const encoder = new TextEncoder();
+                const data = encoder.encode(config.library[index].uuid);
+                await uuidMarker.write(data);
+                await uuidMarker.close();
             }
         } else if (entry.isDirectory) {
             try {
