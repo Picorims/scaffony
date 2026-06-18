@@ -18,9 +18,9 @@ function forwardConsole(
   logger: (message: string) => Promise<void>
 ) {
   const original = console[fnName];
-  console[fnName] = (message) => {
-    original(message);
-    logger(message);
+  console[fnName] = (...messages) => {
+    original(...messages);
+    logger(messages.join(" "));
   };
 }
 
