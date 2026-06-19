@@ -15,6 +15,7 @@ import {
     readDir,
     type DirEntry,
     create,
+    readTextFile,
 } from "@tauri-apps/plugin-fs";
 import { platform } from "@tauri-apps/plugin-os";
 import { appState } from "./app_state.svelte";
@@ -25,6 +26,11 @@ const DATA_FILE_NAME = "scaffony_data.json";
  * Sorted from worst to best.
  */
 const PREFERRED_AUDIO_EXTENSIONS = [".aac", ".mp3", ".ogg", ".wav", ".flac"];
+
+/**
+ * UUID: directory path
+ */
+let uuidCache: Record<string, string> = {}
 
 export interface LibraryEntry {
     name: string;
@@ -49,6 +55,14 @@ export interface LibraryEntry {
      */
     tags: Record<string, boolean>;
     uuid: string;
+    /**
+     * If all audio paths could not be resolved.
+     */
+    missing: boolean;
+    /**
+     * Virtual, non playable entry (.scfvirtual)
+     */
+    virtual: boolean;
 }
 
 /**
@@ -533,6 +547,9 @@ function addMissingFieldsToConfig(data: IConfig): IConfig {
     if (!data.playlists) {
         data.playlists = [];
     }
+    if (!data.categories) {
+        data.categories = {};
+    }
     return data;
 }
 
@@ -672,12 +689,15 @@ export async function scan() {
     }
 
     console.info(`Scanning library path ${libraryPath} for new audio files...`);
+    uuidCache = {};
     await scanDirectory(libraryPath);
+    console.log(uuidCache);
+    await fixPaths(libraryPath);
     await writeData();
 }
 
 async function scanDirectory(pathStr: string, relativePath = ""): Promise<void> {
-    console.info(`Scanning directory: ${pathStr}`);
+    console.info(`Scanning directory: ${pathStr} (${relativePath})`);
     const entries = await readDir(pathStr);
     const cover = findCoverInDirectory(entries);
     for (const entry of entries) {
@@ -690,43 +710,58 @@ async function scanDirectory(pathStr: string, relativePath = ""): Promise<void> 
         if (isAudioFile(entry)) {
             const index = libraryIndex(entryRelativePath);
             if (index === -1) {
-                console.info(
-                    `Found new audio file: ${entryRelativePath}, adding to library...`
-                );
-                if (cover) {
-                    console.info(`Found cover image in directory: ${cover}`);
+                if (await exists(pathToMarkerPath(entryFullPath))) {
+                    console.debug(
+                        `Found audio file: ${entryRelativePath}, but it has a marker of the same name, so skipping...`
+                    );
+                    // TODO more checks ? read file, get entry by uuid, check path is the same? costly.
+                } else {
+                    console.info(
+                        `Found new audio file: ${entryRelativePath}, adding to library...`
+                    );
+                    if (cover) {
+                        console.info(`Found cover image in directory: ${cover}`);
+                    }
+                    const newEntry: LibraryEntry = {
+                        name: entry.name.slice(0, entry.name.lastIndexOf(".")),
+                        artist: "Unknown Artist",
+                        path: entryRelativePath,
+                        coverPath: cover ? (await join(relativePath, cover)).replaceAll("\\", "/") : null,
+                        tags: {},
+                        uuid: self.crypto.randomUUID(),
+                        missing: false,
+                        virtual: false
+                    };
+                    config.library.push(newEntry);
+                    const existingEntryPath = newEntry.path;
+                    const markerName = pathToMarkerName(existingEntryPath);
+                    const uuidMarkerPath = await join(pathStr, markerName);
+                    if (!await exists(uuidMarkerPath)) {
+                        console.info(`Creating UUID marker: ${markerName}`);
+                        createUUIDFile(uuidMarkerPath, newEntry.uuid);
+                        uuidCache[newEntry.uuid] = relativePath;
+                    }
                 }
-                const newEntry: LibraryEntry = {
-                    name: entry.name.slice(0, entry.name.lastIndexOf(".")),
-                    artist: "Unknown Artist",
-                    path: entryRelativePath,
-                    coverPath: cover ? (await join(relativePath, cover)).replaceAll("\\", "/") : null,
-                    tags: {},
-                    uuid: self.crypto.randomUUID(),
-                };
-                config.library.push(newEntry);
             } else if (hasBetterQualityExtension(entryFullPath, config.library[index])) {
                 console.info(
                     `Found better quality audio file: ${entryRelativePath}, updating library entry...`
+                );
+                config.library[index].path = entryRelativePath;
+            } else if (await currentLibraryAudioFileMissing(config.library[index])) {
+                console.info(
+                    `Found replacement ${entryRelativePath} to missing audio file ${config.library[index].path}, updating library entry...`
                 );
                 config.library[index].path = entryRelativePath;
             } else if (cover && config.library[index].coverPath === null) {
                 console.info(`Found cover for entry ${config.library[index].name}, updating library entry...`);
                 config.library[index].coverPath = (await join(relativePath, cover)).replaceAll("\\", "/");
             }
-            const markerName = config.library[index].name + ".scfuuid";
-            const uuidMarkerPath = await join(pathStr, markerName);
-            if (!await exists(uuidMarkerPath)) {
-                console.info(`Creating missing UUID marker: ${markerName}`);
-                const uuidMarker = await create(uuidMarkerPath);
-                const encoder = new TextEncoder();
-                const data = encoder.encode(config.library[index].uuid);
-                await uuidMarker.write(data);
-                await uuidMarker.close();
-            }
+        } else if (isUUIDFile(entry)) {
+            const uuid = await readTextFile(entryFullPath);
+            uuidCache[uuid] = relativePath;
         } else if (entry.isDirectory) {
             try {
-                await scanDirectory(entryFullPath, await join(relativePath, entry.name));
+                await scanDirectory(entryFullPath, (await join(relativePath, entry.name)).replaceAll("\\", "/"));
             } catch (error) {
                 console.error(`Error scanning directory ${entryRelativePath}:`, error);
             }
@@ -750,26 +785,51 @@ function findCoverInDirectory(entries: DirEntry[]): string | null {
     return null;
 }
 
-function isAudioFile(entry: DirEntry): boolean {
-    const audioExtensions = [".mp3", ".wav", ".flac", ".aac", ".ogg", ".m4a"];
+function isFileWithExtension(entry: DirEntry, extensions: string[]) {
     if (!entry.isFile) {
         return false;
     }
     const extension = entry.name
         .slice(entry.name.lastIndexOf("."))
         .toLowerCase();
-    return audioExtensions.includes(extension);
+    return extensions.includes(extension);
+}
+
+function isAudioFile(entry: DirEntry): boolean {
+    return isFileWithExtension(entry, [".mp3", ".wav", ".flac", ".aac", ".ogg", ".m4a"]);
+}
+
+function isUUIDFile(entry: DirEntry): boolean {
+    return isFileWithExtension(entry, [".scfuuid"]); 
 }
 
 function isImageFile(entry: DirEntry): boolean {
-    const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"];
-    if (!entry.isFile) {
-        return false;
-    }
-    const extension = entry.name
-        .slice(entry.name.lastIndexOf("."))
-        .toLowerCase();
-    return imageExtensions.includes(extension);
+    return isFileWithExtension(entry, [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"]);
+}
+
+/**
+ * Converts 'foo/bar/baz.mp3' to 'baz.scfuuid'.
+ * @param path 
+ * @returns 
+ */
+function pathToMarkerName(path: string) {
+    return path.slice(path.lastIndexOf("/") + 1, path.lastIndexOf(".")) + ".scfuuid";
+}
+/**
+ * Converts 'foo/bar/baz.mp3' to 'foo/bar/baz.scfuuid'.
+ * @param path 
+ * @returns 
+ */
+function pathToMarkerPath(path: string) {
+    return path.slice(0, path.lastIndexOf(".")) + ".scfuuid";
+}
+
+async function createUUIDFile(path: string, uuid: string) {
+    const uuidMarker = await create(path);
+    const encoder = new TextEncoder();
+    const data = encoder.encode(uuid);
+    await uuidMarker.write(data);
+    await uuidMarker.close();
 }
 
 function libraryIndex(filePath: string): number {
@@ -802,3 +862,58 @@ function hasBetterQualityExtension(
         fileExtensionIndex > existingEntryExtensionIndex
     );
 }
+
+async function currentLibraryAudioFileMissing(libraryEntry: LibraryEntry) {
+    if (appState.libraryPath === null) {
+        throw new Error("Cannot check for audio file existing. Library not loaded!");
+    }
+    return !await exists(await join(appState.libraryPath, libraryEntry.path));
+} 
+
+async function fixPaths(libraryPath: string) {
+    if (appState.libraryPath === null) {
+        throw new Error("Cannot fix paths, no library loaded!");
+    }
+    for (const e of config.library) {
+        const uuidPath = uuidCache[e.uuid];
+        if (uuidPath === undefined) {
+            if (await exists(e.path)) {
+                // Only the uuid file is missing, the audio itself still exists.
+                // So we recreate it.
+                createUUIDFile(await join(libraryPath, pathToMarkerPath(e.path)), e.uuid);
+                console.info(`${e.name}'s marker uuid ${e.uuid} missing, but ${e.path} exists. Recreating it.`);
+            } else {
+                console.info(`${e.name}'s marker uuid ${e.uuid} missing! Looking for ${e.path}`);
+                e.missing = true;
+            }
+        } else {
+            const currentRelPath = e.path;
+            const currentRelDir = currentRelPath.slice(0, currentRelPath.lastIndexOf("/"));
+            if (currentRelDir !== uuidPath) {
+                // file has moved
+                console.info(`${e.name} with uuid ${e.uuid} has moved. Updating paths.`);
+                e.path = uuidPath + e.path.slice(e.path.lastIndexOf("/") + 1, e.path.length);
+                if (e.coverPath !== null) {
+                    e.coverPath = uuidPath + e.coverPath.slice(e.coverPath.lastIndexOf("/") + 1, e.coverPath.length);
+                }
+            }
+
+            const newFullPath = await join(libraryPath, e.path);
+            if (!await exists(newFullPath)) {
+                console.info(`${e.name} audio file is missing!`);
+                e.missing = true;
+            } else {
+                e.missing = false;
+            }
+            if (e.coverPath !== null) {
+                const newFullCoverPath = await join(libraryPath, e.coverPath);
+                if (!await exists(newFullCoverPath)) {
+                    console.info(`cover path for ${e.name} is missing: ${e.coverPath}, deleting path.`);
+                    e.coverPath = null;
+                }
+            }
+
+        }
+    }
+}
+// TODO: library entry retrieval on relocate.

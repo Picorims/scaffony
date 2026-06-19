@@ -94,11 +94,13 @@
             {/each}
         {/if}
     </div>
-    <div class="actions">
-        <IconButton onClick={play}>
-            <Play />
-        </IconButton>
-    </div>
+    {#if !entry.missing && !entry.virtual}
+        <div class="actions">
+            <IconButton onClick={play}>
+                <Play />
+            </IconButton>
+        </div>
+    {/if}
 </div>
 
 <style>
