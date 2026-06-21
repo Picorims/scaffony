@@ -94,7 +94,11 @@
             {/each}
         {/if}
     </div>
-    {#if !entry.missing && !entry.virtual}
+    {#if entry.missing}
+        <span>Missing</span>
+    {:else if entry.virtual}
+        <span>Virtual</span>
+    {:else}
         <div class="actions">
             <IconButton onClick={play}>
                 <Play />
