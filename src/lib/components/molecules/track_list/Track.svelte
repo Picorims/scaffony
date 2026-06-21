@@ -109,13 +109,14 @@
 
 <style>
     img.cover {
-        width: 1rem;
-        height: 1rem;
+        width: 1.75rem;
+        height: 1.75rem;
+        margin: 0.05rem 0;
         object-fit: cover;
     }
 
     div.container {
-        padding: 0.25em 1em;
+        padding: 0 1em;
         border-bottom: 1px solid var(--background-lighter-2);
         color: var(--text);
         grid-column: span 5;
