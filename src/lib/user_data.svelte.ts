@@ -710,10 +710,19 @@ async function scanDirectory(pathStr: string, relativePath = ""): Promise<void> 
         if (isAudioFile(entry)) {
             const index = libraryIndex(entryRelativePath);
             if (index === -1) {
-                if (await exists(pathToMarkerPath(entryFullPath))) {
-                    console.debug(
+                const hasUUIDfile = await exists(pathToMarkerPath(entryFullPath)); 
+                let uuid: string | null = null;
+                let uuidExistsInLib = false;
+                if (hasUUIDfile) {
+                    uuid = await readTextFile(pathToMarkerPath(entryFullPath));
+                    uuidExistsInLib = config.library.findIndex(e => e.uuid === uuid) !== -1;
+                }
+                if (hasUUIDfile && uuid !== null && uuidExistsInLib) {
+
+                    console.info(
                         `Found audio file: ${entryRelativePath}, but it has a marker of the same name, so skipping...`
                     );
+                    uuidCache[uuid] = relativePath;
                     // TODO more checks ? read file, get entry by uuid, check path is the same? costly.
                 } else {
                     console.info(
@@ -728,7 +737,7 @@ async function scanDirectory(pathStr: string, relativePath = ""): Promise<void> 
                         path: entryRelativePath,
                         coverPath: cover ? (await join(relativePath, cover)).replaceAll("\\", "/") : null,
                         tags: {},
-                        uuid: self.crypto.randomUUID(),
+                        uuid: uuid ?? self.crypto.randomUUID(),
                         missing: false,
                         virtual: false
                     };
@@ -880,11 +889,12 @@ async function fixPaths(libraryPath: string) {
     for (const e of config.library) {
         const uuidPath = uuidCache[e.uuid];
         if (uuidPath === undefined) {
-            if (await exists(e.path)) {
+            if (await exists(await join(libraryPath, e.path))) {
                 // Only the uuid file is missing, the audio itself still exists.
                 // So we recreate it.
                 createUUIDFile(await join(libraryPath, pathToMarkerPath(e.path)), e.uuid);
                 console.info(`${e.name}'s marker uuid ${e.uuid} missing, but ${e.path} exists. Recreating it.`);
+                e.missing = false;
             } else {
                 console.info(`${e.name}'s marker uuid ${e.uuid} missing! Looking for ${e.path}`);
                 e.missing = true;
