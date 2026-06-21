@@ -825,6 +825,9 @@ function pathToMarkerPath(path: string) {
 }
 
 async function createUUIDFile(path: string, uuid: string) {
+    if (!path.endsWith(".scfuuid")) {
+        throw new Error("Cannot create marker file. Path is not a .scfuuid path.");
+    }
     const uuidMarker = await create(path);
     const encoder = new TextEncoder();
     const data = encoder.encode(uuid);

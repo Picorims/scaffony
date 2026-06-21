@@ -253,7 +253,9 @@
     src=""
     crossorigin="anonymous"
     onerror={(e) => {
-        console.error("Audio playback error: " + audioElement?.error?.message);
+        console.error(`Audio playback error on ${activeTrack?.path}: ${audioElement?.error?.message}`);
+        // Chromium is known to struggle with some FLAC files. Adjusting file metadata may fix it:
+        // https://github.com/Sandakan/Nora/issues/280
     }}
     onended={() => {
         const newTrack = getNextWaitListEntry();
