@@ -19,6 +19,12 @@
     }}>
         <Menu />
     </IconButton>
+    {#if appState.progressPercent < 100}
+        <div>
+            <progress value={appState.progressPercent} max="100"></progress>
+            <span class="progress-info">{appState.progressComment}</span>
+        </div>
+    {/if}
     <span>Scaffony</span>
 </header>
 
@@ -36,6 +42,14 @@
         font-family: var(--font-header);
         font-size: 1.25rem;
         font-weight: 400;
+    }
+    progress {
+        color: var(--primary);
+    }
+    span.progress-info {
+        font-size: 0.85rem;
+        font-family: var(--font-body);
+        color: var(--text-darker-1);
     }
     header.mobile {
         padding-top: 3vh;

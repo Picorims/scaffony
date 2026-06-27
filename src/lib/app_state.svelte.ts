@@ -15,6 +15,8 @@ export interface AppState {
     activeSubPage: string | null;
     menuVisible: boolean;
     libraryPath: string | null;
+    progressPercent: number;
+    progressComment: string;
 }
 
 export let appState = $state<AppState>({
@@ -22,6 +24,8 @@ export let appState = $state<AppState>({
     activeSubPage: null,
     menuVisible: platform() !== "android",
     libraryPath: null,
+    progressPercent: 100,
+    progressComment: "",
 });
 
 export function navigateTo(page: PageType, subPage: string | null = null) {

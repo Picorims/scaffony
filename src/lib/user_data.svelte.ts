@@ -26,6 +26,7 @@ const DATA_FILE_NAME = "scaffony_data.json";
  * Sorted from worst to best.
  */
 const PREFERRED_AUDIO_EXTENSIONS = [".aac", ".mp3", ".ogg", ".wav", ".flac"];
+const SCAN_DIR_PROGRESS_EXPONENT = 3;
 
 /**
  * UUID: directory path
@@ -711,17 +712,42 @@ export async function scan() {
 
     console.info(`Scanning library path ${libraryPath} for new audio files...`);
     uuidCache = {};
+    appState.progressComment = "Scanning directory...";
+    appState.progressPercent = 0;
     await scanDirectory(libraryPath);
+    appState.progressPercent = 100;
     console.log(uuidCache);
+    appState.progressComment = "Fixing paths...";
+    appState.progressPercent = 0;
     await fixPaths(libraryPath);
+    appState.progressPercent = 100;
     await writeData();
 }
 
-async function scanDirectory(pathStr: string, relativePath = ""): Promise<void> {
+function scanDirPercent(ratio: number, from: number, to: number) {
+    const r = ratio;
+    const adjustedRatio = (((1.5*r - 0.75) ** 3 + 0.01*(r**2) + 0.001*r + 0.5) ** SCAN_DIR_PROGRESS_EXPONENT) * 1.25;
+    return adjustedRatio * (to - from) + from;
+}
+
+/**
+ * Also returns if empty.
+ * @param pathStr Directory to scan.
+ * @param relativePath Relative path built from recursive scan (for self call only)
+ * @param percentFrom progress framing start (for self call only)
+ * @param percentTo progress framing end (for self call only)
+ */
+async function scanDirectory(pathStr: string, relativePath = "", percentFrom = 0, percentTo = 100): Promise<boolean> {
     console.info(`Scanning directory: ${pathStr} (${relativePath})`);
     const entries = await readDir(pathStr);
     const cover = findCoverInDirectory(entries);
+    let pos = 0;
+    let total = entries.length;
+    if (total === 0) {
+        return true;
+    }
     for (const entry of entries) {
+        appState.progressPercent = scanDirPercent(pos / total, percentFrom, percentTo);
         if (entry.isSymlink) {
             console.info(`Skipping symlink: ${entry.name}`);
             continue; // skip symlinks
@@ -791,12 +817,20 @@ async function scanDirectory(pathStr: string, relativePath = ""): Promise<void> 
             uuidCache[uuid] = relativePath;
         } else if (entry.isDirectory) {
             try {
-                await scanDirectory(entryFullPath, (await join(relativePath, entry.name)).replaceAll("\\", "/"));
+                const from = scanDirPercent(pos / total, percentFrom, percentTo);
+                const to = scanDirPercent((pos + 1) / total, percentFrom, percentTo);
+                const empty = await scanDirectory(entryFullPath, (await join(relativePath, entry.name)).replaceAll("\\", "/"), from, to);
+                if (empty) {
+                    pos -= 1;
+                    total -= 1;
+                }
             } catch (error) {
                 console.error(`Error scanning directory ${entryRelativePath}:`, error);
             }
         }
+        pos += 1;
     }
+    return false;
 }
 
 /**
@@ -907,7 +941,9 @@ async function fixPaths(libraryPath: string) {
     if (appState.libraryPath === null) {
         throw new Error("Cannot fix paths, no library loaded!");
     }
+    let pos = 0;
     for (const e of config.library) {
+        appState.progressPercent = pos / config.library.length * 100;
         const uuidPath = uuidCache[e.uuid];
         if (uuidPath === undefined) {
             if (await exists(await join(libraryPath, e.path))) {
@@ -948,6 +984,7 @@ async function fixPaths(libraryPath: string) {
             }
 
         }
+        pos++;
     }
 }
 // TODO: library entry retrieval on relocate.
