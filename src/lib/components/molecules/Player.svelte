@@ -18,6 +18,7 @@
         Square,
         StepBack,
         StepForward,
+        Tags,
         Volume,
         Volume1,
         Volume2,
@@ -25,12 +26,15 @@
     } from "@lucide/svelte";
     import IconButton from "../atoms/IconButton.svelte";
     import { convertFileSrc } from "@tauri-apps/api/core";
-    import type { LibraryEntry } from "$lib/user_data.svelte";
+    import { getConfig, getTagCategory, setTagState, type LibraryEntry } from "$lib/user_data.svelte";
     import { onMount } from "svelte";
     import { getNextWaitListEntry, getPreviousWaitListEntry, onRequestPlay } from "$lib/playback";
     import { platform } from "@tauri-apps/plugin-os";
     import { readFile } from "@tauri-apps/plugin-fs";
     import { join } from "@tauri-apps/api/path";
+    import Modal from "../atoms/Modal.svelte";
+    import Tag from "../atoms/Tag.svelte";
+    import Button from "../atoms/Button.svelte";
 
     let paused = $state(true);
     let audioElement = $state<HTMLAudioElement | null>(null);
@@ -39,6 +43,13 @@
     let volume = $state(1);
     let imageOnError = $state(false);
     let activeTrack = $state<LibraryEntry | null>(null);
+    let unknownTagsCount = $derived(() => {
+        const activeTagsSet = new Set(Object.keys(activeTrack?.tags ?? {}));
+        const allTagsSet = new Set(getConfig().tags.map(e => e.name));
+        const unknownTagsSet = allTagsSet.difference(activeTagsSet);
+        return unknownTagsSet.size;
+    });
+    let editTagsDialog = $state<HTMLDialogElement>(document.createElement("dialog"));
 
     const POSITION_REFRESH_INTERVAL_MS = 500;
 
@@ -157,6 +168,12 @@
         }
     }
 
+    function requestTagEdit() {
+        if (activeTrack !== null) {
+            editTagsDialog.showModal();
+        }
+    }
+
     onMount(() => {
         const unsubscribe = onRequestPlay(() => {
             activeTrack = getNextWaitListEntry();
@@ -166,6 +183,21 @@
         };
     });
 </script>
+
+{#snippet editTagButtons()}
+    <Button text="OK" variant="primary" onclick={() => editTagsDialog.close()}/>    
+{/snippet}
+<Modal bind:dialog={editTagsDialog} title="Edit tags" buttons={editTagButtons}>
+    {@const tags = getConfig().tags}
+    {#each tags as tag, i}
+        {@const state = activeTrack?.tags[tag.name]}
+        <Tag {tag} mode='classify' size="normal" shrinkable={false} status={state === undefined ? "unknown" : state ? "yes" : "no"} onStatusChange={(s) => {if (activeTrack !== null) {setTagState(activeTrack, tag.name, s)}}} />
+        <br>
+        {#if i + 1 < tags.length && getTagCategory(tags[i+1].name) !== getTagCategory(tag.name)}
+            <br>
+        {/if}
+    {/each}
+</Modal>
 
 <div class="container" class:mobile={platform() === "android"}>
     <div class="meta">
@@ -213,6 +245,13 @@
             <IconButton onClick={playNextTrack}>
                 <StepForward />
             </IconButton>
+            <div class="gap"></div>
+            {#if activeTrack !== null}
+                <IconButton onClick={requestTagEdit}>
+                    <Tags />
+                </IconButton>
+                <span>{unknownTagsCount()}</span>
+            {/if}
         </div>
         <input
             bind:this={rangePositionElement}
@@ -364,5 +403,9 @@
         display: flex;
         align-items: center;
         gap: 1em;
+    }
+
+    div.gap {
+        width: 1em;
     }
 </style>
