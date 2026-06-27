@@ -28,7 +28,7 @@
     import { convertFileSrc } from "@tauri-apps/api/core";
     import { getConfig, getTagCategory, setTagState, type LibraryEntry } from "$lib/user_data.svelte";
     import { onMount } from "svelte";
-    import { getNextWaitListEntry, getPreviousWaitListEntry, onRequestPlay } from "$lib/playback";
+    import { getCurrentWaitListEntry, getNextWaitListEntry, getPreviousWaitListEntry, onRequestPlay, onWaitListUpdated } from "$lib/playback";
     import { platform } from "@tauri-apps/plugin-os";
     import { readFile } from "@tauri-apps/plugin-fs";
     import { join } from "@tauri-apps/api/path";
@@ -84,8 +84,9 @@
                         audioElement.src = convertFileSrc(await join(appState.libraryPath, activeTrack.path));
                     }
                     audioElement.load();
-                    audioElement.play();
-                    paused = false;
+                    if (!paused) {
+                        audioElement.play();
+                    }
                 } catch (error) {
                     const errorStr = error instanceof Error ? error.message : String(error);
                     console.error("Failed to load audio:" + errorStr);
@@ -175,11 +176,21 @@
     }
 
     onMount(() => {
-        const unsubscribe = onRequestPlay(() => {
+        activeTrack = getCurrentWaitListEntry();
+        const unsubscribePlay = onRequestPlay(() => {
+            console.log("Player - request play");
             activeTrack = getNextWaitListEntry();
+            if (paused) {
+                togglePause();
+            }
+        });
+        const unsubscribeWaitList = onWaitListUpdated(() => {
+            console.log("Player - wait list updated");
+            activeTrack = getCurrentWaitListEntry();
         });
         return () => {
-            unsubscribe();
+            unsubscribePlay();
+            unsubscribeWaitList();
         };
     });
 </script>

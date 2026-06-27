@@ -8,17 +8,22 @@
     import { forwardConsoleToLogs } from "$lib/log";
     import Player from "$lib/components/molecules/Player.svelte";
     import { appState } from "$lib/app_state.svelte";
+    import { setWaitListFromData } from "$lib/playback";
 
     let mounted: boolean = $state<boolean>(false);
 
-    onMount(() => {
+    onMount(async () => {
         if (mounted) return;
         mounted = true;
         console.log("initializing front...");
         
         forwardConsoleToLogs();
-        readData();
-        scan();
+        console.log("Reading data...");
+        await readData();
+        console.log("Reading wait list...");
+        setWaitListFromData();
+        console.log("Scanning for file system updates...");
+        await scan();
     });
 </script>
 

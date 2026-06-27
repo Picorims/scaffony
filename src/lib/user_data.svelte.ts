@@ -127,6 +127,13 @@ export interface IConfig {
     tags: TagEntry[];
     playlists: PlaylistEntry[];
     categories: Record<string, CategoryEntry>;
+    waitList: {
+        /**
+         * UUIDs
+         */
+        currentList: string[]
+        position: number
+    }
 }
 
 const DEFAULT_CONFIG: IConfig = {
@@ -235,6 +242,10 @@ const DEFAULT_CONFIG: IConfig = {
             name: "energy",
             exclusive: false,
         },
+    },
+    waitList: {
+        currentList: [],
+        position: 0
     }
 };
 
@@ -359,6 +370,10 @@ export function setTagState(entry: LibraryEntry, tagName: string, state: "yes" |
     writeData();
 }
 
+export function setDataWaitList(waitList: IConfig["waitList"]) {
+    config.waitList = waitList;
+    commit();
+}
 
 
 
@@ -549,6 +564,12 @@ function addMissingFieldsToConfig(data: IConfig): IConfig {
     }
     if (!data.categories) {
         data.categories = {};
+    }
+    if (!data.waitList) {
+        data.waitList = {
+            currentList: [],
+            position: 0
+        }
     }
     return data;
 }
