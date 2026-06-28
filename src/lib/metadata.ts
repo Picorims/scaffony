@@ -14,16 +14,17 @@ export interface Metadata {
     album_name: string | null,
     year: number | null,
     track_number: number | null,
+    disc_number: number | null,
     genre: string | null,
     comment: string | null,
 }
 
 let cache: Record<string, Metadata> = {};
 
-export async function getMetadata(path: string): Promise<Metadata> {
+export async function getMetadata(fullPath: string): Promise<Metadata> {
     try {
-        return cache[path] ?? await invoke<Metadata>("get_audio_metadata", { path }).then((metadata) => {
-            cache[path] = metadata;
+        return cache[fullPath] ?? await invoke<Metadata>("get_audio_metadata", { path: fullPath }).then((metadata) => {
+            cache[fullPath] = metadata;
             return metadata;
         });
     } catch {
@@ -32,7 +33,8 @@ export async function getMetadata(path: string): Promise<Metadata> {
             artist: null,
             album_name: null,
             year: null,
-            track_number:null,
+            track_number: null,
+            disc_number: null,
             genre: null,
             comment: null,
         }

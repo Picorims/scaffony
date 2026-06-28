@@ -9,6 +9,7 @@
 
     import { appState } from "$lib/app_state.svelte";
     import {
+    ActivitySquare,
         Disc3,
         Icon,
         Pause,
@@ -35,6 +36,7 @@
     import Modal from "../atoms/Modal.svelte";
     import Tag from "../atoms/Tag.svelte";
     import Button from "../atoms/Button.svelte";
+    import { getMetadata } from "$lib/metadata";
 
     let paused = $state(true);
     let audioElement = $state<HTMLAudioElement | null>(null);
@@ -50,6 +52,7 @@
         return unknownTagsSet.size;
     });
     let editTagsDialog = $state<HTMLDialogElement>(document.createElement("dialog"));
+    let titleSpan = $state<HTMLSpanElement>(document.createElement("span"));
 
     const POSITION_REFRESH_INTERVAL_MS = 500;
 
@@ -175,6 +178,17 @@
         }
     }
 
+    async function getTrackMetadata(track: LibraryEntry | null) {
+        console.log(`Looking for track ${track?.name} metadata.`);
+        if (appState.libraryPath === null || track === null) {
+            return;
+        }
+        const path = await join(appState.libraryPath, track.path);
+        const meta = await getMetadata(path);
+        console.log("got", meta);
+        return meta;
+    }
+
     onMount(() => {
         activeTrack = getCurrentWaitListEntry();
         const unsubscribePlay = onRequestPlay(() => {
@@ -228,8 +242,31 @@
             {/if}
         </div>
         <div class="meta-text">
-            <span class="title">{activeTrack?.name ?? "-"}</span>
-            <span class="artist">{activeTrack?.artist ?? "-"}</span>
+            {#if appState.libraryPath !== null && activeTrack !== null}
+                {#await getTrackMetadata(activeTrack) then metadata}
+                    {@const disc = metadata?.disc_number ? `${metadata?.disc_number} | ` : ""}
+                    {@const track = metadata?.track_number ? `${metadata?.track_number} - ` : ""}
+                    {@const title = `${disc}${track}${metadata?.title ?? activeTrack.name ?? "-"}`}
+                    {@const artist = `by ${metadata?.artist ?? activeTrack.artist ?? "-"}`}
+                    {@const year = metadata?.year ? `${metadata.year}` : ""}
+                    {@const album = metadata?.album_name}
+                    {@const genre = metadata?.genre ? `, ${metadata?.genre}` : ""}
+                    {@const comment = metadata?.comment ? `, ${metadata?.genre}` : ""}
+
+                    <span bind:this={titleSpan} class="title">
+                        <span class:scrolling={titleSpan ? titleSpan.offsetWidth < titleSpan.scrollWidth : false}>{title}</span>
+                    </span>
+                    <span class="metadata"><strong>{artist}</strong></span>
+                    <span class="metadata">
+                        {#if album}
+                            from album: {album}
+                        {/if}
+                    </span>
+                    <span class="metadata">
+                        {year}{genre}{comment}
+                    </span>
+                {/await}
+            {/if}
         </div>
     </div>
     <div class="controls-middle">
@@ -378,19 +415,51 @@
         display: flex;
         flex-direction: column;
     }
+    span.scrolling {
+        position: relative;
+        display: inline-block;
+        width: min-content;
+        animation: 25s linear 0s scrolling infinite;
+    }
+    @keyframes scrolling {
+        0% {
+            transform: translateX(0);
+        }
+        20% {
+            transform: translateX(0);
+        }
+        85% {
+            transform: translateX(-100%);
+            opacity: 1;
+        }
+        86% {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+        87% {
+            opacity: 0;
+            transform: translateX(0);
+        }
+        99% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
     span.title,
-    span.artist {
+    span.metadata {
         white-space: nowrap;
         overflow: hidden;
-        text-overflow: ellipsis;
+        /* text-overflow: ellipsis; */
     }
     span.title {
         font-weight: bold;
         color: var(--text);
     }
-    span.artist {
+    span.metadata {
         color: var(--text-darker-1);
-        font-size: 0.9em;
+        font-size: 0.8em;
     }
 
     div.controls-middle {

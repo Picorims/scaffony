@@ -9,7 +9,7 @@
 
     import { appState } from "$lib/app_state.svelte";
     import IconButton from "$lib/components/atoms/IconButton.svelte";
-    import { commit, getConfig, getTag, setTagState, type LibraryEntry } from "$lib/user_data.svelte";
+    import { getConfig, getTag, setTagState, type LibraryEntry } from "$lib/user_data.svelte";
     import { Disc3, Play } from "@lucide/svelte";
     import Tag from "$lib/components/atoms/Tag.svelte";
     import { convertFileSrc } from "@tauri-apps/api/core";
@@ -27,15 +27,17 @@
 
     const { entry, index, mode, classifyFilter }: Props = $props();
     let imageInError = $state(false);
-    let metadata = $state<Metadata>({
+    let metadataDefault = $state<Metadata>({
         title: entry.name,
         artist: entry.artist,
         album_name: "",
         comment: "",
         genre: "",
         track_number: 0,
+        disc_number: 0,
         year: 0,
     });
+    let metadataPromise = $state<Promise<Metadata>>();
 
     function play() {
         setWaitList([entry]);
@@ -47,7 +49,9 @@
     }
 
     onMount(async () => {
-        metadata = await getMetadata(entry.path);
+        if (appState.libraryPath !== null) {
+            metadataPromise = getMetadata(await join(appState.libraryPath, entry.path));
+        }
     });
 </script>
 
@@ -65,8 +69,11 @@
             />
         {/await}
     {/if}
-    <span class="name">{metadata.title ?? entry.name}</span>
-    <span class="artist">{metadata.artist ?? entry.artist}</span>
+    
+    {#await metadataPromise then metadata}
+        <span class="name">{metadata?.title ?? metadataDefault.title ?? "-"}</span>
+        <span class="artist">{metadata?.artist ?? metadataDefault.artist ?? "-"}</span>
+    {/await}
     <div class="tags">
         {#if mode === "classify"}
             {#each getConfig().tags.filter(v => v.name.startsWith(classifyFilter ?? "")) as tag}

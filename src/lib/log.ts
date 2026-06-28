@@ -20,7 +20,7 @@ function forwardConsole(
   const original = console[fnName];
   console[fnName] = (...messages) => {
     original(...messages);
-    logger(messages.join(" "));
+    logger(messages.map(m => m.toString()).join(" "));
   };
 }
 
