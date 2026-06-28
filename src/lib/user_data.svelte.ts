@@ -840,7 +840,10 @@ async function scanDirectory(pathStr: string, relativePath = "", percentFrom = 0
 function findCoverInDirectory(entries: DirEntry[]): string | null {
     for (const entry of entries) {
         if (entry.isFile && isImageFile(entry)) {
-            const nameHasCover = entry.name.toLowerCase().includes("cover");
+            const nameHasCover = (
+                entry.name.toLowerCase().includes("cover")
+                || entry.name.toLowerCase().includes("folder")
+            );
             if (nameHasCover) {
                 return entry.name;
             }
