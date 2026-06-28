@@ -769,7 +769,7 @@ async function scanDirectory(pathStr: string, relativePath = "", percentFrom = 0
                     console.info(
                         `Found audio file: ${entryRelativePath}, but it has a marker of the same name, so skipping...`
                     );
-                    uuidCache[uuid] = relativePath;
+                    uuidCache[uuid] = relativePath + "/" + entry.name;
                     // TODO more checks ? read file, get entry by uuid, check path is the same? costly.
                 } else {
                     console.info(
@@ -795,7 +795,7 @@ async function scanDirectory(pathStr: string, relativePath = "", percentFrom = 0
                     if (!await exists(uuidMarkerPath)) {
                         console.info(`Creating UUID marker: ${markerName}`);
                         createUUIDFile(uuidMarkerPath, newEntry.uuid);
-                        uuidCache[newEntry.uuid] = relativePath;
+                        uuidCache[newEntry.uuid] = relativePath + "/" + entry.name;
                     }
                 }
             } else if (hasBetterQualityExtension(entryFullPath, config.library[index])) {
@@ -814,7 +814,7 @@ async function scanDirectory(pathStr: string, relativePath = "", percentFrom = 0
             }
         } else if (isUUIDFile(entry)) {
             const uuid = await readTextFile(entryFullPath);
-            uuidCache[uuid] = relativePath;
+            uuidCache[uuid] = relativePath + "/" + entry.name;
         } else if (entry.isDirectory) {
             try {
                 const from = scanDirPercent(pos / total, percentFrom, percentTo);
@@ -962,12 +962,14 @@ async function fixPaths(libraryPath: string) {
         } else {
             const currentRelPath = e.path;
             const currentRelDir = currentRelPath.slice(0, currentRelPath.lastIndexOf("/"));
-            if (currentRelDir !== uuidPath) {
+            const ext = e.path.slice(e.path.lastIndexOf(".") + 1, e.path.length);
+            const newPath = uuidPath.replace("scfuuid", ext);
+            if (currentRelDir !== uuidPath && newPath !== e.path) {
                 // file has moved
                 console.info(`${e.name} with uuid ${e.uuid} has moved. Updating paths.`);
-                e.path = uuidPath + e.path.slice(e.path.lastIndexOf("/") + 1, e.path.length);
+                e.path = newPath;
                 if (e.coverPath !== null) {
-                    e.coverPath = uuidPath + e.coverPath.slice(e.coverPath.lastIndexOf("/") + 1, e.coverPath.length);
+                    e.coverPath = null; // next scan will fix it.
                 }
             }
 
