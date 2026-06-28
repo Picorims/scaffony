@@ -19,6 +19,8 @@ import {
 } from "@tauri-apps/plugin-fs";
 import { platform } from "@tauri-apps/plugin-os";
 import { appState } from "./app_state.svelte";
+import { convertFileSrc } from "@tauri-apps/api/core";
+import { getColor } from "colorthief";
 
 const LIBRARY_PATH_FILE_NAME = "scaffony_current_library.txt";
 const DATA_FILE_NAME = "scaffony_data.json";
@@ -64,6 +66,7 @@ export interface LibraryEntry {
      * Virtual, non playable entry (.scfvirtual)
      */
     virtual: boolean;
+    color?: string;
 }
 
 /**
@@ -992,4 +995,32 @@ async function fixPaths(libraryPath: string) {
         pos++;
     }
 }
-// TODO: library entry retrieval on relocate.
+
+export async function getCoverColors() {
+    if (appState.libraryPath === null) {
+        return;
+    }
+    appState.progressPercent = 0;
+    appState.progressComment = "Retrieving cover dominant colors...";
+    for (let i = 0; i < config.library.length; i++) {
+        appState.progressPercent = i / config.library.length * 100;
+        const entry = config.library[i];
+        if (entry.coverPath === null) {
+            entry.color = undefined;
+        } else if (entry.color === undefined) {
+            const coverPath = await join(appState.libraryPath, entry.coverPath);
+            if (await exists(coverPath)) {
+                const img = document.createElement("img");
+                img.src = convertFileSrc(coverPath);
+                img.crossOrigin = "anonymous";
+                await img.decode();
+                const color = await getColor(img);
+                if (color !== null) {
+                    entry.color = color.hex();
+                }
+            }
+        }
+    }
+    await writeData();
+    appState.progressPercent = 100;
+}

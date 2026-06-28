@@ -9,7 +9,7 @@
 
     import { appState } from "$lib/app_state.svelte";
     import {
-    ActivitySquare,
+        ActivitySquare,
         Disc3,
         Icon,
         Pause,
@@ -27,9 +27,20 @@
     } from "@lucide/svelte";
     import IconButton from "../atoms/IconButton.svelte";
     import { convertFileSrc } from "@tauri-apps/api/core";
-    import { getConfig, getTagCategory, setTagState, type LibraryEntry } from "$lib/user_data.svelte";
+    import {
+        getConfig,
+        getTagCategory,
+        setTagState,
+        type LibraryEntry,
+    } from "$lib/user_data.svelte";
     import { onMount } from "svelte";
-    import { getCurrentWaitListEntry, getNextWaitListEntry, getPreviousWaitListEntry, onRequestPlay, onWaitListUpdated } from "$lib/playback";
+    import {
+        getCurrentWaitListEntry,
+        getNextWaitListEntry,
+        getPreviousWaitListEntry,
+        onRequestPlay,
+        onWaitListUpdated,
+    } from "$lib/playback";
     import { platform } from "@tauri-apps/plugin-os";
     import { readFile } from "@tauri-apps/plugin-fs";
     import { join } from "@tauri-apps/api/path";
@@ -47,11 +58,13 @@
     let activeTrack = $state<LibraryEntry | null>(null);
     let unknownTagsCount = $derived(() => {
         const activeTagsSet = new Set(Object.keys(activeTrack?.tags ?? {}));
-        const allTagsSet = new Set(getConfig().tags.map(e => e.name));
+        const allTagsSet = new Set(getConfig().tags.map((e) => e.name));
         const unknownTagsSet = allTagsSet.difference(activeTagsSet);
         return unknownTagsSet.size;
     });
-    let editTagsDialog = $state<HTMLDialogElement>(document.createElement("dialog"));
+    let editTagsDialog = $state<HTMLDialogElement>(
+        document.createElement("dialog"),
+    );
     let titleSpan = $state<HTMLSpanElement>(document.createElement("span"));
 
     const POSITION_REFRESH_INTERVAL_MS = 500;
@@ -79,19 +92,26 @@
                         // On Android, if using convertFileSrc directly, it fails to play the audio.
                         // (HTTP 206 on first packet, subsequent packets fail, leading to playback error
                         // "Audio playback error: PipelineStatus::PIPELINE_ERROR_READ: FFmpegDemuxer: data source error")
-                        const fileData = await readFile(await join(appState.libraryPath, activeTrack.path));
-                        const blob = new Blob([fileData], { type: "audio/mpeg" }); //FIXME mime type
+                        const fileData = await readFile(
+                            await join(appState.libraryPath, activeTrack.path),
+                        );
+                        const blob = new Blob([fileData], {
+                            type: "audio/mpeg",
+                        }); //FIXME mime type
                         const blobUrl = URL.createObjectURL(blob);
                         audioElement.src = blobUrl;
                     } else {
-                        audioElement.src = convertFileSrc(await join(appState.libraryPath, activeTrack.path));
+                        audioElement.src = convertFileSrc(
+                            await join(appState.libraryPath, activeTrack.path),
+                        );
                     }
                     audioElement.load();
                     if (!paused) {
                         audioElement.play();
                     }
                 } catch (error) {
-                    const errorStr = error instanceof Error ? error.message : String(error);
+                    const errorStr =
+                        error instanceof Error ? error.message : String(error);
                     console.error("Failed to load audio:" + errorStr);
                     paused = true;
                 }
@@ -210,21 +230,37 @@
 </script>
 
 {#snippet editTagButtons()}
-    <Button text="OK" variant="primary" onclick={() => editTagsDialog.close()}/>    
+    <Button
+        text="OK"
+        variant="primary"
+        onclick={() => editTagsDialog.close()}
+    />
 {/snippet}
 <Modal bind:dialog={editTagsDialog} title="Edit tags" buttons={editTagButtons}>
     {@const tags = getConfig().tags}
     {#each tags as tag, i}
         {@const state = activeTrack?.tags[tag.name]}
-        <Tag {tag} mode='classify' size="normal" shrinkable={false} status={state === undefined ? "unknown" : state ? "yes" : "no"} onStatusChange={(s) => {if (activeTrack !== null) {setTagState(activeTrack, tag.name, s)}}} />
-        <br>
-        {#if i + 1 < tags.length && getTagCategory(tags[i+1].name) !== getTagCategory(tag.name)}
-            <br>
+        <Tag
+            {tag}
+            mode="classify"
+            size="normal"
+            shrinkable={false}
+            status={state === undefined ? "unknown" : state ? "yes" : "no"}
+            onStatusChange={(s) => {
+                if (activeTrack !== null) {
+                    setTagState(activeTrack, tag.name, s);
+                }
+            }}
+        />
+        <br />
+        {#if i + 1 < tags.length && getTagCategory(tags[i + 1].name) !== getTagCategory(tag.name)}
+            <br />
         {/if}
     {/each}
 </Modal>
 
-<div class="container" class:mobile={platform() === "android"}>
+<div class="container" class:mobile={platform() === "android"} style:--cover-color={activeTrack?.color}>
+    <div class="gradient"></div>
     <div class="meta">
         <div class="cover">
             {#if imageOnError || activeTrack === null || activeTrack?.coverPath === null || appState.libraryPath === null}
@@ -244,17 +280,29 @@
         <div class="meta-text">
             {#if appState.libraryPath !== null && activeTrack !== null}
                 {#await getTrackMetadata(activeTrack) then metadata}
-                    {@const disc = metadata?.disc_number ? `${metadata?.disc_number} | ` : ""}
-                    {@const track = metadata?.track_number ? `${metadata?.track_number} - ` : ""}
+                    {@const disc = metadata?.disc_number
+                        ? `${metadata?.disc_number} | `
+                        : ""}
+                    {@const track = metadata?.track_number
+                        ? `${metadata?.track_number} - `
+                        : ""}
                     {@const title = `${disc}${track}${metadata?.title ?? activeTrack.name ?? "-"}`}
                     {@const artist = `by ${metadata?.artist ?? activeTrack.artist ?? "-"}`}
                     {@const year = metadata?.year ? `${metadata.year}` : ""}
                     {@const album = metadata?.album_name}
-                    {@const genre = metadata?.genre ? `, ${metadata?.genre}` : ""}
-                    {@const comment = metadata?.comment ? `, ${metadata?.genre}` : ""}
+                    {@const genre = metadata?.genre
+                        ? `, ${metadata?.genre}`
+                        : ""}
+                    {@const comment = metadata?.comment
+                        ? `, ${metadata?.genre}`
+                        : ""}
 
                     <span bind:this={titleSpan} class="title">
-                        <span class:scrolling={titleSpan ? titleSpan.offsetWidth < titleSpan.scrollWidth : false}>{title}</span>
+                        <span
+                            class:scrolling={titleSpan
+                                ? titleSpan.offsetWidth < titleSpan.scrollWidth
+                                : false}>{title}</span
+                        >
                     </span>
                     <span class="metadata"><strong>{artist}</strong></span>
                     <span class="metadata">
@@ -309,6 +357,7 @@
             max="100"
             value="0.001"
             oninput={updatePosition}
+            class={"monochrome"}
         />
     </div>
     <div class="controls-side">
@@ -332,6 +381,7 @@
             oninput={(e) => {
                 volume = rangeVolumeElement?.valueAsNumber ?? 0.5;
             }}
+            class={"monochrome"}
         />
     </div>
 </div>
@@ -340,7 +390,9 @@
     src=""
     crossorigin="anonymous"
     onerror={(e) => {
-        console.error(`Audio playback error on ${activeTrack?.path}: ${audioElement?.error?.message}`);
+        console.error(
+            `Audio playback error on ${activeTrack?.path}: ${audioElement?.error?.message}`,
+        );
         // Chromium is known to struggle with some FLAC files. Adjusting file metadata may fix it:
         // https://github.com/Sandakan/Nora/issues/280
     }}
@@ -356,6 +408,7 @@
 
 <style>
     div.container {
+        position: relative;
         width: 100%;
         flex: 0 0 auto;
         background-color: var(--background-darker-1);
@@ -365,6 +418,7 @@
         grid-template-columns: repeat(2, 1fr) 128px;
         gap: 4em;
         padding: 0.5em;
+        box-shadow: 0 0 4px var(--cover-color, #00000000);
     }
     div.container.mobile {
         grid-template-columns: 1fr;
@@ -381,6 +435,22 @@
             gap: 1em;
             padding: 0.5em 1em;
         }
+        div.gradient {
+            width: 100%;
+        }
+    }
+
+    div.gradient {
+        position: absolute;
+        z-index: 0;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: linear-gradient(0.25turn, oklch(from var(--cover-color, #00000000) calc(l - 0.3) c h), #00000000);
+    }
+    div.container > :not(.gradient) {
+        z-index: 1;
     }
 
     div.meta {
@@ -407,6 +477,7 @@
         min-width: 50px;
         min-height: 50px;
         background-color: var(--background-lighter-0);
+        box-shadow: 0 0 8px oklch(from var(--cover-color, #00000000) calc(l + 0.5) c h);
     }
 
     div.meta-text {

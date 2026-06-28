@@ -4,7 +4,7 @@
     import Header from "../lib/components/molecules/Header.svelte";
     import Page from "$lib/components/molecules/Page.svelte";
     import { onMount } from "svelte";
-    import { readData, scan } from "$lib/user_data.svelte";
+    import { getCoverColors, readData, scan } from "$lib/user_data.svelte";
     import { forwardConsoleToLogs } from "$lib/log";
     import Player from "$lib/components/molecules/Player.svelte";
     import { appState } from "$lib/app_state.svelte";
@@ -24,6 +24,7 @@
         setWaitListFromData();
         console.log("Scanning for file system updates...");
         await scan();
+        getCoverColors();
     });
 </script>
 

@@ -55,7 +55,8 @@
     });
 </script>
 
-<div class="container" class:odd={index % 2 === 1}>
+<div class="container" class:odd={index % 2 === 1} style:--cover-color={entry.color}>
+    <div class="gradient"></div>
     {#if imageInError || entry.coverPath === null || appState.libraryPath === null}
         <Disc3 stroke="var(--text-darker-1)" width="1rem" height="1rem" />
     {:else}
@@ -120,9 +121,11 @@
         height: 1.75rem;
         margin: 0.05rem 0;
         object-fit: cover;
+        box-shadow: 0 0 4px var(--cover-color, #00000000);
     }
 
     div.container {
+        position: relative;
         padding: 0 1em;
         border-bottom: 1px solid var(--background-lighter-2);
         color: var(--text);
@@ -134,6 +137,18 @@
     }
     div.container.odd {
         background-color: var(--background-lighter-0);
+    }
+
+    div.container > :not(.gradient) {
+        z-index: 1;
+    }
+
+    div.gradient {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(0.25turn, oklch(from var(--cover-color, #00000000) calc(l - 0.3) c h), #00000000);
+        box-shadow: 0 0 4px var(--cover-color, #00000000);
     }
 
     span.artist,
