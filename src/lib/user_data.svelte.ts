@@ -20,7 +20,6 @@ import {
 import { platform } from "@tauri-apps/plugin-os";
 import { appState } from "./app_state.svelte";
 import { convertFileSrc } from "@tauri-apps/api/core";
-import { getColor } from "colorthief";
 
 const LIBRARY_PATH_FILE_NAME = "scaffony_current_library.txt";
 const DATA_FILE_NAME = "scaffony_data.json";
@@ -1014,10 +1013,10 @@ export async function getCoverColors(force = false) {
                 img.src = convertFileSrc(coverPath);
                 img.crossOrigin = "anonymous";
                 await img.decode();
-                const color = await getColor(img);
-                if (color !== null) {
-                    entry.color = color.hex();
-                }
+                // const color = await getColor(img);
+                // if (color !== null) {
+                //     entry.color = color.hex();
+                // }
             }
         }
     }
