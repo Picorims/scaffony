@@ -49,6 +49,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    scrollbar-color: var(--primary) var(--background);
 }
 
 button {
@@ -83,7 +84,7 @@ input[type="range"] {
     background: var(--background-lighter-3);
 }
 input[type="range"].monochrome {
-    background: #000000aa;
+    background: #ffffffaa;
 }
 input[type="range"]::-webkit-slider-thumb {
     appearance: none;
@@ -108,4 +109,11 @@ fieldset {
     border-radius: 4px;
     padding: 1em;
     background-color: var(--background-lighter-1);
+}
+
+progress::-webkit-progress-bar {
+  background-color: var(--background);
+}
+progress::-webkit-progress-value {
+  background-color: var(--primary);
 }
