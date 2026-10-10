@@ -11,9 +11,10 @@
         text: string;
         onclick?: () => void;
         variant: "primary" | "secondary" | "accent";
+        disabled?: boolean
     }
 
-    let { text, onclick, variant }: IProps = $props();
+    let { text, onclick, variant, disabled = false }: IProps = $props();
 </script>
 
 <button
@@ -21,6 +22,7 @@
     class:primary={variant === "primary"}
     class:secondary={variant === "secondary"}
     class:accent={variant === "accent"}
+    {disabled}
 >
     {text}
 </button>
@@ -38,6 +40,10 @@
     }
     button:active {
         transform: scale(0.98);
+    }
+    button:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
     }
 
     button.primary {

@@ -23,8 +23,6 @@
         console.log("Reading wait list...");
         setWaitListFromData();
         console.log("Scanning for file system updates...");
-        await scan();
-        getCoverColors();
     });
 </script>
 

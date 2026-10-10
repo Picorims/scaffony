@@ -539,14 +539,14 @@ export async function readData(): Promise<boolean> {
         } else if (textContents.length === 0) {
             // empty, write current config
             await writeData();
-        }
-    
+}
+
         return true;
     } catch (error) {
         console.error(`Error reading user data from ${readPath}:`, error);
-        if (platform() === "android") {
-            alert("Error reading user data. Make sure Scaffony has the necessary file permissions (MANAGE_EXTERNAL_STORAGE).");
-        }
+        // if (platform() === "android") {
+        alert("Error reading user data. Make sure Scaffony has the necessary file permissions (MANAGE_EXTERNAL_STORAGE).");
+        // }
         return false;
     }
 }
@@ -996,7 +996,7 @@ async function fixPaths(libraryPath: string) {
     }
 }
 
-export async function getCoverColors() {
+export async function getCoverColors(force = false) {
     if (appState.libraryPath === null) {
         return;
     }
@@ -1007,7 +1007,7 @@ export async function getCoverColors() {
         const entry = config.library[i];
         if (entry.coverPath === null) {
             entry.color = undefined;
-        } else if (entry.color === undefined) {
+        } else if (entry.color === undefined || force) {
             const coverPath = await join(appState.libraryPath, entry.coverPath);
             if (await exists(coverPath)) {
                 const img = document.createElement("img");

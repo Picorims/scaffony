@@ -7,20 +7,24 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
-    import { getConfig, getLibraryPath, readData, scan, setLibraryPath } from "$lib/user_data.svelte";
+    import { getConfig, getCoverColors, getLibraryPath, readData, scan, setLibraryPath } from "$lib/user_data.svelte";
     import { onMount } from "svelte";
     import Button from "../atoms/Button.svelte";
     import { message, open } from "@tauri-apps/plugin-dialog";
     import TrackList from "../molecules/track_list/TrackList.svelte";
     import { AndroidFs } from 'tauri-plugin-android-fs-api'
     import { platform } from "@tauri-apps/plugin-os";
+    import Modal from "../atoms/Modal.svelte";
 
+    let libraryPicked = $state(false);
     let currentLibrary = $state<string>("No library selected");
+    let scanDialog = $state<HTMLDialogElement>(document.createElement("dialog"))
 
     onMount(async () => {
         const lib = await getLibraryPath();
         if (lib) {
             currentLibrary = lib;
+            libraryPicked = true;
         }
     })
 
@@ -65,8 +69,8 @@
             const success = await setLibraryPath(path);
             if (success) {
                 currentLibrary = path;
+                libraryPicked = true;
                 await readData();
-                await scan();
             } else {
                 message("Failed to set library path. Please try again. If the issue persists, check the logs for more details.");
             }
@@ -76,11 +80,31 @@
 
 <div class="container">
     <div class="header">
+    <Button variant="primary" text="Scan library" onclick={() => scanDialog.showModal()} disabled={!libraryPicked}/>
         <Button variant="secondary" text="Pick library" onclick={pickPath} />
         <span class="library-path">{currentLibrary}</span>
     </div>
     <TrackList tracks={getConfig().library} />
 </div>
+
+{#snippet close()}
+    <Button text="Close" variant="secondary" onclick={() => scanDialog.close()} />
+{/snippet}
+
+<Modal bind:dialog={scanDialog} title={"Scan library"} buttons={close}>
+    <div class="modal-container">
+        <p>
+            Scan to add new files and retrieve moved files (if the id file was moved with it).
+            Missing files will not be removed from the library, but marked as missing.
+        </p>
+        <Button text="Scan" variant="primary" onclick={() => scan()} />
+        <p>
+            Cover color is used for a more immersive appearance.
+        </p>
+        <Button text="Get missing cover colors" variant="secondary" onclick={() => getCoverColors(false)} />
+        <Button text="Get all cover colors" variant="secondary" onclick={() => getCoverColors(true)} />
+    </div>
+</Modal>
 
 <style>
     div.container {
@@ -90,6 +114,13 @@
         flex-wrap: nowrap;
         width: 100%;
         height: 100%;
+    }
+    div.modal-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+        align-items: flex-start;
+        margin-top: 1em;
     }
     div.header {
         flex: 0 0 auto;
