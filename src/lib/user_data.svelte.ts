@@ -1004,6 +1004,7 @@ export async function getCoverColors(force = false) {
     console.log("Retrieving cover dominant colors... force all: " + force);
 
     const PROCESSING_RES = 64;
+    const PROCESSING_ZOOM = 1.1;
     const canvas = new OffscreenCanvas(PROCESSING_RES, PROCESSING_RES);
     const ctx = canvas.getContext("2d", {
         willReadFrequently: true
@@ -1026,7 +1027,9 @@ export async function getCoverColors(force = false) {
                 await img.decode();
                 
                 // get color
-                ctx?.drawImage(img, 0, 0, PROCESSING_RES, PROCESSING_RES);
+                const size = PROCESSING_RES * PROCESSING_ZOOM;
+                const pos = (PROCESSING_RES - size) / 2;
+                ctx?.drawImage(img, pos, pos, size, size);
                 const pxData = ctx?.getImageData(0, 0, PROCESSING_RES, PROCESSING_RES, {colorSpace: "srgb", pixelFormat: "rgba-unorm8"});
                 const frequencies: Record<number, Record<number, Record<number, number>>> = {};
                 const keys: Array<[number, number, number]> = [];
@@ -1049,9 +1052,21 @@ export async function getCoverColors(force = false) {
                 }
 
                 let mostFrequentColor: [number, number, number] = [0, 0, 0];
-                let mostFrequentColorFreq = 0;
+                let mostFrequentColorFreq = -Infinity;
+                const weight = (r: number, g: number, b: number) => {
+                    // Give less favor to black/white to try keeping some hue if there is some.
+                    // But do not penalize the brighter colors too much.
+                    const x = (r + g + b) / 3 / 255;
+                    // return (-4 * x * x ) + 4 * x;
+                    // return (-3 * x * x ) + 3.5 * x;
+                    // return (-3 * x * x ) + 4 * x;
+                    // return (-8 * x ** 3 + 10 * x ** 2 - 0.1 * x) / 2;
+                    return (-6 * x ** 3 + 6.3 * x ** 2);
+                }
                 for (const [r, g, b] of keys) {
-                    const freq = frequencies[r][g][b];
+                    let freq = frequencies[r][g][b];
+                    freq *= weight(r, g, b);
+                    
                     if (freq > mostFrequentColorFreq) {
                         mostFrequentColor = [r, g, b];
                         mostFrequentColorFreq = freq;
