@@ -79,7 +79,8 @@
         imageOnError = false;
         if (audioElement && activeTrack !== null) {
             const loadAudio = async () => {
-                if (activeTrack === null || audioElement === null) {
+                // FIXME idk why activeTrack can be undefined.
+                if (activeTrack === null || activeTrack === undefined || audioElement === null) {
                     return;
                 }
                 try {
@@ -200,7 +201,7 @@
 
     async function getTrackMetadata(track: LibraryEntry | null) {
         console.log(`Looking for track ${track?.name} metadata.`);
-        if (appState.libraryPath === null || track === null) {
+        if (appState.libraryPath === null || track === null || track === undefined) {
             return;
         }
         const path = await join(appState.libraryPath, track.path);
@@ -263,7 +264,8 @@
     <div class="gradient"></div>
     <div class="meta">
         <div class="cover">
-            {#if imageOnError || activeTrack === null || activeTrack?.coverPath === null || appState.libraryPath === null}
+        <!-- FIXME Idk why activeTrack can be undefined -->
+            {#if imageOnError || activeTrack === null || activeTrack === undefined || activeTrack?.coverPath === null || appState.libraryPath === null}
                 <Disc3 stroke="var(--text-darker-1)" width="48" height="48" />
             {:else}
                 {#await join(appState.libraryPath, activeTrack?.coverPath) then fullPath}
@@ -286,8 +288,8 @@
                     {@const track = metadata?.track_number
                         ? `${metadata?.track_number} - `
                         : ""}
-                    {@const title = `${disc}${track}${metadata?.title ?? activeTrack.name ?? "-"}`}
-                    {@const artist = `by ${metadata?.artist ?? activeTrack.artist ?? "-"}`}
+                    {@const title = `${disc}${track}${metadata?.title ?? activeTrack?.name ?? "-"}`}
+                    {@const artist = `by ${metadata?.artist ?? activeTrack?.artist ?? "-"}`}
                     {@const year = metadata?.year ? `${metadata.year}` : ""}
                     {@const album = metadata?.album_name}
                     {@const genre = metadata?.genre
