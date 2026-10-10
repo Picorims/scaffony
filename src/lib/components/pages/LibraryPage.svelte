@@ -7,7 +7,7 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
-    import { getConfig, getCoverColors, getLibraryPath, readData, scan, setLibraryPath } from "$lib/user_data.svelte";
+    import { getConfig, getCoverColors, getLibraryPath, readData, removeAllCoverColors, scan, setLibraryPath } from "$lib/user_data.svelte";
     import { onMount } from "svelte";
     import Button from "../atoms/Button.svelte";
     import { message, open } from "@tauri-apps/plugin-dialog";
@@ -103,6 +103,7 @@
         </p>
         <Button text="Get missing cover colors" variant="secondary" onclick={() => getCoverColors(false)} />
         <Button text="Get all cover colors" variant="secondary" onclick={() => getCoverColors(true)} />
+        <Button text="Clear all cover colors" variant="secondary" onclick={() => removeAllCoverColors()} />
     </div>
 </Modal>
 

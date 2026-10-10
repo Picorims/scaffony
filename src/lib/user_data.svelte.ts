@@ -20,6 +20,7 @@ import {
 import { platform } from "@tauri-apps/plugin-os";
 import { appState } from "./app_state.svelte";
 import { convertFileSrc } from "@tauri-apps/api/core";
+import { toHex } from "./string";
 
 const LIBRARY_PATH_FILE_NAME = "scaffony_current_library.txt";
 const DATA_FILE_NAME = "scaffony_data.json";
@@ -999,6 +1000,15 @@ export async function getCoverColors(force = false) {
     if (appState.libraryPath === null) {
         return;
     }
+
+    console.log("Retrieving cover dominant colors... force all: " + force);
+
+    const PROCESSING_RES = 64;
+    const canvas = new OffscreenCanvas(PROCESSING_RES, PROCESSING_RES);
+    const ctx = canvas.getContext("2d", {
+        willReadFrequently: true
+    });
+    
     appState.progressPercent = 0;
     appState.progressComment = "Retrieving cover dominant colors...";
     for (let i = 0; i < config.library.length; i++) {
@@ -1009,17 +1019,68 @@ export async function getCoverColors(force = false) {
         } else if (entry.color === undefined || force) {
             const coverPath = await join(appState.libraryPath, entry.coverPath);
             if (await exists(coverPath)) {
+                // load image
                 const img = document.createElement("img");
                 img.src = convertFileSrc(coverPath);
                 img.crossOrigin = "anonymous";
                 await img.decode();
-                // const color = await getColor(img);
-                // if (color !== null) {
-                //     entry.color = color.hex();
-                // }
+                
+                // get color
+                ctx?.drawImage(img, 0, 0, PROCESSING_RES, PROCESSING_RES);
+                const pxData = ctx?.getImageData(0, 0, PROCESSING_RES, PROCESSING_RES, {colorSpace: "srgb", pixelFormat: "rgba-unorm8"});
+                const frequencies: Record<number, Record<number, Record<number, number>>> = {};
+                const keys: Array<[number, number, number]> = [];
+                for (let j = 0; j < PROCESSING_RES * PROCESSING_RES; j += 4) {
+                    const r = pxData?.data[j] ?? 0;
+                    const g = pxData?.data[j + 1] ?? 0;
+                    const b = pxData?.data[j + 2] ?? 0;
+
+                    if (frequencies[r] === undefined) {
+                        frequencies[r] = {}
+                    }
+                    if (frequencies[r][g] === undefined) {
+                        frequencies[r][g] = {}
+                    }
+                    if (frequencies[r][g][b] === undefined) {
+                        frequencies[r][g][b] = 0
+                    }
+                    frequencies[r][g][b] += 1;
+                    keys.push([r, g, b]);
+                }
+
+                let mostFrequentColor: [number, number, number] = [0, 0, 0];
+                let mostFrequentColorFreq = 0;
+                for (const [r, g, b] of keys) {
+                    const freq = frequencies[r][g][b];
+                    if (freq > mostFrequentColorFreq) {
+                        mostFrequentColor = [r, g, b];
+                        mostFrequentColorFreq = freq;
+                    }
+                }
+
+                entry.color = toHex(mostFrequentColor);
             }
         }
     }
+    await writeData();
+    appState.progressPercent = 100;
+}
+
+export async function removeAllCoverColors() {
+    if (appState.libraryPath === null) {
+        return;
+    }
+
+    console.log("Removing all cover colors...");
+
+    appState.progressPercent = 0;
+    appState.progressComment = "Removing cover dominant colors...";
+    for (let i = 0; i < config.library.length; i++) {
+        appState.progressPercent = i / config.library.length * 100;
+        const entry = config.library[i];
+        entry.color = undefined;
+    }
+
     await writeData();
     appState.progressPercent = 100;
 }

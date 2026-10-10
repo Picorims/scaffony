@@ -31,7 +31,6 @@ export function fromPascalToKebabCase(str: string) {
                     "7",
                     "8",
                     "9",
-                    "0",
                 ].includes(char)) &&
             i !== 0
         ) {
@@ -40,4 +39,16 @@ export function fromPascalToKebabCase(str: string) {
         result += char.toLowerCase();
     }
     return result;
+}
+
+export function toHex(rgb: [number, number, number]) {
+    return `#${twoDigitHex(rgb[0])}${twoDigitHex(rgb[1])}${twoDigitHex(rgb[2])}`;
+}
+
+function twoDigitHex(number: number) {
+    let str = number.toString(16);
+    if (str.length === 1) {
+        str = "0" + str;
+    }
+    return str;
 }
