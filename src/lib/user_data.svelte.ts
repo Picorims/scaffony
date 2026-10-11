@@ -27,7 +27,7 @@ const DATA_FILE_NAME = "scaffony_data.json";
 /**
  * Sorted from worst to best.
  */
-const PREFERRED_AUDIO_EXTENSIONS = [".aac", ".mp3", ".ogg", ".wav", ".flac"];
+const PREFERRED_AUDIO_EXTENSIONS = [".m4a", ".aac", ".mp3", ".ogg", ".wav", ".flac"];
 const SCAN_DIR_PROGRESS_EXPONENT = 3;
 
 /**
@@ -43,8 +43,14 @@ export interface LibraryEntry {
      * normalized with a forward slash '/' as separator.
      * It should be transformed back on a per-platform basis
      * when used.
+     * 
+     * **Does NOT include the extension.**
      */
     path: string;
+    /**
+     * All available extensions for the track.
+     */
+    extensions: string[];
     /**
      * Path are relative to the library root. They are
      * normalized with a forward slash '/' as separator.
@@ -560,6 +566,11 @@ function addMissingFieldsToConfig(data: IConfig): IConfig {
     if (!data.library) {
         data.library = [];
     }
+    for (const e of data.library) {
+        if (e.extensions === undefined) {
+            e.extensions = [];
+        }
+    }
     if (!data.tags) {
         data.tags = [];
     }
@@ -729,7 +740,8 @@ export async function scan() {
 
 function scanDirPercent(ratio: number, from: number, to: number) {
     const r = ratio;
-    const adjustedRatio = (((1.5*r - 0.75) ** 3 + 0.01*(r**2) + 0.001*r + 0.5) ** SCAN_DIR_PROGRESS_EXPONENT) * 1.25;
+    // const adjustedRatio = (((1.5*r - 0.75) ** 3 + 0.01*(r**2) + 0.001*r + 0.5) ** SCAN_DIR_PROGRESS_EXPONENT) * 1.25;
+    const adjustedRatio = r;
     return adjustedRatio * (to - from) + from;
 }
 
@@ -741,11 +753,15 @@ function scanDirPercent(ratio: number, from: number, to: number) {
  * @param percentTo progress framing end (for self call only)
  */
 async function scanDirectory(pathStr: string, relativePath = "", percentFrom = 0, percentTo = 100): Promise<boolean> {
-    console.info(`Scanning directory: ${pathStr} (${relativePath})`);
+    // console.info(`Scanning directory: ${pathStr} (${relativePath})`);
+    console.info(`Scanning directory: ${relativePath}`);
     const entries = await readDir(pathStr);
     const cover = findCoverInDirectory(entries);
+    if (cover !== null) {
+        console.info("Found cover: " + cover);
+    }
     let pos = 0;
-    let total = entries.length;
+    let total = entries.filter(e => !e.name.startsWith(".")).length;
     if (total === 0) {
         return true;
     }
@@ -759,7 +775,9 @@ async function scanDirectory(pathStr: string, relativePath = "", percentFrom = 0
         const entryRelativePath = (await join(relativePath, entry.name)).replaceAll("\\", "/");
         if (isAudioFile(entry)) {
             const index = libraryIndex(entryRelativePath);
+
             if (index === -1) {
+                // It doesn't exist yet, or the path changed.
                 const hasUUIDfile = await exists(pathToMarkerPath(entryFullPath)); 
                 let uuid: string | null = null;
                 let uuidExistsInLib = false;
@@ -768,13 +786,14 @@ async function scanDirectory(pathStr: string, relativePath = "", percentFrom = 0
                     uuidExistsInLib = config.library.findIndex(e => e.uuid === uuid) !== -1;
                 }
                 if (hasUUIDfile && uuid !== null && uuidExistsInLib) {
-
+                    // path changed, cache it for fixing.
                     console.info(
-                        `Found audio file: ${entryRelativePath}, but it has a marker of the same name, so skipping...`
+                        // `Found audio file: ${entryRelativePath.slice(entryRelativePath.lastIndexOf("/"))}, but it has a marker of the same name, so skipping...`
                     );
-                    uuidCache[uuid] = relativePath + "/" + entry.name;
+                    uuidCache[uuid] = relativePath + "/" + entry.name.slice(0, entry.name.lastIndexOf("."));
                     // TODO more checks ? read file, get entry by uuid, check path is the same? costly.
                 } else {
+                    // actually a new entry.
                     console.info(
                         `Found new audio file: ${entryRelativePath}, adding to library...`
                     );
@@ -784,7 +803,8 @@ async function scanDirectory(pathStr: string, relativePath = "", percentFrom = 0
                     const newEntry: LibraryEntry = {
                         name: entry.name.slice(0, entry.name.lastIndexOf(".")),
                         artist: "Unknown Artist",
-                        path: entryRelativePath,
+                        path: entryRelativePath.slice(0, entry.name.lastIndexOf(".")),
+                        extensions: [entryRelativePath.slice(entry.name.lastIndexOf("."))],
                         coverPath: cover ? (await join(relativePath, cover)).replaceAll("\\", "/") : null,
                         tags: {},
                         uuid: uuid ?? self.crypto.randomUUID(),
@@ -801,17 +821,25 @@ async function scanDirectory(pathStr: string, relativePath = "", percentFrom = 0
                         uuidCache[newEntry.uuid] = relativePath + "/" + entry.name;
                     }
                 }
-            } else if (hasBetterQualityExtension(entryFullPath, config.library[index])) {
+
+            } else if (missingExtension(entryFullPath, config.library[index])) {
+                // entry exists, but a new format was found.
                 console.info(
-                    `Found better quality audio file: ${entryRelativePath}, updating library entry...`
+                    `Found different quality audio file: ${entryRelativePath}, updating library entry...`
                 );
-                config.library[index].path = entryRelativePath;
+                config.library[index].extensions.push(entryFullPath.slice(entryFullPath.lastIndexOf(".")));
+
             } else if (await currentLibraryAudioFileMissing(config.library[index])) {
+                // entry exists but it is marked as missing file, which we just found, so we fix it.
                 console.info(
                     `Found replacement ${entryRelativePath} to missing audio file ${config.library[index].path}, updating library entry...`
                 );
-                config.library[index].path = entryRelativePath;
-            } else if (cover && config.library[index].coverPath === null) {
+                config.library[index].path = entryRelativePath.slice(0, entryRelativePath.lastIndexOf("."));
+
+            }
+            console.log(index, cover, config.library[index]?.coverPath ?? "? failed");
+            if (index !== -1 && cover && config.library[index].coverPath === null) {
+                // the entry exists but doesn't have a specified cover, which we found at the top of the function.
                 console.info(`Found cover for entry ${config.library[index].name}, updating library entry...`);
                 config.library[index].coverPath = (await join(relativePath, cover)).replaceAll("\\", "/");
             }
@@ -819,19 +847,25 @@ async function scanDirectory(pathStr: string, relativePath = "", percentFrom = 0
             const uuid = await readTextFile(entryFullPath);
             uuidCache[uuid] = relativePath + "/" + entry.name;
         } else if (entry.isDirectory) {
-            try {
-                const from = scanDirPercent(pos / total, percentFrom, percentTo);
-                const to = scanDirPercent((pos + 1) / total, percentFrom, percentTo);
-                const empty = await scanDirectory(entryFullPath, (await join(relativePath, entry.name)).replaceAll("\\", "/"), from, to);
-                if (empty) {
-                    pos -= 1;
-                    total -= 1;
+            if (entry.name.startsWith(".")) {
+                console.info("Skipping hidden directory " + entry.name);
+            } else {
+                try {
+                    const from = scanDirPercent(pos / total, percentFrom, percentTo);
+                    const to = scanDirPercent((pos + 1) / total, percentFrom, percentTo);
+                    const empty = await scanDirectory(entryFullPath, (await join(relativePath, entry.name)).replaceAll("\\", "/"), from, to);
+                    if (empty) {
+                        pos -= 1;
+                        total -= 1;
+                    }
+                } catch (error) {
+                    console.error(`Error scanning directory ${entryRelativePath}:`, error);
                 }
-            } catch (error) {
-                console.error(`Error scanning directory ${entryRelativePath}:`, error);
             }
         }
-        pos += 1;
+        if (!entry.name.startsWith(".")) {
+            pos += 1;
+        }
     }
     return false;
 }
@@ -908,39 +942,50 @@ async function createUUIDFile(path: string, uuid: string) {
 function libraryIndex(filePath: string): number {
     const pathWithoutExtension = filePath.slice(0, filePath.lastIndexOf("."));
     return config.library.findIndex(
-        (entry) =>
-            entry.path.slice(0, entry.path.lastIndexOf(".")) ===
-            pathWithoutExtension
+        (entry) => entry.path === pathWithoutExtension
     );
 }
 
-function hasBetterQualityExtension(
+function missingExtension(
     filePath: string,
     libraryEntry: LibraryEntry
 ): boolean {
     const fileExtension = filePath
         .slice(filePath.lastIndexOf("."))
         .toLowerCase();
-    const existingEntryExtension = libraryEntry.path
-        .slice(libraryEntry.path.lastIndexOf("."))
-        .toLowerCase();
-    const fileExtensionIndex =
-        PREFERRED_AUDIO_EXTENSIONS.indexOf(fileExtension);
-    const existingEntryExtensionIndex = PREFERRED_AUDIO_EXTENSIONS.indexOf(
-        existingEntryExtension
-    );
-    return (
-        fileExtensionIndex > -1 &&
-        existingEntryExtensionIndex > -1 &&
-        fileExtensionIndex > existingEntryExtensionIndex
-    );
+    return !libraryEntry.extensions.includes(fileExtension);
+}
+
+export async function getEntryAudioPathWithBestExtension(e: LibraryEntry): Promise<string> {
+    if (appState.libraryPath === null) {
+        return "";
+    }
+    // best extension first
+    const sortedExtensions: string[] = e.extensions.sort((a, b) => PREFERRED_AUDIO_EXTENSIONS.indexOf(b) - PREFERRED_AUDIO_EXTENSIONS.indexOf(a));
+    let i = 0;
+    while (i < sortedExtensions.length) {
+        const path = await join(appState.libraryPath, e.path + sortedExtensions[i]);
+        if (await exists(path)) {
+            return path;
+        }
+        i++;
+    }
+
+    // none of the path + extension combinations exist, return nothing.
+    return "";
 }
 
 async function currentLibraryAudioFileMissing(libraryEntry: LibraryEntry) {
     if (appState.libraryPath === null) {
         throw new Error("Cannot check for audio file existing. Library not loaded!");
     }
-    return !await exists(await join(appState.libraryPath, libraryEntry.path));
+    const existsArray: Promise<boolean>[] = [];
+    for (const extension of libraryEntry.extensions) {
+        const path = await join(appState.libraryPath, libraryEntry.path + extension);
+        existsArray.push(exists(path));
+    }
+    const awaited = await Promise.all(existsArray);
+    return !awaited.includes(true);
 } 
 
 async function fixPaths(libraryPath: string) {
@@ -952,7 +997,7 @@ async function fixPaths(libraryPath: string) {
         appState.progressPercent = pos / config.library.length * 100;
         const uuidPath = uuidCache[e.uuid];
         if (uuidPath === undefined) {
-            if (await exists(await join(libraryPath, e.path))) {
+            if (!await currentLibraryAudioFileMissing(e)) {
                 // Only the uuid file is missing, the audio itself still exists.
                 // So we recreate it.
                 createUUIDFile(await join(libraryPath, pathToMarkerPath(e.path)), e.uuid);
@@ -965,19 +1010,19 @@ async function fixPaths(libraryPath: string) {
         } else {
             const currentRelPath = e.path;
             const currentRelDir = currentRelPath.slice(0, currentRelPath.lastIndexOf("/"));
-            const ext = e.path.slice(e.path.lastIndexOf(".") + 1, e.path.length);
-            const newPath = uuidPath.replace("scfuuid", ext);
+            const newPath = uuidPath.replace(".scfuuid", "");
+            //FIXME possible that it doesn't support different files with same name.
             if (currentRelDir !== uuidPath && newPath !== e.path) {
                 // file has moved
                 console.info(`${e.name} with uuid ${e.uuid} has moved. Updating paths.`);
+                console.info(`was ${e.path}, now is ${newPath}`);
                 e.path = newPath;
                 if (e.coverPath !== null) {
                     e.coverPath = null; // next scan will fix it.
                 }
             }
 
-            const newFullPath = await join(libraryPath, e.path);
-            if (!await exists(newFullPath)) {
+            if (await currentLibraryAudioFileMissing(e)) {
                 console.info(`${e.name} audio file is missing!`);
                 e.missing = true;
             } else {
@@ -990,7 +1035,6 @@ async function fixPaths(libraryPath: string) {
                     e.coverPath = null;
                 }
             }
-
         }
         pos++;
     }

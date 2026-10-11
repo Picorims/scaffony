@@ -9,7 +9,7 @@
 
     import { appState } from "$lib/app_state.svelte";
     import IconButton from "$lib/components/atoms/IconButton.svelte";
-    import { getConfig, getTag, setTagState, type LibraryEntry } from "$lib/user_data.svelte";
+    import { getConfig, getEntryAudioPathWithBestExtension, getTag, setTagState, type LibraryEntry } from "$lib/user_data.svelte";
     import { Disc3, Play } from "@lucide/svelte";
     import Tag from "$lib/components/atoms/Tag.svelte";
     import { convertFileSrc } from "@tauri-apps/api/core";
@@ -50,7 +50,7 @@
 
     onMount(async () => {
         if (appState.libraryPath !== null) {
-            metadataPromise = getMetadata(await join(appState.libraryPath, entry.path));
+            metadataPromise = getMetadata(await getEntryAudioPathWithBestExtension(entry));
         }
     });
 </script>

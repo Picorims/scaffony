@@ -29,6 +29,7 @@
     import { convertFileSrc } from "@tauri-apps/api/core";
     import {
         getConfig,
+        getEntryAudioPathWithBestExtension,
         getTagCategory,
         setTagState,
         type LibraryEntry,
@@ -89,22 +90,22 @@
                         console.warn("Cannot load audio: library path is null");
                         return;
                     }
+                    const audioPath = await getEntryAudioPathWithBestExtension(activeTrack);
+                    if (audioPath === "") {
+                        return;
+                    }
                     if (platform() === "android") {
                         // On Android, if using convertFileSrc directly, it fails to play the audio.
                         // (HTTP 206 on first packet, subsequent packets fail, leading to playback error
                         // "Audio playback error: PipelineStatus::PIPELINE_ERROR_READ: FFmpegDemuxer: data source error")
-                        const fileData = await readFile(
-                            await join(appState.libraryPath, activeTrack.path),
-                        );
+                        const fileData = await readFile(audioPath);
                         const blob = new Blob([fileData], {
                             type: "audio/mpeg",
                         }); //FIXME mime type
                         const blobUrl = URL.createObjectURL(blob);
                         audioElement.src = blobUrl;
                     } else {
-                        audioElement.src = convertFileSrc(
-                            await join(appState.libraryPath, activeTrack.path),
-                        );
+                        audioElement.src = convertFileSrc(audioPath);
                     }
                     audioElement.load();
                     if (!paused) {
@@ -204,7 +205,7 @@
         if (appState.libraryPath === null || track === null || track === undefined) {
             return;
         }
-        const path = await join(appState.libraryPath, track.path);
+        const path = await getEntryAudioPathWithBestExtension(track);
         const meta = await getMetadata(path);
         console.log("got", meta);
         return meta;
@@ -393,7 +394,7 @@
     crossorigin="anonymous"
     onerror={(e) => {
         console.error(
-            `Audio playback error on ${activeTrack?.path}: ${audioElement?.error?.message}`,
+            `Audio playback error on ${activeTrack?.path} (${audioElement?.src}): ${audioElement?.error?.message}`,
         );
         // Chromium is known to struggle with some FLAC files. Adjusting file metadata may fix it:
         // https://github.com/Sandakan/Nora/issues/280
