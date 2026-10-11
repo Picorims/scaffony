@@ -788,9 +788,9 @@ async function scanDirectory(pathStr: string, relativePath = "", percentFrom = 0
                 if (hasUUIDfile && uuid !== null && uuidExistsInLib) {
                     // path changed, cache it for fixing.
                     console.info(
-                        // `Found audio file: ${entryRelativePath.slice(entryRelativePath.lastIndexOf("/"))}, but it has a marker of the same name, so skipping...`
+                        `Found audio file: ${entryRelativePath.slice(entryRelativePath.lastIndexOf("/"))}, but it has a marker of the same name, so skipping...`
                     );
-                    uuidCache[uuid] = relativePath + "/" + entry.name.slice(0, entry.name.lastIndexOf("."));
+                    uuidCache[uuid] = relativePath + "/" + entry.name;
                     // TODO more checks ? read file, get entry by uuid, check path is the same? costly.
                 } else {
                     // actually a new entry.
@@ -801,10 +801,10 @@ async function scanDirectory(pathStr: string, relativePath = "", percentFrom = 0
                         console.info(`Found cover image in directory: ${cover}`);
                     }
                     const newEntry: LibraryEntry = {
-                        name: entry.name.slice(0, entry.name.lastIndexOf(".")),
+                        name: withoutAudioExtension(entry.name),
                         artist: "Unknown Artist",
-                        path: entryRelativePath.slice(0, entry.name.lastIndexOf(".")),
-                        extensions: [entryRelativePath.slice(entry.name.lastIndexOf("."))],
+                        path: withoutAudioExtension(entryRelativePath),
+                        extensions: [entryRelativePath.slice(entryRelativePath.lastIndexOf("."))],
                         coverPath: cover ? (await join(relativePath, cover)).replaceAll("\\", "/") : null,
                         tags: {},
                         uuid: uuid ?? self.crypto.randomUUID(),
@@ -834,10 +834,10 @@ async function scanDirectory(pathStr: string, relativePath = "", percentFrom = 0
                 console.info(
                     `Found replacement ${entryRelativePath} to missing audio file ${config.library[index].path}, updating library entry...`
                 );
-                config.library[index].path = entryRelativePath.slice(0, entryRelativePath.lastIndexOf("."));
+                config.library[index].path = withoutAudioExtension(entryRelativePath);
 
             }
-            console.log(index, cover, config.library[index]?.coverPath ?? "? failed");
+            // console.log(index, cover, config.library[index]?.coverPath ?? "? failed");
             if (index !== -1 && cover && config.library[index].coverPath === null) {
                 // the entry exists but doesn't have a specified cover, which we found at the top of the function.
                 console.info(`Found cover for entry ${config.library[index].name}, updating library entry...`);
@@ -889,6 +889,15 @@ function findCoverInDirectory(entries: DirEntry[]): string | null {
     return null;
 }
 
+function withoutAudioExtension(str: string) {
+    let mutedStr = str;
+    for (const ext of PREFERRED_AUDIO_EXTENSIONS) {
+        const regex = new RegExp(String.raw`${ext}$`, "g");
+        mutedStr = mutedStr.replace(regex, "");
+    }
+    return mutedStr;
+}
+
 function isFileWithExtension(entry: DirEntry, extensions: string[]) {
     if (!entry.isFile) {
         return false;
@@ -900,7 +909,7 @@ function isFileWithExtension(entry: DirEntry, extensions: string[]) {
 }
 
 function isAudioFile(entry: DirEntry): boolean {
-    return isFileWithExtension(entry, [".mp3", ".wav", ".flac", ".aac", ".ogg", ".m4a"]);
+    return isFileWithExtension(entry, PREFERRED_AUDIO_EXTENSIONS);
 }
 
 function isUUIDFile(entry: DirEntry): boolean {
@@ -917,7 +926,7 @@ function isImageFile(entry: DirEntry): boolean {
  * @returns 
  */
 function pathToMarkerName(path: string) {
-    return path.slice(path.lastIndexOf("/") + 1, path.lastIndexOf(".")) + ".scfuuid";
+    return withoutAudioExtension(path.slice(path.lastIndexOf("/") + 1)) + ".scfuuid";
 }
 /**
  * Converts 'foo/bar/baz.mp3' to 'foo/bar/baz.scfuuid'.
@@ -925,7 +934,7 @@ function pathToMarkerName(path: string) {
  * @returns 
  */
 function pathToMarkerPath(path: string) {
-    return path.slice(0, path.lastIndexOf(".")) + ".scfuuid";
+    return withoutAudioExtension(path) + ".scfuuid";
 }
 
 async function createUUIDFile(path: string, uuid: string) {
@@ -1010,7 +1019,7 @@ async function fixPaths(libraryPath: string) {
         } else {
             const currentRelPath = e.path;
             const currentRelDir = currentRelPath.slice(0, currentRelPath.lastIndexOf("/"));
-            const newPath = uuidPath.replace(".scfuuid", "");
+            const newPath = withoutAudioExtension(uuidPath.replace(".scfuuid", ""));
             //FIXME possible that it doesn't support different files with same name.
             if (currentRelDir !== uuidPath && newPath !== e.path) {
                 // file has moved
