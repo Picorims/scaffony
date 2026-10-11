@@ -20,7 +20,7 @@ function forwardConsole(
   const original = console[fnName];
   console[fnName] = (...messages) => {
     original(...messages);
-    logger(messages.map(m => m.toString()).join(" "));
+    logger(messages.map(m => m === null ? "null" : m === undefined ? "undefined" : m.toString()).join(" "));
   };
 }
 
