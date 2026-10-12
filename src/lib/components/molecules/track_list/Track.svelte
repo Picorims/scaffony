@@ -9,7 +9,13 @@
 
     import { appState } from "$lib/app_state.svelte";
     import IconButton from "$lib/components/atoms/IconButton.svelte";
-    import { getConfig, getEntryAudioPathWithBestExtension, getTag, setTagState, type LibraryEntry } from "$lib/user_data.svelte";
+    import {
+        getConfig,
+        getEntryAudioPathWithBestExtension,
+        getTag,
+        setTagState,
+        type LibraryEntry,
+    } from "$lib/user_data.svelte";
     import { Disc3, Play } from "@lucide/svelte";
     import Tag from "$lib/components/atoms/Tag.svelte";
     import { convertFileSrc } from "@tauri-apps/api/core";
@@ -39,19 +45,27 @@
     });
     let metadataPromise = $state<Promise<Metadata>>();
     let scrollObserver = new IntersectionObserver(async (e) => {
-        if (appState.libraryPath !== null && metadataPromise === undefined && e[0].intersectionRatio >= 0.9) {
-            metadataPromise = getMetadata(await getEntryAudioPathWithBestExtension(entry));
+        visible = e[0].isIntersecting;
+        if (
+            appState.libraryPath !== null &&
+            metadataPromise === undefined &&
+            visible
+        ) {
+            metadataPromise = getMetadata(
+                await getEntryAudioPathWithBestExtension(entry),
+            );
         }
     }, {
         root: null,
         threshold: 0.5,
     });
+    let visible = $state(false);
     let container = $state<HTMLDivElement | null>(null);
     $effect(() => {
         if (container !== null) {
             scrollObserver.observe(container);
         }
-    })
+    });
 
     function play() {
         setWaitList([entry]);
@@ -64,66 +78,78 @@
 
     onDestroy(() => {
         scrollObserver.disconnect();
-    })
+    });
 </script>
 
-<div bind:this={container} class="container" class:odd={index % 2 === 1} style:--cover-color={entry.color}>
+<div
+    bind:this={container}
+    class="container"
+    class:odd={index % 2 === 1}
+    style:--cover-color={entry.color}
+>
     <div class="gradient"></div>
-    {#if imageInError || entry.coverPath === null || appState.libraryPath === null}
-        <Disc3 stroke="var(--text-darker-1)" width="1rem" height="1rem" />
-    {:else}
-        {#await join(appState.libraryPath, entry.coverPath) then fullPath}
-            <img
-                class="cover"
-                class:error={imageInError}
-                src={convertFileSrc(fullPath)}
-                alt={`${entry.name} by ${entry.artist} - cover`}
-                onerror={() => (imageInError = true)}
-            />
-        {/await}
-    {/if}
-    
-    {#await metadataPromise then metadata}
-        <span class="name">{metadata?.title ?? metadataDefault.title ?? "-"}</span>
-        <span class="artist">{metadata?.artist ?? metadataDefault.artist ?? "-"}</span>
-    {/await}
-    <div class="tags">
-        {#if mode === "classify"}
-            {#each getConfig().tags.filter(v => v.name.startsWith(classifyFilter ?? "")) as tag}
-                <Tag
-                    {tag}
-                    mode="classify"
-                    status={Object.keys(entry.tags).includes(tag.name)
-                        ? entry.tags[tag.name]
-                            ? "yes"
-                            : "no"
-                        : "unknown"}
-                    onStatusChange={(newStatus) => onStatusChange(newStatus, tag.name)}
-                    size="normal"
-                    shrinkable={false}
+    {#if visible}
+        {#if imageInError || entry.coverPath === null || appState.libraryPath === null}
+            <Disc3 stroke="var(--text-darker-1)" width="1rem" height="1rem" />
+        {:else}
+            {#await join(appState.libraryPath, entry.coverPath) then fullPath}
+                <img
+                    class="cover"
+                    class:error={imageInError}
+                    src={convertFileSrc(fullPath)}
+                    alt={`${entry.name} by ${entry.artist} - cover`}
+                    onerror={() => (imageInError = true)}
                 />
-            {/each}
-        {:else if mode === "playback"}
-            {#each Object.keys(entry.tags) as tagName}
-                {#if entry.tags[tagName] === true}
-                    {@const tagEntry = getTag(tagName)}
-                    {#if tagEntry !== null}
-                        <Tag tag={tagEntry} size="normal" shrinkable />
-                    {/if}
-                {/if}
-            {/each}
+            {/await}
         {/if}
-    </div>
-    {#if entry.missing}
-        <span>Missing</span>
-    {:else if entry.virtual}
-        <span>Virtual</span>
-    {:else}
-        <div class="actions">
-            <IconButton onClick={play}>
-                <Play />
-            </IconButton>
+
+        {#await metadataPromise then metadata}
+            <span class="name"
+                >{metadata?.title ?? metadataDefault.title ?? "-"}</span
+            >
+            <span class="artist"
+                >{metadata?.artist ?? metadataDefault.artist ?? "-"}</span
+            >
+        {/await}
+        <div class="tags">
+            {#if mode === "classify"}
+                {#each getConfig().tags.filter( (v) => v.name.startsWith(classifyFilter ?? ""), ) as tag}
+                    <Tag
+                        {tag}
+                        mode="classify"
+                        status={Object.keys(entry.tags).includes(tag.name)
+                            ? entry.tags[tag.name]
+                                ? "yes"
+                                : "no"
+                            : "unknown"}
+                        onStatusChange={(newStatus) =>
+                            onStatusChange(newStatus, tag.name)}
+                        size="normal"
+                        shrinkable={false}
+                    />
+                {/each}
+            {:else if mode === "playback"}
+                {#each Object.keys(entry.tags) as tagName}
+                    {#if entry.tags[tagName] === true}
+                        {@const tagEntry = getTag(tagName)}
+                        {#if tagEntry !== null}
+                            <Tag tag={tagEntry} size="normal" shrinkable />
+                        {/if}
+                    {/if}
+                {/each}
+            {/if}
         </div>
+        {#if entry.missing}
+            <span>Missing</span>
+        {:else if entry.virtual}
+            <span>Virtual</span>
+        {:else}
+            <div class="actions">
+                <IconButton onClick={play}>
+                    <Play />
+                </IconButton>
+            </div>
+        {/if}
     {/if}
 </div>
 
@@ -160,7 +186,14 @@
         position: absolute;
         width: 100%;
         height: 100%;
-        background: linear-gradient(0.25turn, oklch(from var(--cover-color, #00000000) min(max(calc(l - 0.3), 0.3), 0.5) c h), #00000000);
+        background: linear-gradient(
+            0.25turn,
+            oklch(
+                from var(--cover-color, #00000000)
+                    min(max(calc(l - 0.3), 0.3), 0.5) c h
+            ),
+            #00000000
+        );
         box-shadow: 0 0 4px var(--cover-color, #00000000);
     }
 
