@@ -14,7 +14,7 @@
     import Tag from "$lib/components/atoms/Tag.svelte";
     import { convertFileSrc } from "@tauri-apps/api/core";
     import { getMetadata, type Metadata } from "$lib/metadata";
-    import { onMount } from "svelte";
+    import { onDestroy } from "svelte";
     import { requestPlay, setWaitList } from "$lib/playback";
     import { join } from "@tauri-apps/api/path";
 
@@ -38,6 +38,20 @@
         year: 0,
     });
     let metadataPromise = $state<Promise<Metadata>>();
+    let scrollObserver = new IntersectionObserver(async (e) => {
+        if (appState.libraryPath !== null && metadataPromise === undefined && e[0].intersectionRatio >= 0.9) {
+            metadataPromise = getMetadata(await getEntryAudioPathWithBestExtension(entry));
+        }
+    }, {
+        root: null,
+        threshold: 0.5,
+    });
+    let container = $state<HTMLDivElement | null>(null);
+    $effect(() => {
+        if (container !== null) {
+            scrollObserver.observe(container);
+        }
+    })
 
     function play() {
         setWaitList([entry]);
@@ -48,14 +62,12 @@
         setTagState(entry, name, newStatus);
     }
 
-    onMount(async () => {
-        if (appState.libraryPath !== null) {
-            metadataPromise = getMetadata(await getEntryAudioPathWithBestExtension(entry));
-        }
-    });
+    onDestroy(() => {
+        scrollObserver.disconnect();
+    })
 </script>
 
-<div class="container" class:odd={index % 2 === 1} style:--cover-color={entry.color}>
+<div bind:this={container} class="container" class:odd={index % 2 === 1} style:--cover-color={entry.color}>
     <div class="gradient"></div>
     {#if imageInError || entry.coverPath === null || appState.libraryPath === null}
         <Disc3 stroke="var(--text-darker-1)" width="1rem" height="1rem" />
@@ -126,6 +138,7 @@
 
     div.container {
         position: relative;
+        min-height: 1.85rem;
         padding: 0 1em;
         border-bottom: 1px solid var(--background-lighter-2);
         color: var(--text);
