@@ -2,10 +2,12 @@
 @import url("./fonts/quicksand.css");
 
 :root {
-    --text: #e9fbfa;
+    /* --text: #e9fbfa; */
+    --text: #f8f8f8;
     --text-darker-1: oklch(from var(--text) calc(l - 0.05) c h);
     --text-darker-2: oklch(from var(--text) calc(l - 0.1) c h);
-    --background: #061c1d;
+    /* --background: #061c1d; */
+    --background: #1d1d1d;
     --background-lighter-0: oklch(from var(--background) calc(l + 0.025) c h);
     --background-lighter-1: oklch(from var(--background) calc(l + 0.05) c h);
     --background-lighter-2: oklch(from var(--background) calc(l + 0.1) c h);
