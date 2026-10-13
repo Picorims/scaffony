@@ -204,18 +204,18 @@
     }
 
     div.gradient {
+        --altered-color: oklch(
+                from var(--cover-color, #00000000)
+                    min(max(calc(l - 0.3), 0.3), 0.5) c h
+            );
         position: absolute;
         width: 100%;
         height: 100%;
-        background: linear-gradient(
-            0.25turn,
-            oklch(
-                from var(--cover-color, #00000000)
-                    min(max(calc(l - 0.3), 0.3), 0.5) c h
-            ),
-            #00000000 70%
-        );
+        background-color: var(--altered-color);
         box-shadow: 0 0 4px var(--cover-color, #00000000);
+    }
+    div.container.odd div.gradient {
+        background-color: oklch(from var(--altered-color) calc(l - 0.05) calc(c - 0.02) h);
     }
 
     span.artist,
