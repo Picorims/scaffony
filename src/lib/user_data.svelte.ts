@@ -970,7 +970,7 @@ export async function getEntryAudioPathWithBestExtension(e: LibraryEntry): Promi
         return "";
     }
     // best extension first
-    const sortedExtensions: string[] = e.extensions.sort((a, b) => PREFERRED_AUDIO_EXTENSIONS.indexOf(b) - PREFERRED_AUDIO_EXTENSIONS.indexOf(a));
+    const sortedExtensions: string[] = [...e.extensions].sort((a, b) => PREFERRED_AUDIO_EXTENSIONS.indexOf(b) - PREFERRED_AUDIO_EXTENSIONS.indexOf(a));
     let i = 0;
     while (i < sortedExtensions.length) {
         const path = await join(appState.libraryPath, e.path + sortedExtensions[i]);
