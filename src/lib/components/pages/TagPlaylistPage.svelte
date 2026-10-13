@@ -8,8 +8,7 @@
     */
 
     import { fromKebabToPascalCase } from "$lib/string";
-import { getConfig, getPlaylist, getPlaylistLibraryEntries, getTag, getTagLibraryEntries } from "$lib/user_data.svelte";
-    import Button from "../atoms/Button.svelte";
+    import { getPlaylist, getPlaylistLibraryEntries, getTag, getTagLibraryEntries } from "$lib/user_data.svelte";
     import LucideIcon from "../atoms/LucideIcon.svelte";
     import Tag from "../atoms/Tag.svelte";
     import TrackList from "../molecules/track_list/TrackList.svelte";
@@ -30,7 +29,7 @@ import { getConfig, getPlaylist, getPlaylistLibraryEntries, getTag, getTagLibrar
             </div>
             <h2>Playlist - {name}</h2>
         {:else if type === "tag"}
-            <h2>Tag</h2>
+            <h2 class="tag-header">Tag</h2>
             {@const tagEntry = getTag(name)}
             {#if tagEntry}
                 <Tag tag={tagEntry} size="header" shrinkable={false} />
@@ -57,24 +56,26 @@ import { getConfig, getPlaylist, getPlaylistLibraryEntries, getTag, getTagLibrar
 
 <style>
     div.container {
-        padding: 1em;
         display: flex;
         flex-direction: column;
         flex-wrap: nowrap;
         width: 100%;
         height: 100%;
     }
+    h2.tag-header {
+        margin-left: 1rem;
+    }
     div.header {
         flex: 0 0 auto;
-        margin-bottom: 1em;
+        margin-bottom: 1rem;
 
         display: flex;
         align-items: center;
-        gap: 1em;
+        gap: 1rem;
     }
     
     div.cover {
-        margin-right: 1em;
+        margin-right: 1rem;
         width: 64px;
         height: 64px;
         background-color: black;
