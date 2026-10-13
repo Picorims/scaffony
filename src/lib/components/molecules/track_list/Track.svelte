@@ -122,7 +122,7 @@
                 >{metadata?.artist ?? metadataDefault.artist ?? "-"}</span
             >
         {/await}
-        <div class="tags">
+        <div class="tags" class:classify={mode === "classify"}>
             {#if mode === "classify"}
                 {#each getConfig().tags.filter( (v) => v.name.startsWith(classifyFilter ?? ""), ) as tag}
                     <Tag
@@ -236,6 +236,12 @@
         text-overflow: ellipsis;
         overflow: hidden;
     }
+    div.tags.classify {
+        padding: 0.2rem 0.5rem;
+        text-wrap: initial;
+        max-height: var(--height);
+        overflow-y: auto;
+    }
 
     div.actions {
         display: flex;
@@ -247,6 +253,9 @@
     @media screen and (width <= 600px) {
         div.container {
             --height: calc(var(--base-height) * 3);
+        }
+        div.container.classify {
+            --height: calc(var(--base-height) * 8);
         }
         span.artist,
         span.name {
@@ -265,8 +274,16 @@
             grid-row: 3;
             height: var(--base-height);
         }
+        div.tags.classify {
+            height: calc(var(--base-height) * 6.1);
+            grid-row: 2 / span;
+        }
         img.cover, :global(svg.placeholder), div.actions {
             grid-row: 1 / span 3;
+        }
+        div.container.classify img.cover, div.container.classify :global(svg.placeholder) {
+            max-width: calc(var(--base-height) * 3);
+            max-height: calc(var(--base-height) * 3);
         }
         div.actions {
             grid-column: 5;

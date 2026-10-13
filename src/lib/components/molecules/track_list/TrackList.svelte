@@ -43,7 +43,7 @@
             <Shuffle />
         </IconButton>
     </div>
-    <div class="track-list">
+    <div class="track-list" class:classify={mode === "classify"}>
         {#each tracks as track, index}
             <Track entry={track} {index} {mode} {classifyFilter} />
         {/each}
@@ -80,6 +80,9 @@
         display: grid;
         grid-template-columns: 2rem 1.5fr 0.5fr 1fr 3rem;
         grid-auto-rows: min-content;
+    }
+    div.track-list.classify {
+        grid-template-columns: 5.5rem 1fr 0.5fr 1.5fr 3rem;
     }
     @media screen and (width <= 600px) {
         div.track-list {

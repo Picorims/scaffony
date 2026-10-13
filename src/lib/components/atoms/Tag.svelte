@@ -92,7 +92,7 @@
         padding: 0.2em 0.5em;
         border: 1px solid var(--color);
         border-radius: 1em;
-        font-size: 0.875em;
+        font-size: 0.875rem;
         letter-spacing: 0.05em;
         color: var(--text);
         background-color: oklch(from var(--color) calc(l - 0.7) c h);
@@ -102,7 +102,7 @@
         border-style: dashed;
     }
     div.tag.header {
-        font-size: 1.25em;
+        font-size: 1.25rem;
         padding: 0.4em 0.8em;
     }
 
@@ -172,10 +172,14 @@
             font-size: 0.75em;
             flex-wrap: wrap;
         }
+        div.tag.classify {
+            justify-content: stretch;
+        }
         div.tag.normal {
             width: min-content;
         }
         span.buttons {
+            flex: 1;
             border-left: 0px;
             margin-left: 0;
             padding-left: 0;
@@ -185,6 +189,10 @@
         }
         span.label {
             min-width: 5em;
+        }
+        div.tag.classify span.label {
+            min-width: 0;
+            max-width: calc(100% - 1.2rem);
         }
     }
 </style>
