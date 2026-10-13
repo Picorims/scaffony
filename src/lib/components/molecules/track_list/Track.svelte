@@ -208,14 +208,19 @@
                 from var(--cover-color, #00000000)
                     min(max(calc(l - 0.3), 0.3), 0.5) c h
             );
+        --background: var(--altered-color);
         position: absolute;
         width: 100%;
         height: 100%;
-        background-color: var(--altered-color);
+        background: linear-gradient(
+            to right,
+            var(--background),
+            oklch(from var(--background) calc(l - 0.1) calc(c - 0.02) calc(h - 30))
+        );
         box-shadow: 0 0 4px var(--cover-color, #00000000);
     }
     div.container.odd div.gradient {
-        background-color: oklch(from var(--altered-color) calc(l - 0.05) calc(c - 0.02) h);
+        --background: oklch(from var(--altered-color) calc(l - 0.05) calc(c - 0.02) h);
     }
 
     span.artist,
