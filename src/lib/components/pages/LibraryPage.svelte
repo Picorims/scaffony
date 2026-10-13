@@ -80,7 +80,7 @@
 
 <div class="container">
     <div class="header">
-    <Button variant="primary" text="Scan library" onclick={() => scanDialog.showModal()} disabled={!libraryPicked}/>
+        <Button variant="primary" text="Scan library" onclick={() => scanDialog.showModal()} disabled={!libraryPicked}/>
         <Button variant="secondary" text="Pick library" onclick={pickPath} />
         <span class="library-path">{currentLibrary}</span>
     </div>
@@ -109,7 +109,7 @@
 
 <style>
     div.container {
-        padding: 1em;
+        padding-top: 1rem;
         display: flex;
         flex-direction: column;
         flex-wrap: nowrap;
@@ -119,16 +119,17 @@
     div.modal-container {
         display: flex;
         flex-direction: column;
-        gap: 1em;
+        gap: 1rem;
         align-items: flex-start;
-        margin-top: 1em;
+        margin-top: 1rem;
     }
     div.header {
         flex: 0 0 auto;
-        margin-bottom: 1em;
+        margin-bottom: 1rem;
+        margin-left: 1rem;
     }
     span.library-path {
-        margin-left: 1em;
+        margin-left: 1rem;
         font-weight: bold;
     }
 </style>

@@ -196,7 +196,6 @@
 
 <style>
     div.container {
-        padding: 1em;
         display: flex;
         flex-direction: column;
         flex-wrap: nowrap;
@@ -208,14 +207,19 @@
     }
 
     div.header {
+        margin-top: 1rem;
+        margin-left: 1rem;
         flex: 0 0 auto;
-        margin-bottom: 1em;
+        margin-bottom: 1rem;
     }
 
     h2 {
-        margin-top: 1em;
-        margin-bottom: 0.5em;
-        border-top: 1px solid var(--text-darker-1);
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+        padding-left: 1rem;
+        text-transform: capitalize;
+        border-top: 2px solid var(--text-darker-4);
+        background-color: var(--background-lighter-2);
     }
 
     div.tag-entry {

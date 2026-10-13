@@ -214,7 +214,6 @@
 
 <style>
     div.container {
-        padding: 1em;
         display: flex;
         flex-direction: column;
         flex-wrap: nowrap;
@@ -227,21 +226,26 @@
 
     div.header {
         flex: 0 0 auto;
-        margin-bottom: 1em;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        margin-left: 1rem;
     }
 
     div.playlist-entry {
-        padding: 0.25em;
+        padding: 0.25rem 1rem;
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
-        gap: 0.5em;
+        gap: 0.5rem;
         justify-content: space-between;
         align-items: center;
         border-bottom: 1px solid var(--background-lighter-2);
     }
     div.playlist-entry:nth-child(odd) {
         background-color: var(--background-lighter-1);
+    }
+    div.playlist-entry:nth-child(2) {
+        border-top: 1px solid var(--background-lighter-2);
     }
 
     div.meta {

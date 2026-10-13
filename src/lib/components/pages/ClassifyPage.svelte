@@ -56,21 +56,25 @@
 
 <style>
     div.container {
-        padding: 1em;
         display: flex;
         flex-direction: column;
         flex-wrap: nowrap;
         width: 100%;
         height: 100%;
-        gap: 1em;
+        gap: 1rem;
+    }
+    div.header {
+        margin-top: 1rem;
+        margin-left: 1rem;
     }
     div.header > label {
         display: inline-block;
         white-space: nowrap;
-        margin-right: 1em;
-        margin-bottom: 0.5em;
+        margin-right: 1rem;
+        margin-bottom: 0.5rem;
     }
     div.tags-completion {
+        margin-left: 1rem;
         max-height: 20%;
         overflow-y: scroll;
         display: grid;

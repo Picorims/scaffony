@@ -62,6 +62,7 @@
         gap: 0.5rem;
     }
     div.track-list-header {
+        margin-left: 1rem;
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
