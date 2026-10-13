@@ -283,13 +283,9 @@
         <div class="meta-text">
             {#if appState.libraryPath !== null && activeTrack !== null}
                 {#await getTrackMetadata(activeTrack) then metadata}
-                    {@const disc = metadata?.disc_number
-                        ? `${metadata?.disc_number} | `
-                        : ""}
-                    {@const track = metadata?.track_number
-                        ? `${metadata?.track_number} - `
-                        : ""}
-                    {@const title = `${disc}${track}${metadata?.title ?? activeTrack?.name ?? "-"}`}
+                    {@const disc = metadata?.disc_number}
+                    {@const track = metadata?.track_number}
+                    {@const title = `${metadata?.title ?? activeTrack?.name ?? "-"}`}
                     {@const artist = `by ${metadata?.artist ?? activeTrack?.artist ?? "-"}`}
                     {@const year = metadata?.year ? `${metadata.year}` : ""}
                     {@const album = metadata?.album_name}
@@ -299,13 +295,25 @@
                     {@const comment = metadata?.comment
                         ? `, ${metadata?.genre}`
                         : ""}
+                    <span class="disc-and-title">
+                        {#if disc || track}
+                            <span class="disc-number">
+                                <span class="disc-v">
+                                    {disc ?? 1}
+                                </span>
+                                <span class="track-v">
+                                    {track ?? "-"}
+                                </span>
+                            </span>
+                        {/if}
 
-                    <span bind:this={titleSpan} class="title">
-                        <span
-                            class:scrolling={titleSpan
-                                ? titleSpan.offsetWidth < titleSpan.scrollWidth
-                                : false}>{title}</span
-                        >
+                        <span bind:this={titleSpan} class="title">
+                            <span
+                                class:scrolling={titleSpan
+                                    ? titleSpan.offsetWidth < titleSpan.scrollWidth
+                                    : false}>{title}</span
+                            >
+                        </span>
                     </span>
                     <span class="metadata"><strong>{artist}</strong></span>
                     <span class="metadata">
@@ -419,15 +427,14 @@
 
         display: grid;
         grid-template-columns: repeat(2, 1fr) 128px;
-        gap: 4em;
-        padding: 0.5em;
+        gap: 4rem;
         box-shadow: 0 0 4px var(--cover-color, #00000000);
     }
     div.container.mobile {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto auto;
-        gap: 1em;
-        padding: 0.5em 1em;
+        gap: 1rem;
+        padding: 0.5rem 1rem;
         padding-bottom: 8vh;
     }
 
@@ -435,8 +442,8 @@
         div.container {
             grid-template-columns: 1fr;
             grid-template-rows: auto auto auto;
-            gap: 1em;
-            padding: 0.5em 1em;
+            gap: 1rem;
+            padding: 0.5rem 1rem;
         }
         div.gradient {
             width: 100%;
@@ -450,7 +457,12 @@
         height: 100%;
         top: 0;
         left: 0;
-        background: linear-gradient(0.25turn, oklch(from var(--cover-color, #00000000) calc(l - 0.3) c h), #00000000);
+        --background: oklch(from var(--cover-color, #00000000) min(max(calc(l - 0.3), 0.3), 0.5) c h);
+        background: linear-gradient(
+            to right,
+            var(--background),
+            oklch(from var(--background) calc(l - 0.3) calc(c - 0.02) calc(h - 30))
+        );
     }
     div.container > :not(.gradient) {
         z-index: 1;
@@ -461,21 +473,21 @@
         height: 100%;
         display: flex;
         align-items: center;
-        gap: 1em;
+        gap: 1rem;
     }
 
     div.cover {
         border: 1px solid var(--background-lighter-2);
-        width: 48px;
-        height: 48px;
+        width: 6rem;
+        height: 6rem;
         display: flex;
         justify-content: center;
         align-items: center;
     }
 
     img {
-        width: 48px;
-        height: 48px;
+        width: 6rem;
+        height: 6rem;
         object-fit: cover;
         min-width: 50px;
         min-height: 50px;
@@ -486,6 +498,7 @@
     div.meta-text {
         flex: 1 1 auto;
         min-width: 0;
+        padding: 0.25rem 0;
         display: flex;
         flex-direction: column;
     }
@@ -521,11 +534,44 @@
             opacity: 1;
         }
     }
+    span.disc-and-title {
+        display: flex;
+        width: 100%;
+        gap: 0.5rem;
+    }
+    span.title {
+        flex: 1 1 auto;
+    }
     span.title,
     span.metadata {
         white-space: nowrap;
         overflow: hidden;
         /* text-overflow: ellipsis; */
+    }
+    span.disc-number {
+        flex: 0 0 auto;
+        display: inline-flex;
+        gap: 0.75em;
+        border: 1px solid var(--background-lighter-3);
+        padding: 0 0.5em;
+        border-radius: 1rem;
+        background-color: var(--background);
+        overflow: hidden;
+    }
+    span.disc-v {
+        position: relative;
+        z-index: 10;
+    }
+    span.disc-v::after {
+        content: "";
+        position: absolute;
+        background-color: var(--background-lighter-3);
+        width: 500%;
+        height: 500%;
+        top: -50%;
+        right: 70%;
+        z-index: -1;
+        transform: rotate(20deg);
     }
     span.title {
         font-weight: bold;
@@ -542,24 +588,24 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.5em;
+        gap: 0.5rem;
     }
 
     div.controls-m-buttons,
     div.controls-side {
         display: flex;
         align-items: center;
-        gap: 1em;
-        margin-right: 1em;
+        gap: 1rem;
+        margin-right: 1rem;
     }
 
     div.controls-m-buttons {
         display: flex;
         align-items: center;
-        gap: 1em;
+        gap: 1rem;
     }
 
     div.gap {
-        width: 1em;
+        width: 1rem;
     }
 </style>
