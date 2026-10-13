@@ -20,6 +20,7 @@
         onStatusChange?: (newStatus: "yes" | "no" | "unknown") => void;
         size: "header" | "normal";
         shrinkable: boolean;
+        forceShrink?: boolean;
     }
 
     let {
@@ -28,7 +29,8 @@
         status = "yes",
         onStatusChange = () => {},
         size = "normal",
-        shrinkable
+        shrinkable,
+        forceShrink = false
     }: Props = $props();
 </script>
 
@@ -39,10 +41,17 @@
     class:normal={size === "normal"}
     class:classify={mode === "classify"}
     class:shrinkable={shrinkable}
+    class:force-shrink={forceShrink}
     class:exclusive={isCategoryExclusive(getTagCategory(tag.name))}
 >
     <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
-    <span class="label">{tag.name.replace(":", " / ")}</span>
+    <span class="label">
+        {#if mode === "classify"}
+            {tag.name.slice(tag.name.indexOf(":") + 1)}
+        {:else}
+            {tag.name.replace(":", " / ")}
+        {/if}
+    </span>
     {#if mode === "classify"}
         <span class="buttons">
             <span class="icon-toggled yes" class:active={status === "yes"}>
@@ -142,6 +151,12 @@
     span.icon-toggled.unknown.active {
         border-color: oklch(from var(--warning) calc(l - 0.3) c h);
         background-color: oklch(from var(--warning) calc(l - 0.5) c h);
+    }
+    div.tag.normal:not(.classify).force-shrink span.label {
+            display: none;
+    }
+    div.tag.normal:not(.classify).force-shrink > :global(svg) {
+        margin-right: 0;
     }
     @media screen and (width <= 1000px) {
         div.tag.normal:not(.classify).shrinkable span.label {

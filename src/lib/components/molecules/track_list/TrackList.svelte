@@ -78,12 +78,12 @@
         border-radius: 4px;
 
         display: grid;
-        grid-template-columns: 3rem 1.5fr 0.5fr 1fr 3rem;
+        grid-template-columns: 2rem 1.5fr 0.5fr 1fr 3rem;
         grid-auto-rows: min-content;
     }
     @media screen and (width <= 600px) {
         div.track-list {
-            grid-template-columns: 2rem repeat(3, 1fr) 2rem;
+            grid-template-columns: 5.5rem repeat(3, 1fr) 2rem;
         }
     }
 </style>
