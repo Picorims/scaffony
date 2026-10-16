@@ -26,7 +26,7 @@
 		togglable = false,
 		toggled = false,
 		onToggle = () => {},
-		alt = ''
+		alt = '',
 	}: Props = $props();
 
 	function handleClick() {
@@ -52,6 +52,7 @@
 
 <style>
 	button.icon-button {
+		--icon-btn-dominant-color: #ffffff;
 		width: 1.5rem;
 		height: 1.5rem;
 		background: none;
@@ -61,6 +62,24 @@
 		align-items: center;
 		cursor: pointer;
 		transition: 0.1s;
+	}
+	button.icon-button.primary {
+		--icon-btn-dominant-color: var(--primary);
+	}
+	button.icon-button.secondary {
+		--icon-btn-dominant-color: var(--secondary);
+	}
+	button.icon-button.accent {
+		--icon-btn-dominant-color: var(--accent);
+	}
+	button.icon-button.correct {
+		--icon-btn-dominant-color: var(--correct);
+	}
+	button.icon-button.error {
+		--icon-btn-dominant-color: var(--error);
+	}
+	button.icon-button.warning {
+		--icon-btn-dominant-color: var(--warning);
 	}
 
 	@media screen and (width <= 600px) {
@@ -77,53 +96,18 @@
 	button.icon-button:hover > :global(svg) {
 		transition: 0.1s;
 	}
-	button.icon-button.primary:hover > :global(svg),
-	button.icon-button.toggled.primary > :global(svg) {
-		stroke: var(--primary);
-	}
-	button.icon-button.secondary:hover > :global(svg),
-	button.icon-button.toggled.secondary > :global(svg) {
-		stroke: var(--secondary);
-	}
-	button.icon-button.accent:hover > :global(svg),
-	button.icon-button.toggled.accent > :global(svg) {
-		stroke: var(--accent);
-	}
-	button.icon-button.correct:hover > :global(svg),
-	button.icon-button.toggled.correct > :global(svg) {
-		stroke: var(--correct);
-	}
-	button.icon-button.warning:hover > :global(svg),
-	button.icon-button.toggled.warning > :global(svg) {
-		stroke: var(--warning);
-	}
-	button.icon-button.error:hover > :global(svg),
-	button.icon-button.toggled.error > :global(svg) {
-		stroke: var(--error);
+
+	button.icon-button:hover > :global(svg),
+	button.icon-button.toggled > :global(svg) {
+		stroke: var(--icon-btn-dominant-color);
 	}
 
 	button.icon-button:active,
 	button.icon-button.toggled {
 		transform: scale(0.95);
+		border: 2px solid var(--icon-btn-dominant-color);
 	}
-	button.icon-button.primary.toggled {
-		border: 2px solid var(--primary);
-	}
-	button.icon-button.secondary.toggled {
-		border: 2px solid var(--secondary);
-	}
-	button.icon-button.accent.toggled {
-		border: 2px solid var(--accent);
-	}
-	button.icon-button.correct.toggled {
-		border: 2px solid var(--correct);
-	}
-	button.icon-button.warning.toggled {
-		border: 2px solid var(--warning);
-	}
-	button.icon-button.error.toggled {
-		border: 2px solid var(--error);
-	}
+
 	button.icon-button.toggled:focus-visible {
 		border-width: 4px;
 	}
