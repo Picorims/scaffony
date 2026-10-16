@@ -18,6 +18,7 @@ export function fromPascalToKebabCase(str: string) {
     let result = "";
     for (let i = 0; i < chars.length; i++) {
         const char = chars[i];
+        // if it is not a letter
         if (
             (char === char.toUpperCase() ||
                 [
@@ -51,4 +52,18 @@ function twoDigitHex(number: number) {
         str = "0" + str;
     }
     return str;
+}
+
+export function minutesSeconds(durationSeconds: number): string {
+    let minutes = Math.floor(durationSeconds / 60);
+    let seconds = Math.floor(durationSeconds % 60);
+    return `${withLeadingZero(minutes)} : ${withLeadingZero(seconds)}`;
+}
+
+export function withLeadingZero(value: number): string {
+    if (value < 10) {
+        return `0${value}`;
+    } else {
+        return `${value}`;
+    }
 }

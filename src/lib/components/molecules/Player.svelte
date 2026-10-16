@@ -49,6 +49,7 @@
     import Tag from "../atoms/Tag.svelte";
     import Button from "../atoms/Button.svelte";
     import { getMetadata } from "$lib/metadata";
+    import { minutesSeconds } from "$lib/string";
 
     let paused = $state(true);
     let audioElement = $state<HTMLAudioElement | null>(null);
@@ -67,6 +68,9 @@
         document.createElement("dialog"),
     );
     let titleSpan = $state<HTMLSpanElement>(document.createElement("span"));
+
+    let currentTimeDisplay = $state("00 : 00");
+    let durationDisplay = $state("00 : 00");
 
     const POSITION_REFRESH_INTERVAL_MS = 500;
 
@@ -134,6 +138,8 @@
                         rangePositionElement.max = duration.toString();
                         rangePositionElement.value =
                             audioElement.currentTime.toString();
+                        currentTimeDisplay = minutesSeconds(audioElement.currentTime);
+                        durationDisplay = minutesSeconds(duration);
                     }
                 }
             }, POSITION_REFRESH_INTERVAL_MS);
@@ -330,22 +336,24 @@
     </div>
     <div class="controls-middle">
         <div class="controls-m-buttons">
-            <IconButton onClick={togglePause}>
-                {#if paused}
-                    <Play />
-                {:else}
-                    <Pause />
-                {/if}
-            </IconButton>
-            <IconButton onClick={stopAudio}>
-                <Square />
-            </IconButton>
             <IconButton onClick={playPreviousTrack}>
                 <StepBack />
             </IconButton>
             <IconButton onClick={seekToStart}>
                 <SkipBack />
             </IconButton>
+            <div class="emphasis-player-buttons">
+                <IconButton onClick={togglePause}>
+                    {#if paused}
+                        <Play />
+                    {:else}
+                        <Pause />
+                    {/if}
+                </IconButton>
+                <IconButton onClick={stopAudio}>
+                    <Square />
+                </IconButton>
+            </div>
             <IconButton onClick={seekToEnd}>
                 <SkipForward />
             </IconButton>
@@ -360,16 +368,20 @@
                 <span>{unknownTagsCount()}</span>
             {/if}
         </div>
-        <input
-            bind:this={rangePositionElement}
-            id="player-position"
-            type="range"
-            min="0"
-            max="100"
-            value="0.001"
-            oninput={updatePosition}
-            class={"monochrome"}
-        />
+        <div class="player-range-container">
+            <span>{currentTimeDisplay}</span>
+            <input
+                bind:this={rangePositionElement}
+                id="player-position"
+                type="range"
+                min="0"
+                max="100"
+                value="0.001"
+                oninput={updatePosition}
+                class={"monochrome"}
+            />
+            <span>{durationDisplay}</span>
+        </div>
     </div>
     <div class="controls-side">
         {#if volume === 0}
@@ -607,5 +619,29 @@
 
     div.gap {
         width: 1rem;
+    }
+
+    div.emphasis-player-buttons {
+        display: flex;
+        padding: 0.2rem 0.5rem;
+        gap: 1rem;
+        border-radius: 6rem;
+        background-color: rgb(from var(--text) r g b / 0.25);
+        border: 1px solid rgb(from var(--text) r g b / 0.5);
+    }
+
+    div.player-range-container {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+
+        & input {
+            flex: 1 1 auto;
+        }
+        & span {
+            flex: 0 0 auto;
+        }
     }
 </style>
