@@ -299,7 +299,7 @@
                         ? `, ${metadata?.genre}`
                         : ""}
                     {@const comment = metadata?.comment
-                        ? `, ${metadata?.genre}`
+                        ? `, ${metadata?.comment}`
                         : ""}
                     <span class="disc-and-title">
                         {#if disc || track}
