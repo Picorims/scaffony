@@ -51,6 +51,7 @@
     import Button from "../atoms/Button.svelte";
     import { getMetadata } from "$lib/metadata";
     import { minutesSeconds } from "$lib/string";
+    import ScrollingSpan from "../atoms/ScrollingSpan.svelte";
 
     const DEFAULT_VOLUME = 0.2;
     const POSITION_REFRESH_INTERVAL_MS = 500;
@@ -316,13 +317,7 @@
                             </span>
                         {/if}
 
-                        <span bind:this={titleSpan} class="title">
-                            <span
-                                class:scrolling={titleSpan
-                                    ? titleSpan.offsetWidth < titleSpan.scrollWidth
-                                    : false}>{title}</span
-                            >
-                        </span>
+                        <ScrollingSpan cssClass="title" text={title} />
                     </span>
                     <span class="metadata"><strong>{artist}</strong></span>
                     <span class="metadata">
@@ -529,47 +524,14 @@
         display: flex;
         flex-direction: column;
     }
-    span.scrolling {
-        position: relative;
-        display: inline-block;
-        width: min-content;
-        animation: 25s linear 0s scrolling infinite;
-    }
-    @keyframes scrolling {
-        0% {
-            transform: translateX(0);
-        }
-        20% {
-            transform: translateX(0);
-        }
-        85% {
-            transform: translateX(-100%);
-            opacity: 1;
-        }
-        86% {
-            transform: translateX(-100%);
-            opacity: 0;
-        }
-        87% {
-            opacity: 0;
-            transform: translateX(0);
-        }
-        99% {
-            opacity: 0;
-        }
-        100% {
-            opacity: 1;
-        }
-    }
     span.disc-and-title {
         display: flex;
         width: 100%;
         gap: 0.5rem;
     }
-    span.title {
+    span.disc-and-title :global(span.title) {
         flex: 1 1 auto;
     }
-    span.title,
     span.metadata {
         white-space: nowrap;
         overflow: hidden;
@@ -600,7 +562,7 @@
         z-index: -1;
         transform: rotate(20deg);
     }
-    span.title {
+    span.disc-and-title :global(span.title) {
         font-weight: bold;
         color: var(--text);
     }
