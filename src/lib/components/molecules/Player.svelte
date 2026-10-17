@@ -52,11 +52,14 @@
     import { getMetadata } from "$lib/metadata";
     import { minutesSeconds } from "$lib/string";
 
+    const DEFAULT_VOLUME = 0.2;
+    const POSITION_REFRESH_INTERVAL_MS = 500;
+
     let paused = $state(true);
     let audioElement = $state<HTMLAudioElement | null>(null);
     let rangePositionElement = $state<HTMLInputElement | null>(null);
     let rangeVolumeElement = $state<HTMLInputElement | null>(null);
-    let volume = $state(1);
+    let volume = $state(DEFAULT_VOLUME);
     let imageOnError = $state(false);
     let activeTrack = $state<LibraryEntry | null>(null);
     let unknownTagsCount = $derived(() => {
@@ -73,7 +76,6 @@
     let currentTimeDisplay = $state("00 : 00");
     let durationDisplay = $state("00 : 00");
 
-    const POSITION_REFRESH_INTERVAL_MS = 500;
 
     $effect(() => {
         if (audioElement) {
@@ -412,7 +414,7 @@
             type="range"
             min="0"
             max="1"
-            value="1"
+            value={DEFAULT_VOLUME}
             step="0.001"
             oninput={(e) => {
                 volume = rangeVolumeElement?.valueAsNumber ?? 0.5;
