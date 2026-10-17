@@ -320,11 +320,12 @@
                         <ScrollingSpan cssClass="title" text={title} />
                     </span>
                     <span class="metadata"><strong>{artist}</strong></span>
-                    <span class="metadata">
-                        {#if album}
-                            from album: {album}
-                        {/if}
-                    </span>
+                    {#if album}
+                        <span class="metadata meta-flex">
+                            <span>from album: </span>
+                            <ScrollingSpan text={album} cssClass="shrinkable" />
+                        </span>
+                    {/if}
                     <span class="metadata">
                         {year}{genre}{comment}
                     </span>
@@ -496,6 +497,13 @@
         display: flex;
         align-items: center;
         gap: 1rem;
+    }
+    span.meta-flex {
+        display: inline-flex;
+        gap: 1ch;
+        & :global(.shrinkable) {
+            flex: 1 1 auto;
+        }
     }
 
     div.cover {
