@@ -30,6 +30,7 @@
     import {
         getConfig,
         getEntryAudioPathWithBestExtension,
+        getTag,
         getTagCategory,
         setTagState,
         type LibraryEntry,
@@ -382,6 +383,18 @@
             />
             <span>{durationDisplay}</span>
         </div>
+        <div class="tags-list">
+            {#if activeTrack !== null}
+                {#each Object.keys(activeTrack.tags) as tagName}
+                    {#if activeTrack.tags[tagName] === true}
+                        {@const tagEntry = getTag(tagName)}
+                        {#if tagEntry !== null}
+                            <Tag tag={tagEntry} size="normal" shrinkable forceShrink />
+                        {/if}
+                    {/if}
+                {/each}
+            {/if}
+        </div>
     </div>
     <div class="controls-side">
         {#if volume === 0}
@@ -600,7 +613,6 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.5rem;
     }
 
     div.controls-m-buttons,
@@ -615,6 +627,7 @@
         display: flex;
         align-items: center;
         gap: 1rem;
+        margin: 0.2rem 0;
     }
 
     div.gap {
@@ -643,5 +656,11 @@
         & span {
             flex: 0 0 auto;
         }
+    }
+
+    div.tags-list {
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
     }
 </style>
