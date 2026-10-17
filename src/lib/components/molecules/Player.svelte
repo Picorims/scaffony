@@ -634,6 +634,7 @@
 
     div.tags-list {
         width: 100%;
+        text-align: center;
         text-wrap: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
