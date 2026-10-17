@@ -22,7 +22,7 @@
             Category:
             <select bind:value={categoryFilter}>
                 <option value="">--all--</option>
-                {#each getTagCategories() as category}
+                {#each getTagCategories() as category (category)}
                     <option value={category}>{category}</option>
                 {/each}
             </select>
@@ -31,7 +31,7 @@
             Tag:
             <select bind:value={tagFilter}>
                 <option value="">--all--</option>
-                {#each getConfig().tags as tag}
+                {#each getConfig().tags as tag (tag.name)}
                     <option value={tag.name}>{tag.name}</option>
                 {/each}
             </select>

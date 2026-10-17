@@ -44,7 +44,7 @@
         </IconButton>
     </div>
     <div class="track-list" class:classify={mode === "classify"}>
-        {#each tracks as track, index}
+        {#each tracks as track, index (track.uuid)}
             <Track entry={track} {index} {mode} {classifyFilter} />
         {/each}
     </div>

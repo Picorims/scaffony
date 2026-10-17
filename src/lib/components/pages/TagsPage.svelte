@@ -60,7 +60,7 @@
         />
     </div>
 
-    {#each categories as category}
+    {#each categories as category (category)}
         <h2>{category}</h2>
         <div class="tag-category">
             {@render tagCategory(category)}
@@ -75,7 +75,7 @@
             <input type="checkbox" checked={isCategoryExclusive(category)} oninput={(v) => {editCategory(category, v.currentTarget.checked)}}>
         </label>
     {/if}
-    {#each tags.filter((tag) => tag.name.startsWith(category + ":")) as tag}
+    {#each tags.filter((tag) => tag.name.startsWith(category + ":")) as tag (tag.name)}
         <div class="tag-entry">
             <!-- force refresh when edited tag value changes -->
             {#key editedTag}

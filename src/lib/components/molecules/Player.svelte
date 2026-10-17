@@ -246,7 +246,7 @@
 {/snippet}
 <Modal bind:dialog={editTagsDialog} title="Edit tags" buttons={editTagButtons}>
     {@const tags = getConfig().tags}
-    {#each tags as tag, i}
+    {#each tags as tag, i (tag.name)}
         {@const state = activeTrack?.tags[tag.name]}
         <Tag
             {tag}
