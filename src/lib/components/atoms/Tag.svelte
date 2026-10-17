@@ -21,6 +21,7 @@
         size: "header" | "normal";
         shrinkable: boolean;
         forceShrink?: boolean;
+        forceDisplayCategory?: boolean;
     }
 
     let {
@@ -30,7 +31,8 @@
         onStatusChange = () => {},
         size = "normal",
         shrinkable,
-        forceShrink = false
+        forceShrink = false,
+        forceDisplayCategory = false
     }: Props = $props();
 </script>
 
@@ -47,7 +49,7 @@
 >
     <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
     <span class="label">
-        {#if mode === "classify"}
+        {#if mode === "classify" && !forceDisplayCategory}
             {tag.name.slice(tag.name.indexOf(":") + 1)}
         {:else}
             {tag.name.replace(":", " / ")}

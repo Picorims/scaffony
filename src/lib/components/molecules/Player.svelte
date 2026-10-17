@@ -257,6 +257,7 @@
             mode="classify"
             size="normal"
             shrinkable={false}
+            forceDisplayCategory
             status={state === undefined ? "unknown" : state ? "yes" : "no"}
             onStatusChange={(s) => {
                 if (activeTrack !== null) {
