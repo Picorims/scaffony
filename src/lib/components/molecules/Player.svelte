@@ -383,14 +383,16 @@
         </div>
         <div class="tags-list">
             {#if activeTrack !== null}
-                {#each Object.keys(activeTrack.tags) as tagName}
-                    {#if activeTrack.tags[tagName] === true}
-                        {@const tagEntry = getTag(tagName)}
-                        {#if tagEntry !== null}
-                            <Tag tag={tagEntry} size="normal" shrinkable forceShrink />
+                {#key (activeTrack)}
+                    {#each Object.keys(activeTrack.tags) as tagName (tagName)}
+                        {#if activeTrack.tags[tagName] === true}
+                            {@const tagEntry = getTag(tagName)}
+                            {#if tagEntry !== null}
+                                <Tag tag={tagEntry} size="normal" shrinkable forceShrink />
+                            {/if}
                         {/if}
-                    {/if}
-                {/each}
+                    {/each}
+                {/key}
             {/if}
         </div>
     </div>
@@ -631,6 +633,7 @@
     }
 
     div.tags-list {
+        width: 100%;
         text-wrap: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
