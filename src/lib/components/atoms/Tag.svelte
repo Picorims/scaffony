@@ -36,6 +36,7 @@
 
 <div
     class="tag"
+    data-label={tag.name.replace(":", " / ")}
     style:--color={tag.colorHex}
     class:header={size === "header"}
     class:normal={size === "normal"}
@@ -87,6 +88,8 @@
 
 <style>
     div.tag {
+        --background-color: oklch(from var(--color) calc(l - 0.7) c h);
+        position: relative;
         display: inline-flex;
         align-items: center;
         padding: 0.2em 0.5em;
@@ -95,7 +98,7 @@
         font-size: 0.875rem;
         letter-spacing: 0.05em;
         color: var(--text);
-        background-color: oklch(from var(--color) calc(l - 0.7) c h);
+        background-color: var(--background-color);
         margin: 0.2em;
     }
     div.tag.exclusive {
@@ -164,6 +167,32 @@
         }
         div.tag.normal:not(.classify).shrinkable > :global(svg) {
             margin-right: 0;
+        }
+    }
+
+    div.tag.shrinkable:hover::after {
+        content: attr(data-label);
+        position: fixed;
+        top: 10%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 0.2em;
+        transform: translate(-50%, 0);
+        pointer-events: none;
+        font-size: 2rem;
+        background-color: var(--background-color);
+        border: 2px solid var(--color);
+        border-radius: 0.2em;
+        animation: 0.5s fadeIn;
+        box-shadow: 0px 4px 8px rgb(from var(--color) r g b / 0.5);
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
         }
     }
 
