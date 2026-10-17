@@ -7,8 +7,8 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
-    import { addPlaylist, deletePlaylist, editPlaylist, getConfig, getTagCategories, type Filter, type FilterExcludesCategory, type FilterExcludesTag, type FilterIncludesCategory, type FilterIncludesTag, type PlaylistEntry } from "$lib/user_data.svelte";
-    import { ListVideo, Pencil, Trash2 } from "@lucide/svelte";
+    import { addPlaylist, deletePlaylist, editPlaylist, getConfig, getPlaylistLibraryEntries, getTagCategories, type Filter, type FilterExcludesCategory, type FilterExcludesTag, type FilterIncludesCategory, type FilterIncludesTag, type PlaylistEntry } from "$lib/user_data.svelte";
+    import { ListVideo, Pencil, Trash } from "@lucide/svelte";
     import IconButton from "../atoms/IconButton.svelte";
     import Modal from "../atoms/Modal.svelte";
     import { getRandomIcon, ICON_NAMES_KEBAB } from "$lib/lucide";
@@ -43,6 +43,7 @@
                     <LucideIcon name={fromKebabToPascalCase(playlist.lucideIcon)} />
                 </div>
                 <span>{playlist.name}</span>
+                <span class="tracks"><strong>{getPlaylistLibraryEntries(playlist.name).length}</strong> tracks</span>
             </div>
 
             <div class="playlist-actions">
@@ -67,7 +68,7 @@
                         deletePlaylist(playlist.name);
                     }
                 }}>
-                    <Trash2 />
+                    <Trash />
                 </IconButton>
             </div>
         </div>
@@ -162,7 +163,7 @@
                     <IconButton onClick={() => {
                         editedPlaylist?.filters.splice(index, 1);
                     }}>
-                        <Trash2 />
+                        <Trash />
                     </IconButton>
                 </div>
                 
@@ -268,6 +269,13 @@
         width: 1.5rem;
         height: 1.5rem;
         stroke: var(--color);
+    }
+
+    span.tracks {
+        margin-top: 0.1em;
+        margin-left: 1em;
+        font-size: 0.9rem;
+        color: var(--text-darker-4);
     }
 
     div.playlist-actions {

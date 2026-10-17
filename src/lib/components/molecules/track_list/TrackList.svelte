@@ -42,6 +42,7 @@
         <IconButton onClick={playRandom}>
             <Shuffle />
         </IconButton>
+        <span>{tracks.length} tracks</span>
     </div>
     <div class="track-list" class:classify={mode === "classify"}>
         {#each tracks as track, index (track.uuid)}

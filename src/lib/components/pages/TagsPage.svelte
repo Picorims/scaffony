@@ -14,10 +14,11 @@
         editTag,
         getConfig,
         getTagCategories,
+        getTagLibraryEntries,
         isCategoryExclusive,
         type TagEntry,
     } from "$lib/user_data.svelte";
-    import { ListVideo, Pencil, Trash2 } from "@lucide/svelte";
+    import { ListVideo, Pencil, Trash } from "@lucide/svelte";
     import IconButton from "../atoms/IconButton.svelte";
     import Tag from "../atoms/Tag.svelte";
     import Modal from "../atoms/Modal.svelte";
@@ -78,9 +79,12 @@
     {#each tags.filter((tag) => tag.name.startsWith(category + ":")) as tag (tag.name)}
         <div class="tag-entry">
             <!-- force refresh when edited tag value changes -->
-            {#key editedTag}
-                <Tag {tag} size="normal" shrinkable={false} />
-            {/key}
+            <div class="meta">
+                {#key editedTag}
+                    <Tag {tag} size="normal" shrinkable={false} />
+                {/key}
+                <span class="tracks"><strong>{getTagLibraryEntries(tag.name).length}</strong> tracks</span>
+            </div>
             <div class="tag-actions">
                 <IconButton onClick={() => {
                     navigateTo("tag", tag.name);
@@ -110,7 +114,7 @@
                         }
                     }}
                 >
-                    <Trash2 />
+                    <Trash />
                 </IconButton>
             </div>
         </div>
@@ -234,6 +238,16 @@
     }
     div.tag-entry:nth-child(odd) {
         background-color: var(--background-lighter-1);
+    }
+
+    div.meta {
+        display: flex;
+        align-items: center;
+    }
+    span.tracks {
+        margin-left: 1em;
+        font-size: 0.9rem;
+        color: var(--text-darker-4);
     }
 
     div.tag-actions {
