@@ -343,14 +343,14 @@
                 <SkipBack />
             </IconButton>
             <div class="emphasis-player-buttons">
-                <IconButton onClick={togglePause}>
+                <IconButton filled onClick={togglePause}>
                     {#if paused}
                         <Play />
                     {:else}
                         <Pause />
                     {/if}
                 </IconButton>
-                <IconButton onClick={stopAudio}>
+                <IconButton filled onClick={stopAudio}>
                     <Square />
                 </IconButton>
             </div>

@@ -17,6 +17,7 @@
 		toggled?: boolean;
 		onToggle?: (value: boolean) => void;
 		alt?: string;
+		filled?: boolean;
 	}
 
 	let {
@@ -27,6 +28,7 @@
 		toggled = false,
 		onToggle = () => {},
 		alt = '',
+		filled = false
 	}: Props = $props();
 
 	function handleClick() {
@@ -46,6 +48,7 @@
 	aria-label={alt}
 	class={`icon-button ${variant}`}
 	class:toggled={togglable && toggled}
+	class:filled
 >
 	{@render children?.()}
 </button>
@@ -62,6 +65,11 @@
 		align-items: center;
 		cursor: pointer;
 		transition: 0.1s;
+
+		&.filled :global(svg) {
+			fill: #ffffff;
+			stroke-width: 1px;
+		}
 	}
 	button.icon-button.primary {
 		--icon-btn-dominant-color: var(--primary);
@@ -101,7 +109,10 @@
 	button.icon-button.toggled > :global(svg) {
 		stroke: var(--icon-btn-dominant-color);
 	}
-
+	button.icon-button.filled:hover > :global(svg),
+	button.icon-button.filled.toggled > :global(svg) {
+		fill: var(--icon-btn-dominant-color);
+	}
 	button.icon-button:active,
 	button.icon-button.toggled {
 		transform: scale(0.95);
