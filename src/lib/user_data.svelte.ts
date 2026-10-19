@@ -289,11 +289,15 @@ export function getTagCategory(tagName: string) {
     return tagName.split(":")[0];
 }
 
-export function getTagCompletionRatio(tagName: string): number {
-    const total = config.library.length;
+export function getTagCompletionRatio(tagName: string, excludeFilter?: string): number {
+    let filteredList = config.library;
+    if (excludeFilter !== undefined) {
+        filteredList = config.library.filter(track => Object.keys(track.tags).find(t => t.startsWith(excludeFilter)) !== undefined);
+    }
+    let total = filteredList.length;
     let count = 0;
-    for (const e of config.library) {
-        if (e.tags[tagName] !== undefined) {
+    for (const track of filteredList) {
+        if (track.tags[tagName] !== undefined) {
             count += 1;
         }
     }

@@ -17,8 +17,9 @@
         tracks: LibraryEntry[];
         mode?: "playback" | "classify";
         classifyFilter?: string;
+        excludeFilter?: string;
     }
-    const { tracks, mode = "playback", classifyFilter }: Props = $props();
+    const { tracks, mode = "playback", classifyFilter, excludeFilter }: Props = $props();
 
     function playAll() {
         setWaitList(tracks);
@@ -46,7 +47,10 @@
     </div>
     <div class="track-list" class:classify={mode === "classify"}>
         {#each tracks as track, index (track.uuid)}
-            <Track entry={track} {index} {mode} {classifyFilter} />
+            {@const toExclude = excludeFilter !== undefined && Object.keys(track.tags).find(v => v.startsWith(excludeFilter)) !== undefined}
+            {#if !toExclude}
+                <Track entry={track} {index} {mode} {classifyFilter} />
+            {/if}
         {/each}
     </div>
 </div>
