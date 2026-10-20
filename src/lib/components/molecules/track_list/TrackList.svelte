@@ -43,11 +43,15 @@
         <IconButton onClick={playRandom}>
             <Shuffle />
         </IconButton>
-        <span>{tracks.length} tracks</span>
+        {#if excludeFilter !== undefined}
+            <span>{tracks.filter(track => Object.keys(track.tags).filter(t => track.tags[t] === true).find(v => v.startsWith(excludeFilter)) === undefined).length} tracks</span>
+        {:else}
+            <span>{tracks.length} tracks</span>
+        {/if}
     </div>
     <div class="track-list" class:classify={mode === "classify"}>
         {#each tracks as track, index (track.uuid)}
-            {@const toExclude = excludeFilter !== undefined && Object.keys(track.tags).find(v => v.startsWith(excludeFilter)) !== undefined}
+            {@const toExclude = excludeFilter !== undefined && Object.keys(track.tags).filter(t => track.tags[t] === true).find(v => v.startsWith(excludeFilter)) !== undefined}
             {#if !toExclude}
                 <Track entry={track} {index} {mode} {classifyFilter} />
             {/if}

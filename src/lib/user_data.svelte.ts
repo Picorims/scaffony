@@ -292,7 +292,7 @@ export function getTagCategory(tagName: string) {
 export function getTagCompletionRatio(tagName: string, excludeFilter?: string): number {
     let filteredList = config.library;
     if (excludeFilter !== undefined) {
-        filteredList = config.library.filter(track => Object.keys(track.tags).find(t => t.startsWith(excludeFilter)) !== undefined);
+        filteredList = config.library.filter(track => Object.keys(track.tags).filter(t => track.tags[t] === true).find(t => t.startsWith(excludeFilter)) !== undefined);
     }
     let total = filteredList.length;
     let count = 0;
