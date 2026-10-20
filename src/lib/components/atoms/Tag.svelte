@@ -163,12 +163,20 @@
     div.tag.normal:not(.classify).force-shrink > :global(svg) {
         margin-right: 0;
     }
+    div.tag.normal:not(.classify).force-shrink {
+        padding: 0.2em;
+        margin: 0.2em 0.1em;
+    }
     @media screen and (width <= 1000px) {
         div.tag.normal:not(.classify).shrinkable span.label {
             display: none;
         }
         div.tag.normal:not(.classify).shrinkable > :global(svg) {
             margin-right: 0;
+        }
+        div.tag.normal:not(.classify).shrinkable {
+            padding: 0.2em;
+            margin: 0.2em 0.1em;
         }
     }
 
