@@ -47,14 +47,16 @@
     class:force-shrink={forceShrink}
     class:exclusive={isCategoryExclusive(getTagCategory(tag.name))}
 >
-    <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
-    <span class="label">
-        {#if mode === "classify" && !forceDisplayCategory}
-            {tag.name.slice(tag.name.indexOf(":") + 1)}
-        {:else}
-            {tag.name.replace(":", " / ")}
-        {/if}
-    </span>
+    <div class="icon-label">
+        <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
+        <span class="label">
+            {#if mode === "classify" && !forceDisplayCategory}
+                {tag.name.slice(tag.name.indexOf(":") + 1)}
+            {:else}
+                {tag.name.replace(":", " / ")}
+            {/if}
+        </span>
+    </div>
     {#if mode === "classify"}
         <span class="buttons">
             <span class="icon-toggled yes" class:active={status === "yes"}>
@@ -103,6 +105,10 @@
         background-color: var(--background-color);
         margin: 0.2em;
     }
+    div.tag.classify {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
     div.tag.exclusive {
         border-style: dashed;
     }
@@ -111,7 +117,11 @@
         padding: 0.4em 0.8em;
     }
 
-    div.tag > :global(svg) {
+    div.icon-label {
+        display: flex;
+        align-items: center;
+    }
+    div.icon-label > :global(svg) {
         stroke: var(--color);
         min-width: 1.2em;
         width: 1.2em;
@@ -160,7 +170,7 @@
     div.tag.normal:not(.classify).force-shrink span.label {
             display: none;
     }
-    div.tag.normal:not(.classify).force-shrink > :global(svg) {
+    div.tag.normal:not(.classify).force-shrink :global(svg) {
         margin-right: 0;
     }
     div.tag.normal:not(.classify).force-shrink {
@@ -171,7 +181,7 @@
         div.tag.normal:not(.classify).shrinkable span.label {
             display: none;
         }
-        div.tag.normal:not(.classify).shrinkable > :global(svg) {
+        div.tag.normal:not(.classify).shrinkable :global(svg) {
             margin-right: 0;
         }
         div.tag.normal:not(.classify).shrinkable {
@@ -210,9 +220,13 @@
         div.tag {
             font-size: 0.75em;
             flex-wrap: wrap;
+            overflow: hidden;
         }
         div.tag.classify {
             justify-content: stretch;
+            padding: 0;
+            padding-top: 0.2em;
+            border-radius: 0.25em;
         }
         div.tag.normal {
             width: min-content;
@@ -223,11 +237,15 @@
             margin-left: 0;
             padding-left: 0;
             margin-top: 0.3em;
-            padding-top: 0.3em;
             border-top: 1px solid var(--color);
         }
         span.label {
+            position: relative;
             min-width: 5em;
+            padding-right: 0.2em;
+        }
+        div.icon-label > :global(svg) {
+            margin-left: 0.2em;
         }
         div.tag.classify span.label {
             min-width: 0;
