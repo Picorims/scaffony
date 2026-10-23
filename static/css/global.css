@@ -88,7 +88,7 @@ input[type="range"] {
     background: var(--background-lighter-3);
 }
 input[type="range"].monochrome {
-    background: #ffffffaa;
+    background: #ffffff77;
 }
 input[type="range"]::-webkit-slider-thumb {
     appearance: none;
