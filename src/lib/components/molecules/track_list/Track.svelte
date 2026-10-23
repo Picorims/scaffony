@@ -103,25 +103,35 @@
         {#if imageInError || entry.coverPath === null || appState.libraryPath === null}
             <Disc3 class="placeholder" stroke="var(--text-darker-1)" />
         {:else}
-            {#await join(appState.libraryPath, entry.coverPath) then fullPath}
+            {#await join(appState.libraryPath, entry.coverPath)}
+                <div class="cover"></div>
+            {:then fullPath}
                 <img
-                    class="cover"
-                    class:error={imageInError}
-                    src={convertFileSrc(fullPath)}
-                    alt={`${entry.name} by ${entry.artist} - cover`}
-                    onerror={() => (imageInError = true)}
-                />
+                class="cover"
+                class:error={imageInError}
+                src={convertFileSrc(fullPath)}
+                alt={`${entry.name} by ${entry.artist} - cover`}
+                onerror={() => (imageInError = true)}
+                    />
             {/await}
         {/if}
 
-        {#await metadataPromise then metadata}
-            <span class="name"
-                >{metadata?.title ?? metadataDefault.title ?? "-"}</span
-            >
-            <span class="artist"
-                >{metadata?.artist ?? metadataDefault.artist ?? "-"}</span
-            >
-        {/await}
+        {#if metadataPromise}
+            {#await metadataPromise}
+                <span class="name">...</span>
+                <span class="artist">...</span>
+                {:then metadata}
+                <span class="name"
+                    >{metadata?.title ?? metadataDefault.title ?? "-"}</span
+                >
+                <span class="artist"
+                    >{metadata?.artist ?? metadataDefault.artist ?? "-"}</span
+                >
+            {/await}
+        {:else}
+            <span class="name">...</span>
+            <span class="artist">...</span>
+        {/if}
         <div class="tags" class:classify={mode === "classify"}>
             {#if mode === "classify"}
                 {#each getConfig().tags.filter( (v) => v.name.startsWith(classifyFilter ?? ""), ) as tag}
@@ -161,6 +171,12 @@
                 </IconButton>
             </div>
         {/if}
+    {:else}
+        <div class="cover"></div>
+        <span class="name">...</span>
+        <span class="artist">...</span>
+        <div class="tags"></div>
+        <div class="actions"></div>
     {/if}
 </div>
 
@@ -253,6 +269,7 @@
         align-items: center;
         justify-content: center;
         height: calc(var(--height) - 2px);
+        width: min-content;
     }
 
     @media screen and (width <= 600px) {
