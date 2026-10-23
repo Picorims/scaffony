@@ -48,6 +48,13 @@
     button.active {
         border-right: var(--border-size) solid var(--primary);
         color: var(--primary);
+        background: linear-gradient(
+            to left,
+            rgb(from var(--primary) r g b / 0.5) 0%,
+            rgb(from var(--primary) r g b / 0.15) 10%,
+            transparent 80%
+        );
+        box-shadow: 0 0 4px var(--primary);
     }
 
     span.text {

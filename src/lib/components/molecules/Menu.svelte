@@ -48,6 +48,7 @@
 <style>
     nav {
         width: min-content;
+        padding-top: 0.5rem;
         height: 100%;
         display: flex;
         flex-direction: column;
