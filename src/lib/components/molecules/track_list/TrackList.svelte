@@ -87,7 +87,7 @@
         border-radius: 4px;
 
         display: grid;
-        grid-template-columns: 2rem 1.5fr 0.5fr 1fr 3rem;
+        grid-template-columns: 2rem 1.25fr 10rem 1.25fr 3rem;
         grid-auto-rows: min-content;
     }
     div.track-list.classify {
