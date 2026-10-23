@@ -91,7 +91,7 @@
             {excludeFilter}
         />
     {:else}
-        <p>
+        <p class="fallback">
             <strong>Please select a category or a tag.</strong>
         </p>
     {/if}
@@ -115,6 +115,9 @@
         white-space: nowrap;
         margin-right: 1rem;
         margin-bottom: 0.5rem;
+    }
+    p.fallback {
+        margin-left: 1rem;
     }
     div.tags-completion {
         margin-left: 1rem;
