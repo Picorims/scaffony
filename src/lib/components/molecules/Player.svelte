@@ -398,6 +398,7 @@
         </div>
     </div>
     <div class="controls-side">
+        <span>{Math.ceil(volume * 100)}</span>
         {#if volume === 0}
             <VolumeX />
         {:else if volume < 0.25}
@@ -453,7 +454,7 @@
 
         display: grid;
         grid-template-columns: repeat(2, 1fr) 128px;
-        gap: 4rem;
+        gap: 1.5rem;
         box-shadow: 0 0 4px var(--cover-color, #00000000);
     }
     div.container.mobile {
@@ -594,8 +595,12 @@
     div.controls-side {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.25rem;
         margin-right: 1rem;
+
+        & :global(svg) {
+            flex: 0 0 auto;
+        }
     }
 
     div.controls-m-buttons {
