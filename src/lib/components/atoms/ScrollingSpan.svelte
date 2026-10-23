@@ -1,17 +1,36 @@
 <script lang="ts">
+    import { onDestroy, onMount } from "svelte";
+
     interface Props {
         text: string;
         cssClass?: string;
     }
     const { text, cssClass }: Props = $props();
     let containerSpan = $state<HTMLSpanElement>(document.createElement("span"));
+    let scrolling = $state(false);
+    let interval = $state(0);
+    
+    onMount(() => {
+        scrolling = shouldScroll();
+        setInterval(() => {
+            scrolling = shouldScroll();
+        }, 1000);
+    });
+
+    onDestroy(() => {
+        clearInterval(interval);
+    });
+
+    function shouldScroll() {
+        return containerSpan
+            ? containerSpan.offsetWidth < containerSpan.scrollWidth
+            : false;
+    }
 </script>
 
 <span bind:this={containerSpan} class={`container ${cssClass ?? ""}`}>
     <span
-        class:scrolling={containerSpan
-            ? containerSpan.offsetWidth < containerSpan.scrollWidth
-            : false}>{text}</span
+        class:scrolling>{text}</span
     >
 </span>
 
