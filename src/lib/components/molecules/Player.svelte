@@ -369,7 +369,7 @@
             {/if}
         </div>
         <div class="player-range-container">
-            <span>{currentTimeDisplay}</span>
+            <span class="duration to-right">{currentTimeDisplay}</span>
             <input
                 bind:this={rangePositionElement}
                 id="player-position"
@@ -380,7 +380,7 @@
                 oninput={updatePosition}
                 class={"monochrome"}
             />
-            <span>{durationDisplay}</span>
+            <span class="duration">{durationDisplay}</span>
         </div>
         <div class="tags-list">
             {#if activeTrack !== null}
@@ -625,7 +625,7 @@
 
     div.player-range-container {
         display: flex;
-        gap: 1rem;
+        gap: 0.5rem;
         align-items: center;
         justify-content: center;
         width: 100%;
@@ -635,6 +635,13 @@
         }
         & span {
             flex: 0 0 auto;
+        }
+    }
+
+    span.duration {
+        width: 3.5rem;
+        &.to-right {
+            text-align: right;
         }
     }
 
