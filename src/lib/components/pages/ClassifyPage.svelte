@@ -76,9 +76,11 @@
     <div class="tags-completion">
         <!-- {#key excludeFilter} -->
             {#each getTagsSortedByCompletionRatio() as [tag, ratio] (tag.name)}
-                <p>
+                <p class="tag-and-percent">
                     <Tag mode="display" shrinkable={false} size="normal" tag={tag} />
-                    {Math.floor(ratio * 10_000) / 100}%
+                    <span>
+                        {Math.floor(ratio * 10_000) / 100}%
+                    </span>
                 </p>
             {/each}
         <!-- {/key} -->
@@ -120,10 +122,18 @@
         margin-left: 1rem;
     }
     div.tags-completion {
-        margin-left: 1rem;
+        padding: 0.25rem;
+        padding-left: 1rem;
         max-height: 20%;
         overflow-y: scroll;
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(256px, 1fr));
+        box-shadow: inset 0 0 32px var(--background-darker-2);
+    }
+    p.tag-and-percent {
+        display: inline-flex;
+        align-items: center;
+        margin-right: 0.5rem;
+        gap: 0.1rem;
     }
 </style>
