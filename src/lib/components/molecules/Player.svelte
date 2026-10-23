@@ -398,7 +398,7 @@
         </div>
     </div>
     <div class="controls-side">
-        <span>{Math.ceil(volume * 100)}</span>
+        <span class="volume">{Math.ceil(volume * 100)}</span>
         {#if volume === 0}
             <VolumeX />
         {:else if volume < 0.25}
@@ -651,5 +651,9 @@
         text-wrap: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
+    }
+
+    span.volume {
+        width: 2rem;
     }
 </style>
