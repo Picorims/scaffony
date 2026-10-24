@@ -258,10 +258,13 @@
         overflow: hidden;
     }
     div.tags.classify {
-        padding: 0.2rem 0.5rem;
+        margin: 0.5rem;
+        padding: 0.5rem;
         text-wrap: initial;
-        max-height: var(--height);
+        max-height: calc(var(--height) - 1rem);
         overflow-y: auto;
+        border-radius: 4px;
+        box-shadow: inset 0 0 8px var(--background-darker-2);
     }
 
     div.actions {
