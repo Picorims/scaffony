@@ -188,12 +188,6 @@
                 </IconButton>
             </div>
         {/if}
-    {:else}
-        <div class="cover"></div>
-        <span class="name">...</span>
-        <span class="artist">...</span>
-        <div class="tags"></div>
-        <div class="actions"></div>
     {/if}
 </div>
 
