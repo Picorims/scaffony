@@ -34,7 +34,7 @@
     ];
 </script>
 
-<nav>
+<nav class:hidden = {!appState.menuVisible}>
     {#each entries as entry}
         <MenuEntry
             text={entry.text}
@@ -47,12 +47,23 @@
 
 <style>
     nav {
-        width: min-content;
+        --width: 9rem;
+        position: relative;
+        width: var(--width);
+        min-width: min-content;
         padding-top: 0.5rem;
         height: 100%;
         display: flex;
         flex-direction: column;
         background-color: var(--background-lighter-1);
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        transition: 0.5s ease-in-out;
+        transition-behavior: allow-discrete;
+        overflow: hidden;
+
+        &.hidden {
+            margin-left: calc(-1 * var(--width));
+        }
     }
+
 </style>

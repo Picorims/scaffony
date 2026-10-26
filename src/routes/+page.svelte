@@ -29,9 +29,7 @@
 <div class="root">
     <Header />
     <main>
-        {#if appState.menuVisible}
-            <Menu />
-        {/if}
+        <Menu />
         <Page activePage={appState.activePage} subPage={appState.activeSubPage} />
     </main>
     <Player />
