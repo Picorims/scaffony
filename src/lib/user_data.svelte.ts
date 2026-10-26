@@ -21,6 +21,7 @@ import { platform } from "@tauri-apps/plugin-os";
 import { appState } from "./app_state.svelte";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { toHex } from "./string";
+import { objSortedByKey } from "./object";
 
 const LIBRARY_PATH_FILE_NAME = "scaffony_current_library.txt";
 const DATA_FILE_NAME = "scaffony_data.json";
@@ -381,6 +382,7 @@ export function setTagState(entry: LibraryEntry, tagName: string, state: "yes" |
             }
         }
     }
+    sortTagsOnLibraryEntries();
     writeData();
 }
 
@@ -600,6 +602,13 @@ export function commit() {
 
 function sortTags() {
     config.tags.sort((a, b) => a.name.localeCompare(b.name));
+    sortTagsOnLibraryEntries();
+}
+
+function sortTagsOnLibraryEntries() {
+    for (const entry of config.library) {
+        entry.tags = objSortedByKey<typeof entry.tags>(entry.tags);
+    }
 }
 
 
