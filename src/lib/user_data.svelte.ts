@@ -290,6 +290,27 @@ export function getTagCategory(tagName: string) {
     return tagName.split(":")[0];
 }
 
+/**
+ * given a library entry, returns the list of "yes" tags,
+ * with a " " space string to split categories.
+ */
+export function getActiveTagKeysWithCategorySeparators(entry: LibraryEntry) {
+    return Object.keys(entry.tags).filter(t => entry.tags[t]).reduce<string[]>((acc: string[], v) => {
+        if (acc.length > 0) {
+            const prev = acc[acc.length - 1];
+            if (prev !== " " && getTagCategory(prev) !== getTagCategory(v)) {
+
+                // used for detecting spacing to insert between categories
+                acc.push(" ");
+            }
+        }
+        // Must be done after, otherwise the if compares the tag with itself.
+        // Which is... uh... useless.
+        acc.push(v);
+        return acc;
+    }, [])
+}
+
 export function getTagCompletionRatio(tagName: string, excludeFilter?: string): number {
     let filteredList = config.library;
     if (excludeFilter !== undefined) {

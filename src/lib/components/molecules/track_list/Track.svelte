@@ -10,6 +10,7 @@
     import { appState } from "$lib/app_state.svelte";
     import IconButton from "$lib/components/atoms/IconButton.svelte";
     import {
+    getActiveTagKeysWithCategorySeparators,
         getConfig,
         getEntryAudioPathWithBestExtension,
         getTag,
@@ -24,6 +25,7 @@
     import { onDestroy } from "svelte";
     import { requestPlay, setWaitList } from "$lib/playback";
     import { join } from "@tauri-apps/api/path";
+    import ShrunkTagsByCategory from "../ShrunkTagsByCategory.svelte";
 
     interface Props {
         entry: LibraryEntry;
@@ -151,30 +153,7 @@
                     />
                 {/each}
             {:else if mode === "playback"}
-                {@const tagKeys = Object.keys(entry.tags).filter(t => entry.tags[t]).reduce<string[]>((acc: string[], v) => {
-                    if (acc.length > 0) {
-                        const prev = acc[acc.length - 1];
-                        if (prev !== " " && getTagCategory(prev) !== getTagCategory(v)) {
-
-                            // used for detecting spacing to insert between categories
-                            acc.push(" ");
-                        }
-                    }
-                    // Must be done after, otherwise the if compares the tag with itself.
-                    // Which is... uh... useless.
-                    acc.push(v);
-                    return acc;
-                }, [])}
-                {#each tagKeys as tagName}
-                    {#if tagName !== " " && entry.tags[tagName] === true}
-                        {@const tagEntry = getTag(tagName)}
-                        {#if tagEntry !== null}
-                        <Tag tag={tagEntry} size="normal" shrinkable forceShrink />
-                        {/if}
-                    {:else if tagName === " "}
-                        <span class="tag-category-spacing"></span>
-                    {/if}
-                {/each}
+                <ShrunkTagsByCategory {entry} />
             {/if}
         </div>
         {#if entry.missing}
@@ -268,10 +247,6 @@
         text-wrap: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-
-        &:not(.classify) > :global(div) {
-            margin-left: -0.75rem !important;
-        }
     }
     div.tags.classify {
         margin: 0.5rem;
@@ -282,23 +257,6 @@
         border-radius: 4px;
         box-shadow: inset 0 0 8px var(--background-darker-2);
     }
-    span.tag-category-spacing {
-        position: relative;
-        display: inline-block;
-        width: 1.5rem;
-        height: 1rem;
-
-        &::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0.3rem;
-            width: 0;
-            height: 100%;
-            border-right: 1px dashed var(--text-darker-4);
-        }
-    }
-
 
     div.actions {
         display: flex;

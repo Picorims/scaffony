@@ -52,6 +52,7 @@
     import { getMetadata } from "$lib/metadata";
     import { minutesSeconds } from "$lib/string";
     import ScrollingSpan from "../atoms/ScrollingSpan.svelte";
+    import ShrunkTagsByCategory from "./ShrunkTagsByCategory.svelte";
 
     const DEFAULT_VOLUME = 0.2;
     const POSITION_REFRESH_INTERVAL_MS = 500;
@@ -385,14 +386,15 @@
         <div class="tags-list">
             {#if activeTrack !== null}
                 {#key (activeTrack)}
-                    {#each Object.keys(activeTrack.tags) as tagName (tagName)}
+                    <!-- {#each Object.keys(activeTrack.tags) as tagName (tagName)}
                         {#if activeTrack.tags[tagName] === true}
                             {@const tagEntry = getTag(tagName)}
                             {#if tagEntry !== null}
                                 <Tag tag={tagEntry} size="normal" shrinkable forceShrink />
                             {/if}
                         {/if}
-                    {/each}
+                    {/each} -->
+                    <ShrunkTagsByCategory entry={activeTrack} />
                 {/key}
             {/if}
         </div>

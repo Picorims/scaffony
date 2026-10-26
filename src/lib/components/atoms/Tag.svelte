@@ -22,6 +22,7 @@
         shrinkable: boolean;
         forceShrink?: boolean;
         forceDisplayCategory?: boolean;
+        className?: string;
     }
 
     let {
@@ -32,12 +33,13 @@
         size = "normal",
         shrinkable,
         forceShrink = false,
-        forceDisplayCategory = false
+        forceDisplayCategory = false,
+        className = ""
     }: Props = $props();
 </script>
 
 <div
-    class="tag"
+    class={`tag ${className}`}
     data-label={tag.name.replace(":", " / ")}
     style:--color={tag.colorHex}
     class:header={size === "header"}
