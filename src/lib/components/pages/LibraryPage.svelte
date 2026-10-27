@@ -132,4 +132,22 @@
         margin-left: 1rem;
         font-weight: bold;
     }
+
+    @media screen and (width <= 600px) {
+        div.container {
+            padding-top: 0.5rem;
+        }
+        div.header {
+            margin-left: 0.5rem;
+            margin-bottom: 0.25rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        span.library-path {
+            margin-left: 0;
+            font-size: 0.8rem;
+        }
+    }
 </style>

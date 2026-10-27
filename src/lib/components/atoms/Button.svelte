@@ -77,4 +77,10 @@
     button.accent:active {
         background-color: var(--accent-darker-2);
     }
+
+    @media screen and (width <= 600px) {
+        button {
+            padding: 0.4em 0.5em;
+        }
+    }
 </style>
