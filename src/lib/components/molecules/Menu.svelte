@@ -47,7 +47,7 @@
 
 <style>
     nav {
-        --width: 9rem;
+        --width: var(--menu-width);
         position: relative;
         width: var(--width);
         min-width: min-content;
@@ -57,7 +57,7 @@
         flex-direction: column;
         background-color: var(--background-lighter-1);
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        transition: 0.5s cubic-bezier(0.75,-0.31, 0.21, 1.31);
+        transition: 0.5s var(--menu-bezier);
         transition-behavior: allow-discrete;
 
         &.hidden {

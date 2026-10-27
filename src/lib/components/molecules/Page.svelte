@@ -11,6 +11,8 @@
 </script>
 
 <script lang="ts">
+    import { appState } from "$lib/app_state.svelte";
+
     import ClassifyPage from "../pages/ClassifyPage.svelte";
 
     import LibraryPage from "../pages/LibraryPage.svelte";
@@ -25,7 +27,7 @@
     const { activePage, subPage }: IProps = $props();
 </script>
 
-<div class="page">
+<div class="page" class:with-menu={appState.menuVisible}>
     {#if activePage === "library"}
         <LibraryPage />
     {:else if activePage === "playlists"}
@@ -45,6 +47,14 @@
     div.page {
         flex: 1;
         width: 100%;
+        max-width: 100%;
         height: 100%;
+
+        transition: 0.5s var(--menu-bezier);
+        transition-property: max-width;
+
+        &.with-menu {
+            max-width: calc(100% - var(--menu-width));
+        }
     }
 </style>

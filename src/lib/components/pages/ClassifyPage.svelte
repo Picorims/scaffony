@@ -37,7 +37,7 @@
 <div class="container">
     <div class="header">
         <label>
-            Category:
+            <span>Category:</span>
             <select bind:value={categoryFilter}>
                 <option value="">--all--</option>
                 {#each getTagCategories() as category (category)}
@@ -46,7 +46,7 @@
             </select>
         </label>
         <label>
-            Tag:
+            <span>Tag:</span>
             <select bind:value={tagFilter}>
                 <option value="">--all--</option>
                 {#each getConfig().tags as tag (tag.name)}
@@ -55,7 +55,7 @@
             </select>
         </label>
         <label>
-            Exclude Category:
+            <span>Exclude Category:</span>
             <select bind:value={excludeCategoryFilter}>
                 <option value="">--none--</option>
                 {#each getTagCategories() as category (category)}
@@ -64,7 +64,7 @@
             </select>
         </label>
         <label>
-            Exclude Tag:
+            <span>Exclude Tag:</span>
             <select bind:value={excludeTagFilter}>
                 <option value="">--none--</option>
                 {#each getConfig().tags as tag (tag.name)}
@@ -119,15 +119,17 @@
         margin-bottom: 0.5rem;
     }
     p.fallback {
-        margin-left: 1rem;
+        margin: 0 1rem;
+        text-wrap: balance;
     }
     div.tags-completion {
+        --cell-width: 256px;
         padding: 0.25rem;
         padding-left: 1rem;
         max-height: 20%;
         overflow-y: scroll;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(256px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(var(--cell-width), 1fr));
         box-shadow: inset 0 0 32px var(--background-darker-2);
     }
     p.tag-and-percent {
@@ -135,5 +137,41 @@
         align-items: center;
         margin-right: 0.5rem;
         gap: 0.1rem;
+    }
+
+    @media screen and (width <= 600px) {
+        div.container {
+            gap: 0.25rem;
+        }
+        div.header {
+            margin: 0.5rem;
+            margin-bottom: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+
+            & label {
+                max-width: 100%;
+                flex: 1 1 auto;
+                margin-bottom: 0.25rem;
+                margin-right: 0;
+                display: inline-flex;
+                gap: 0.25rem;
+            
+                & > select {
+                    flex: 1 1 0;
+                    min-width: 1rem;
+                    width: fit-content;
+                }
+            }
+        }
+        P.fallback {
+            margin-left: 0.5rem;
+        }
+        div.tags-completion {
+            --cell-width: 128px;
+            padding-left: 0.5rem;
+            max-height: 18%;
+        }
     }
 </style>

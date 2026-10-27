@@ -97,5 +97,8 @@
         div.track-list {
             grid-template-columns: 3.25rem repeat(3, 1fr) 2rem;
         }
+        div.track-list.classify {
+            grid-template-columns: 3rem 1fr 0.5fr 1.5fr 2rem;
+        }
     }
 </style>

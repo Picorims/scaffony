@@ -41,6 +41,9 @@
     --font-header: "Playwrite DE Grund", sans-serif;
     --font-body: "Quicksand", sans-serif;
 
+    --menu-width: 9rem;
+    --menu-bezier: cubic-bezier(0.75,-0.31, 0.21, 1.31);
+
     color: var(--text);
     background-color: var(--background);
     font-synthesis: none;
@@ -124,4 +127,11 @@ progress::-webkit-progress-bar {
 }
 progress::-webkit-progress-value {
     background-color: var(--primary);
+}
+
+@media screen and (width <= 600px) {
+    select {
+        padding: 0.25rem;
+        min-width: 3em;
+    }
 }

@@ -272,7 +272,6 @@
             --height: calc(var(--base-height) * 3);
         }
         div.container.classify {
-            --base-height: 1.85rem;
             --height: calc(var(--base-height) * 8);
         }
         span.name {
@@ -293,8 +292,11 @@
             padding-left: 1rem;
         }
         div.tags.classify {
-            height: calc(var(--base-height) * 6.1);
+            height: calc(var(--base-height) * 6);
             grid-row: 2 / span;
+            padding: 0.25rem;
+            margin: 0.25rem;
+            margin-top: -0.25rem;
         }
         img.cover, :global(svg.placeholder), div.actions {
             grid-row: 1 / span 3;
