@@ -273,7 +273,7 @@
     {/each}
 </Modal>
 
-<div class="container" class:mobile={platform() === "android"} style:--cover-color={activeTrack?.color}>
+<div class="container" class:mobile-gap={platform() === "android"} style:--cover-color={activeTrack?.color}>
     <div class="gradient"></div>
     <div class="meta">
         <div class="cover">
@@ -459,24 +459,12 @@
         gap: 1.5rem;
         box-shadow: 0 0 4px var(--cover-color, #00000000);
     }
-    div.container.mobile {
+    div.container.mobile-gap {
         grid-template-columns: 1fr;
         grid-template-rows: auto auto auto;
         gap: 1rem;
         padding: 0.5rem 1rem;
         padding-bottom: 8vh;
-    }
-
-    @media screen and (max-width: 800px) {
-        div.container {
-            grid-template-columns: 1fr;
-            grid-template-rows: auto auto auto;
-            gap: 1rem;
-            padding: 0.5rem 1rem;
-        }
-        div.gradient {
-            width: 100%;
-        }
     }
 
     div.gradient {
@@ -657,5 +645,32 @@
 
     span.volume {
         width: 2rem;
+    }
+
+    @media screen and (max-width: 800px) {
+        div.container {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 0.25rem;
+            padding-bottom: 0.5rem 1rem;
+        }
+
+        div.gradient {
+            width: 100%;
+        }
+
+        div.meta {
+            gap: 0.5rem;
+        }
+
+        div.cover, img {
+            width: 5rem;
+            height: 5rem;
+        }
+
+        div.controls-side {
+            padding: 0.25rem 0.5rem;
+            padding-top: 0;
+        }
     }
 </style>
