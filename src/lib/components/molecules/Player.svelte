@@ -328,8 +328,9 @@
                             <ScrollingSpan text={album} cssClass="shrinkable" />
                         </span>
                     {/if}
-                    <span class="metadata">
-                        {year}{genre}{comment}
+                    <span class="metadata meta-flex">
+                        <span>{year}{genre}</span>
+                        <ScrollingSpan text={comment} cssClass="shrinkable" />
                     </span>
                 {/await}
             {/if}
@@ -661,6 +662,7 @@
 
         div.meta {
             gap: 0.5rem;
+            padding-right: 0.5rem;
         }
 
         div.cover, img {
