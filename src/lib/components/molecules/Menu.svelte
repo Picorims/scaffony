@@ -57,12 +57,21 @@
         flex-direction: column;
         background-color: var(--background-lighter-1);
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        transition: 0.5s ease-in-out;
+        transition: 0.5s cubic-bezier(0.75,-0.31, 0.21, 1.31);
         transition-behavior: allow-discrete;
-        overflow: hidden;
 
         &.hidden {
             margin-left: calc(-1 * var(--width));
+        }
+        &::after {
+            --gap-size: 2rem;
+            content: "";
+            position: absolute;
+            width: var(--gap-size);
+            height: 100%;
+            background-color: var(--background-lighter-1);
+            left: calc(-1 * var(--gap-size));
+            top: 0;
         }
     }
 
