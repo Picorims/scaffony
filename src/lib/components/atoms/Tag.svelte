@@ -253,5 +253,9 @@
             min-width: 0;
             max-width: calc(100% - 1.2rem);
         }
+
+        div.tag.normal:not(.classify).force-shrink :global(svg) {
+            margin-left: 0;
+        }
     }
 </style>
