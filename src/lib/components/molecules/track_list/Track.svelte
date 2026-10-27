@@ -268,27 +268,29 @@
 
     @media screen and (width <= 600px) {
         div.container {
+            --base-height: 1rem;
             --height: calc(var(--base-height) * 3);
         }
         div.container.classify {
+            --base-height: 1.85rem;
             --height: calc(var(--base-height) * 8);
         }
-        span.artist,
         span.name {
             font-size: 0.875rem;
-        }
-        span.name, span.artist, div.tags {
-            grid-column: 2 / span 3;
-        }
-        span.name {
             grid-row: 1;
+            grid-column: 2 / span 2;
         }
         span.artist {
-            grid-row: 2;
+            font-size: 0.8rem;
+            grid-row: 1;
+            grid-column: 4 / span 1;
+            min-width: 8rem;
         }
         div.tags {
-            grid-row: 3;
-            height: var(--base-height);
+            grid-column: 2 / span 3;
+            grid-row: 2 / span 2;
+            height: calc(1.75 * var(--base-height));
+            padding-left: 1rem;
         }
         div.tags.classify {
             height: calc(var(--base-height) * 6.1);

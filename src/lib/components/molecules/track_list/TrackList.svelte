@@ -95,7 +95,7 @@
     }
     @media screen and (width <= 600px) {
         div.track-list {
-            grid-template-columns: 5.5rem repeat(3, 1fr) 2rem;
+            grid-template-columns: 3.25rem repeat(3, 1fr) 2rem;
         }
     }
 </style>
