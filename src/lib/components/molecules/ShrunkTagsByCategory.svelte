@@ -48,4 +48,13 @@
             border-right: 1px dashed var(--text-darker-4);
         }
     }
+
+    @media screen and (width <= 600px) {
+        span.tag-category-spacing {
+            width: 1.25rem;
+        }
+        :global(.tag-overlap) {
+            margin-left: -0.5rem !important;
+        }
+    }
 </style>
