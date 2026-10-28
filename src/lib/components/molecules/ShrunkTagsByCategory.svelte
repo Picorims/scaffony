@@ -55,6 +55,7 @@
         margin-right: 0.25em;
         /* HACK so category and tag icons are aligned */
         transform: translate(0, 0.1em);
+        opacity: 0.5;
     }
     span.tag-category-spacing {
         position: relative;
