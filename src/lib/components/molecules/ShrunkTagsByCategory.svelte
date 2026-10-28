@@ -23,26 +23,28 @@
     }
 </script>
 
-{#each tagKeys as tagName, index}
-    {#if index === 0}
-        <span class="category-icon">
-            <LucideIcon name={tagToCategoryToIcon(tagName)} />
-        </span>
-    {/if}
-    {#if tagName !== " " && entry.tags[tagName] === true}
-        {@const tagEntry = getTag(tagName)}
-        {#if tagEntry !== null}
-            <Tag tag={tagEntry} size="normal" shrinkable forceShrink className={"tag-overlap"} />
-        {/if}
-    {:else if tagName === " "}
-        <span class="tag-category-spacing"></span>
-        {#if index + 1 < tagKeys.length}
+{#key tagKeys}
+    {#each tagKeys as tagName, index}
+        {#if index === 0}
             <span class="category-icon">
-                <LucideIcon name={tagToCategoryToIcon(tagKeys[index + 1])} />
+                <LucideIcon name={tagToCategoryToIcon(tagName)} />
             </span>
         {/if}
-    {/if}
-{/each}
+        {#if tagName !== " " && entry.tags[tagName] === true}
+            {@const tagEntry = getTag(tagName)}
+            {#if tagEntry !== null}
+                <Tag tag={tagEntry} size="normal" shrinkable forceShrink className={"tag-overlap"} />
+            {/if}
+        {:else if tagName === " "}
+            <span class="tag-category-spacing"></span>
+            {#if index + 1 < tagKeys.length}
+                <span class="category-icon">
+                    <LucideIcon name={tagToCategoryToIcon(tagKeys[index + 1])} />
+                </span>
+            {/if}
+        {/if}
+    {/each}
+{/key}
 
 <style>
     :global(.tag-overlap) {
