@@ -22,6 +22,7 @@ import { appState } from "./app_state.svelte";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { toHex } from "./string";
 import { objSortedByKey } from "./object";
+import { getRandomIcon } from "./lucide";
 
 const LIBRARY_PATH_FILE_NAME = "scaffony_current_library.txt";
 const DATA_FILE_NAME = "scaffony_data.json";
@@ -96,6 +97,7 @@ export interface CategoryEntry {
      * if true, only one tag of the category can be assigned at once.
      */
     exclusive: boolean;
+    icon: string;
 }
 
 /**
@@ -240,18 +242,22 @@ const DEFAULT_CONFIG: IConfig = {
         "rate": {
             name: "rate",
             exclusive: true,
+            icon: "",
         },
         "mood": {
             name: "mood",
             exclusive: false,
+            icon: "",
         },
         "genre": {
             name: "genre",
             exclusive: false,
+            icon: "",
         },
         "energy": {
             name: "energy",
             exclusive: false,
+            icon: "",
         },
     },
     waitList: {
@@ -613,6 +619,11 @@ function addMissingFieldsToConfig(data: IConfig): IConfig {
             position: 0
         }
     }
+    for (const category of Object.keys(data.categories)) {
+        if (data.categories[category].icon === undefined) {
+            data.categories[category].icon = getRandomIcon();
+        }
+    }
     return data;
 }
 
@@ -675,6 +686,7 @@ export function addCategory(category: string) {
     config.categories[category] = {
         name: category,
         exclusive: false,
+        icon: "",
     };
     commit();
 }
@@ -690,6 +702,22 @@ export function editCategory(category: string, exclusive: boolean) {
     config.categories[category].exclusive = exclusive;
     console.log(`Category ${category} is now exclusive: ${exclusive}`);
     commit();
+}
+
+export function editCategoryIcon(category: string, icon: string) {
+    if (!hasCategory(category)) {
+        throw new Error("Trying to edit non-existent category.");
+    }
+    config.categories[category].icon = icon;
+    console.log(`Category ${category} icon is now: ${icon}`);
+    commit();
+}
+
+export function getCategoryIcon(category: string) {
+    if (!hasCategory(category)) {
+        throw new Error("Trying to query non-existent category.");
+    }
+    return config.categories[category].icon;
 }
 
 export function isCategoryExclusive(category: string) {

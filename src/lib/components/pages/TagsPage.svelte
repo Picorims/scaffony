@@ -11,7 +11,9 @@
         addTag,
         deleteTag,
         editCategory,
+        editCategoryIcon,
         editTag,
+        getCategoryIcon,
         getConfig,
         getTagCategories,
         getTagLibraryEntries,
@@ -24,7 +26,9 @@
     import Modal from "../atoms/Modal.svelte";
     import { getRandomIcon, ICON_NAMES_KEBAB } from "$lib/lucide";
     import Button from "../atoms/Button.svelte";
-    import { navigateTo } from "$lib/app_state.svelte";
+    import { appState, navigateTo } from "$lib/app_state.svelte";
+    import LucideIcon from "../atoms/LucideIcon.svelte";
+    import { fromKebabToPascalCase } from "$lib/string";
 
     let categories = $state<string[]>([]);
     let tags = $state<TagEntry[]>([]);
@@ -62,7 +66,10 @@
     </div>
 
     {#each categories as category (category)}
-        <h2>{category}</h2>
+        <div class="category-header">
+            <LucideIcon name={fromKebabToPascalCase(getCategoryIcon(category))} />
+            <h2>{category}</h2>
+        </div>
         <div class="tag-category">
             {@render tagCategory(category)}
         </div>
@@ -71,9 +78,18 @@
 
 {#snippet tagCategory(category: string)}
     {#if editCategories}
-        <label>
+        <label class="category-label">
             Exclusive:
             <input type="checkbox" checked={isCategoryExclusive(category)} oninput={(v) => {editCategory(category, v.currentTarget.checked)}}>
+        </label>
+        <label class="category-label">
+            Icon:
+            <input
+                type="text"
+                value={getCategoryIcon(category) ?? getRandomIcon()}
+                list="tag-dialog-icons-list"
+                oninput={(v) => editCategoryIcon(category, v.currentTarget.value)}
+            />
         </label>
     {/if}
     {#each tags.filter((tag) => tag.name.startsWith(category + ":")) as tag (tag.name)}
@@ -121,6 +137,12 @@
     {/each}
 {/snippet}
 
+<datalist id="tag-dialog-icons-list">
+    {#each ICON_NAMES_KEBAB as iconName}
+        <option value={iconName}></option>
+    {/each}
+</datalist>
+
 <Modal
     bind:dialog
     title={dialogMode === "add"
@@ -150,11 +172,6 @@
             list="tag-dialog-icons-list"
         />
     </label>
-    <datalist id="tag-dialog-icons-list">
-        {#each ICON_NAMES_KEBAB as iconName}
-            <option value={iconName}></option>
-        {/each}
-    </datalist>
 
     {#snippet buttons()}
         <Button
@@ -217,13 +234,29 @@
         margin-bottom: 1rem;
     }
 
-    h2 {
+    div.category-header {
         padding-top: 0.25rem;
         padding-bottom: 0.25rem;
         padding-left: 1rem;
         text-transform: capitalize;
         border-top: 2px solid var(--text-darker-4);
         background-color: var(--background-lighter-2);
+
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    label.category-label {
+        display: inline-flex;
+        margin: 0.25rem 1rem;
+        align-items: center;
+        gap: 0.25rem;
+
+        & input[type="checkbox"] {
+            width: 1rem;
+            height: 1rem;
+        }
     }
 
     div.tag-entry {

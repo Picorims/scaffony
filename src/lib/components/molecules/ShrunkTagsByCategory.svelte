@@ -1,5 +1,7 @@
 <script lang="ts">
-    import { getActiveTagKeysWithCategorySeparators, getTag, type LibraryEntry } from "$lib/user_data.svelte";
+    import { fromKebabToPascalCase } from "$lib/string";
+    import { getActiveTagKeysWithCategorySeparators, getCategoryIcon, getTag, getTagCategory, type LibraryEntry } from "$lib/user_data.svelte";
+    import LucideIcon from "../atoms/LucideIcon.svelte";
     import Tag from "../atoms/Tag.svelte";
 
     /*
@@ -15,16 +17,30 @@
 
     let {entry}: Props = $props();
     let tagKeys = $derived(getActiveTagKeysWithCategorySeparators(entry));
+
+    function tagToCategoryToIcon(tag: string) {
+        return fromKebabToPascalCase(getCategoryIcon(getTagCategory(tag)));
+    }
 </script>
 
-{#each tagKeys as tagName}
+{#each tagKeys as tagName, index}
+    {#if index === 0}
+        <span class="category-icon">
+            <LucideIcon name={tagToCategoryToIcon(tagName)} />
+        </span>
+    {/if}
     {#if tagName !== " " && entry.tags[tagName] === true}
         {@const tagEntry = getTag(tagName)}
         {#if tagEntry !== null}
-        <Tag tag={tagEntry} size="normal" shrinkable forceShrink className={"tag-overlap"} />
+            <Tag tag={tagEntry} size="normal" shrinkable forceShrink className={"tag-overlap"} />
         {/if}
     {:else if tagName === " "}
         <span class="tag-category-spacing"></span>
+        {#if index + 1 < tagKeys.length}
+            <span class="category-icon">
+                <LucideIcon name={tagToCategoryToIcon(tagKeys[index + 1])} />
+            </span>
+        {/if}
     {/if}
 {/each}
 
@@ -32,10 +48,16 @@
     :global(.tag-overlap) {
         margin-left: -0.75rem !important;
     }
+    span.category-icon > :global(svg) {
+        height: 1.2rem;
+        margin-right: 0.25em;
+        /* HACK so category and tag icons are aligned */
+        transform: translate(0, 0.1em);
+    }
     span.tag-category-spacing {
         position: relative;
         display: inline-block;
-        width: 1.5rem;
+        width: 0.5rem;
         height: 1rem;
 
         &::after {
