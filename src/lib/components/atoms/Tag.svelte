@@ -206,7 +206,7 @@
         border: 2px solid var(--color);
         border-radius: 0.2em;
         animation: 0.5s fadeIn;
-        box-shadow: 0px 4px 8px rgb(from var(--color) r g b / 0.5);
+        box-shadow: 0px 4px 8px rgb(from var(--color) r g b / 0.5), 0px 4px 48px rgb(from var(--color) r g b / 0.5), 0px 4px 128px rgb(from var(--color) r g b / 0.5);
     }
 
     @keyframes fadeIn {
