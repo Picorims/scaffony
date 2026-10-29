@@ -5,7 +5,7 @@
   interface Props {
     name: string;
   }
-  let { name, ...props }: Props & IconProps = $props();
+  let { name, ...props }: Props & Omit<IconProps, "iconNode"> = $props();
 
   const Icon = (icons as unknown as Record<string, unknown>)[(() => name)()] as unknown as typeof IconType;
 
