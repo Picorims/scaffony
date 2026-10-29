@@ -49,6 +49,7 @@
     button.primary {
         background-color: var(--primary);
         color: var(--on-primary);
+        box-shadow: 0 2px 4px var(--primary), 0 0 24px rgb(from var(--primary) r g b / 0.5);
     }
     button.primary:hover {
         background-color: var(--primary-darker-1);
@@ -59,6 +60,7 @@
 
     button.secondary {
         background-color: var(--secondary);
+        box-shadow: 0 1px 2px var(--secondary), 0 0 8px rgb(from var(--secondary) r g b / 0.5);
     }
     button.secondary:hover {
         background-color: var(--secondary-darker-1);
@@ -70,6 +72,7 @@
     button.accent {
         background-color: var(--accent);
         color: var(--on-accent);
+        box-shadow: 0 2px 4px var(--accent), 0 0 24px rgb(from var(--accent) r g b / 0.5);
     }
     button.accent:hover {
         background-color: var(--accent-darker-1);
