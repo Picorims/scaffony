@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { fromKebabToPascalCase } from "$lib/string";
     /*
     Copyright (c) 2025 Charly Schmidt aka Picorims (picorims.contact@gmail.com), all rights reserved.
     
@@ -7,8 +8,9 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
-    import { getConfig, getTagCategories, getTagCompletionRatio, type TagEntry } from "$lib/user_data.svelte";
+    import { getCategoryByName, getCategoryIcon, getConfig, getTagCategories, getTagCategory, getTagCompletionRatio, type CategoryEntry, type TagEntry } from "$lib/user_data.svelte";
     import Button from "../atoms/Button.svelte";
+    import LucideIcon from "../atoms/LucideIcon.svelte";
     import Tag from "../atoms/Tag.svelte";
     import TrackList from "../molecules/track_list/TrackList.svelte";
 
@@ -31,6 +33,36 @@
         for (const tag of tags) {
             finalArray.push([tag, completionRatios[tag.name]]);
         }
+        return finalArray;
+    }
+
+    function getCategoriesSortedByCompletionRatio(tagRatios: [TagEntry, number][]): [CategoryEntry, number][] {
+        const categories = getTagCategories();
+
+        const ratios: Record<string, number> = {};
+        const counts: Record<string, number> = {};
+        
+        for (const category of categories) {
+            ratios[category] = 0;
+            counts[category] = 0;
+        }
+
+        for (const [tag, ratio] of tagRatios) {
+            const category = getTagCategory(tag.name);
+            ratios[category] += ratio;
+            counts[category] ++;
+        }
+    
+        let finalArray: [CategoryEntry, number][] = Object.entries(ratios).map(([category, ratioSum]) => [
+            getCategoryByName(category),
+            ratioSum / counts[category]
+        ]);
+
+        finalArray.sort((a, b) => a[1] - b[1]);
+
+        console.log("alive");
+        console.log(finalArray);
+
         return finalArray;
     }
 </script>
@@ -79,16 +111,7 @@
         </label>
     </div>
     <div class="tags-completion" class:full-size={expandClassificationProgress}>
-        <!-- {#key excludeFilter} -->
-            {#each getTagsSortedByCompletionRatio() as [tag, ratio] (tag.name)}
-                <p class="tag-and-percent">
-                    <Tag mode="display" shrinkable={false} size="normal" tag={tag} />
-                    <span>
-                        {Math.floor(ratio * 10_000) / 100}%
-                    </span>
-                </p>
-            {/each}
-        <!-- {/key} -->
+        {@render ratioList()}
     </div>
     {#if tagFilter !== "" || categoryFilter !== ""}
         <TrackList
@@ -103,6 +126,32 @@
         </p>
     {/if}
 </div>
+
+{#snippet ratioList()}
+    {@const tagRatios = getTagsSortedByCompletionRatio()}
+    {#each getCategoriesSortedByCompletionRatio(tagRatios) as [category, ratio] (category.name)}
+        <p class="tag-and-percent">
+            <span class="category-icon">
+                <LucideIcon name={fromKebabToPascalCase(category.icon)} />
+            </span>
+            <span>{category.name} - </span>
+            <span class="percent" data-percent={ratio * 100}>
+                {Math.floor(ratio * 10_000) / 100}%
+            </span>
+        </p>
+    {/each}
+    {#each tagRatios as [tag, ratio] (tag.name)}
+        <p class="tag-and-percent">
+            <span class="category-icon">
+                <LucideIcon name={fromKebabToPascalCase(getCategoryIcon(getTagCategory(tag.name)))} />
+            </span>
+            <Tag mode="display" shrinkable={false} size="normal" tag={tag} />
+            <span class="percent" data-percent={ratio * 100}>
+                {Math.floor(ratio * 10_000) / 100}%
+            </span>
+        </p>
+    {/each}
+{/snippet}
 
 <style>
     div.container {
@@ -151,11 +200,45 @@
             max-height: initial;
         }
     }
+
+    span.category-icon > :global(svg) {
+        width: 1.5rem;
+        height: 1.5rem;
+        stroke: var(--text-darker-4)
+    }
+
     p.tag-and-percent {
         display: inline-flex;
         align-items: center;
-        margin-right: 0.5rem;
-        gap: 0.1rem;
+        margin-right: 3rem;
+        gap: 0.35rem;
+    }
+
+    span.percent {
+        position: relative;
+        color: var(--text-darker-2);
+    }
+    span.percent::after {
+        --percent: attr(data-percent %);
+        --fill: if(
+            style(--percent < 15%): var(--error);
+            style(--percent < 30%): var(--warning);
+            style(--percent < 75%): var(--correct);
+            else: var(--primary);
+        );
+        position: absolute;
+        content: "";
+        bottom: -0.15rem;
+        left: 0; 
+        width: 100%;
+        height: 0.15rem;
+        background: linear-gradient(
+                to right,
+                var(--fill) 0%,
+                var(--fill) var(--percent),
+                transparent var(--percent),
+                transparent 100%
+            ), var(--background-lighter-3);
     }
 
     @media screen and (width <= 600px) {

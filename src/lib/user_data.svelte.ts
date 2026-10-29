@@ -713,6 +713,13 @@ export function editCategoryIcon(category: string, icon: string) {
     commit();
 }
 
+export function getCategoryByName(category: string) {
+    if (!hasCategory(category)) {
+        throw new Error("Trying to query non-existent category.");
+    }
+    return config.categories[category];
+}
+
 export function getCategoryIcon(category: string) {
     if (!hasCategory(category)) {
         throw new Error("Trying to query non-existent category.");
