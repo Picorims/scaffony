@@ -94,7 +94,7 @@
 
 <style>
     div.tag {
-        --background-color: oklch(from var(--color) calc(l - 0.7) c h);
+        --background-color: oklch(from var(--color) max(calc(l - 0.7), 0.15) max(calc(c - 0.1), 0.02) h);
         position: relative;
         display: inline-flex;
         align-items: center;
@@ -192,31 +192,39 @@
         }
     }
 
-    div.tag.shrinkable:hover::after {
+    div.tag.shrinkable::after {
+        opacity: 0;
         content: attr(data-label);
         position: fixed;
         top: 10%;
         left: 50%;
         transform: translate(-50%, -50%);
-        padding: 0.2em;
+        padding: 0.2em 0.5em;
         transform: translate(-50%, 0);
         pointer-events: none;
         font-size: 2rem;
         background-color: var(--background-color);
         border: 2px solid var(--color);
-        border-radius: 0.2em;
-        animation: 0.5s fadeIn;
-        box-shadow: 0px 4px 8px rgb(from var(--color) r g b / 0.5), 0px 4px 48px rgb(from var(--color) r g b / 0.5), 0px 4px 128px rgb(from var(--color) r g b / 0.5);
+        border-radius: 0.35em;
+        /* animation: 0.5s fadeIn; */
+        transition: opacity 0.25s;
+        box-shadow: 0px 4px 8px rgb(from var(--color) r g b / 0.5),
+            0px 4px 48px rgb(from var(--color) r g b / 0.5),
+            0px 4px 128px rgb(from var(--color) r g b / 0.5),
+            inset 0px 0px 8px rgb(from var(--color) r g b / 0.95);
+    }
+    div.tag.shrinkable:hover::after {
+        opacity: 1;
     }
 
-    @keyframes fadeIn {
+    /* @keyframes fadeIn {
         from {
             opacity: 0;
         }
         to {
             opacity: 1;
         }
-    }
+    } */
 
     @media screen and (width <= 600px) {
         div.tag {
