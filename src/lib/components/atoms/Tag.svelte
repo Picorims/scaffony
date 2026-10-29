@@ -124,7 +124,7 @@
         align-items: center;
     }
     div.icon-label > :global(svg) {
-        stroke: var(--color);
+        stroke: oklch(from var(--color) max(l, 0.65) c h);
         min-width: 1.2em;
         width: 1.2em;
         min-height: 1.2em;
