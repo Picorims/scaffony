@@ -17,6 +17,7 @@
     let excludeCategoryFilter = $state("");
     let excludeTagFilter = $state("");
     let excludeFilter = $derived(excludeTagFilter !== "" ? excludeTagFilter : excludeCategoryFilter !== "" ? excludeCategoryFilter : undefined);
+    let expandClassificationProgress = $state(false);
     $inspect(excludeFilter, excludeCategoryFilter, excludeTagFilter, categoryFilter);
 
     function getTagsSortedByCompletionRatio(): [TagEntry, number][] {
@@ -72,8 +73,12 @@
                 {/each}
             </select>
         </label>
+        <label>
+            <span>Expand Classification Progress</span>
+            <input type="checkbox" bind:checked={expandClassificationProgress}>
+        </label>
     </div>
-    <div class="tags-completion">
+    <div class="tags-completion" class:full-size={expandClassificationProgress}>
         <!-- {#key excludeFilter} -->
             {#each getTagsSortedByCompletionRatio() as [tag, ratio] (tag.name)}
                 <p class="tag-and-percent">
@@ -122,6 +127,16 @@
         margin: 0 1rem;
         text-wrap: balance;
     }
+    label:has(input[type="checkbox"]) {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        cursor: pointer;
+    }
+    input[type="checkbox"] {
+        width: 1.2em;
+        height: 1.2em;
+    }
     div.tags-completion {
         --cell-width: 256px;
         padding: 0.25rem;
@@ -131,6 +146,10 @@
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(var(--cell-width), 1fr));
         box-shadow: inset 0 0 32px var(--background-darker-2);
+
+        &.full-size {
+            max-height: initial;
+        }
     }
     p.tag-and-percent {
         display: inline-flex;
