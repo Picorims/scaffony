@@ -379,6 +379,7 @@
                 min="0"
                 max="100"
                 value="0.001"
+                data-ratio={(audioElement?.currentTime ?? 0) / (audioElement?.duration ?? 1)}
                 oninput={updatePosition}
                 class={"monochrome"}
             />
@@ -418,6 +419,7 @@
             min="0"
             max="1"
             value={DEFAULT_VOLUME}
+            data-ratio={volume}
             step="0.001"
             oninput={(e) => {
                 volume = rangeVolumeElement?.valueAsNumber ?? 0.5;
@@ -449,6 +451,7 @@
 
 <style>
     div.container {
+        --bright-color: oklch(from var(--cover-color, #00000000) max(l, 0.8) c h);
         position: relative;
         width: 100%;
         flex: 0 0 auto;
@@ -458,7 +461,9 @@
         display: grid;
         grid-template-columns: repeat(2, 1fr) 128px;
         gap: 1.5rem;
-        box-shadow: 0 0 4px var(--cover-color, #00000000);
+        border-top: 3px solid var(--bright-color);
+        box-shadow: 0 0 4px var(--bright-color, #00000000),
+            0 0 16px rgb(from var(--bright-color) r g b / 0.5);
     }
     div.container.mobile-gap {
         grid-template-columns: 1fr;
@@ -481,6 +486,7 @@
             var(--background),
             oklch(from var(--background) calc(l - 0.3) calc(c - 0.02) calc(h - 30))
         );
+        box-shadow: inset 0 0 8px rgb(from var(--bright-color) r g b / 0.75);
     }
     div.container > :not(.gradient) {
         z-index: 1;
@@ -517,7 +523,11 @@
         min-width: 50px;
         min-height: 50px;
         background-color: var(--background-lighter-0);
-        box-shadow: 0 0 8px oklch(from var(--cover-color, #00000000) calc(l + 0.5) c h);
+        box-shadow: 0 0 8px var(--bright-color),
+            0 0 32px rgb(from var(--bright-color) r g b / 0.65),
+            0 0 64px rgb(from var(--bright-color) r g b / 0.35),
+            inset 0 0 4px var(--bright-color);
+        border: 4px solid var(--bright-color);
     }
 
     div.meta-text {
@@ -610,7 +620,8 @@
         padding: 0.2rem 0.5rem;
         gap: 1rem;
         border-radius: 6rem;
-        background-color: rgb(from var(--text) r g b / 0.25);
+        background: linear-gradient(125deg, #ffffff22, transparent, #ffffff44, transparent),
+            rgb(from var(--text) r g b / 0.25);
         border: 1px solid rgb(from var(--text) r g b / 0.5);
     }
 
