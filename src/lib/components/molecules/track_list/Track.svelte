@@ -11,6 +11,7 @@
     import IconButton from "$lib/components/atoms/IconButton.svelte";
     import {
     getActiveTagKeysWithCategorySeparators,
+        getCategoryByName,
         getConfig,
         getEntryAudioPathWithBestExtension,
         getTag,
@@ -82,6 +83,7 @@
             scrollObserver.observe(container);
         }
     });
+    let tagKeys = $derived(getActiveTagKeysWithCategorySeparators(entry));
 
     function play() {
         setWaitList([entry]);
@@ -245,6 +247,24 @@
             {/await}
         </div>
     </div>
+    <div class="about-tag-row">
+        {#each tagKeys as tagKey, index (tagKey === " " ? index : tagKey)}
+            {#if index === 0}
+                {@const category = getCategoryByName(getTagCategory(tagKey))}
+                <span class="about-category">{category.name}</span>
+                {/if}
+            {#if tagKey === " "}
+                {@const category = getCategoryByName(getTagCategory(tagKeys[index + 1]))}
+                <br>
+                <span class="about-category">{category.name}</span>
+            {:else}
+                {@const tag = getTag(tagKey)}
+                {#if tag !== null}
+                    <Tag {tag} shrinkable={false} size="normal" hideCategory />
+                {/if}
+            {/if}
+        {/each}
+    </div>
 </Modal>
 
 <style>
@@ -379,6 +399,15 @@
             text-align: right;
             text-wrap: nowrap;
         }
+    }
+    div.about-tag-row {
+        margin-top: 1rem;
+    }
+    span.about-category {
+        display: inline-block;
+        width: 100%;
+        border-top: 1px solid var(--background-lighter-3);
+        margin: 0.25rem 0;
     }
 
     @media screen and (width <= 600px) {

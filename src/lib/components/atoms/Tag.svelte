@@ -22,6 +22,7 @@
         shrinkable: boolean;
         forceShrink?: boolean;
         forceDisplayCategory?: boolean;
+        hideCategory?: boolean;
         className?: string;
     }
 
@@ -34,6 +35,7 @@
         shrinkable,
         forceShrink = false,
         forceDisplayCategory = false,
+        hideCategory = false,
         className = ""
     }: Props = $props();
 </script>
@@ -52,7 +54,7 @@
     <div class="icon-label">
         <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
         <span class="label">
-            {#if mode === "classify" && !forceDisplayCategory}
+            {#if (mode === "classify" || hideCategory) && !forceDisplayCategory }
                 {tag.name.slice(tag.name.indexOf(":") + 1)}
             {:else}
                 {tag.name.replace(":", " / ")}
