@@ -117,7 +117,7 @@ input[type="range"].monochrome::after {
     width: calc(attr(data-ratio type(<number>)) * 100%);
     height: 4px;
     background-color: white;
-    box-shadow: 0 0 8px solid white;
+    box-shadow: 0 0 8px #ffffff77, 0 0 16px #ffffff33;
 }
 
 select {

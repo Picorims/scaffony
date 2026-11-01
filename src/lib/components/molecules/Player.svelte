@@ -40,6 +40,8 @@
         getCurrentWaitListEntry,
         getNextWaitListEntry,
         getPreviousWaitListEntry,
+        getWaitListPosition,
+        getWaitListSize,
         onRequestPlay,
         onWaitListUpdated,
     } from "$lib/playback";
@@ -338,6 +340,16 @@
     </div>
     <div class="controls-middle">
         <div class="controls-m-buttons">
+            {#key activeTrack}
+                {#if getWaitListSize() > 0}
+                    <span class="waitlist-pos">{getWaitListPosition()} / {getWaitListSize()}</span>
+                {:else}
+                    <span class="waitlist-pos">- / -</span>
+                {/if}
+            {/key}
+
+            <div class="gap"></div>
+
             <IconButton onClick={playPreviousTrack}>
                 <StepBack />
             </IconButton>
@@ -362,7 +374,9 @@
             <IconButton onClick={playNextTrack}>
                 <StepForward />
             </IconButton>
+
             <div class="gap"></div>
+            
             {#if activeTrack !== null}
                 <IconButton onClick={requestTagEdit}>
                     <Tags />
@@ -456,14 +470,13 @@
         width: 100%;
         flex: 0 0 auto;
         background-color: var(--background-darker-1);
-        border-top: 1px solid var(--background-lighter-2);
 
         display: grid;
         grid-template-columns: repeat(2, 1fr) 128px;
         gap: 1.5rem;
-        border-top: 3px solid var(--bright-color);
-        box-shadow: 0 0 4px var(--bright-color, #00000000),
-            0 0 16px rgb(from var(--bright-color) r g b / 0.5);
+        border-top: 2px solid var(--bright-color);
+        box-shadow: 0 0 4px rgb(from var(--bright-color) r g b / 0.75),
+            0 0 16px rgb(from var(--bright-color, #00000000) r g b / 0.5);
     }
     div.container.mobile-gap {
         grid-template-columns: 1fr;
@@ -524,10 +537,12 @@
         min-height: 50px;
         background-color: var(--background-lighter-0);
         box-shadow: 0 0 8px var(--bright-color),
-            0 0 32px rgb(from var(--bright-color) r g b / 0.65),
-            0 0 64px rgb(from var(--bright-color) r g b / 0.35),
+            0 0 32px rgb(from var(--bright-color) r g b / 0.45),
+            0 0 64px rgb(from var(--bright-color) r g b / 0.25),
             inset 0 0 4px var(--bright-color);
-        border: 4px solid var(--bright-color);
+        border: 2px solid var(--bright-color);
+        border-top: none;
+        border-left: none;
     }
 
     div.meta-text {
@@ -611,6 +626,10 @@
         margin: 0.2rem 0;
     }
 
+    span.waitlist-pos {
+        text-wrap: nowrap;
+    }
+
     div.gap {
         width: 1rem;
     }
@@ -684,6 +703,13 @@
         div.controls-side {
             padding: 0.25rem 0.5rem;
             padding-top: 0;
+        }
+
+        div.controls-m-buttons {
+            gap: 0.5rem;
+        }
+        div.gap {
+            width: 0;
         }
     }
 </style>

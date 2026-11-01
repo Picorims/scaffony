@@ -102,3 +102,10 @@ export function getPreviousWaitListEntry(): LibraryEntry | null {
         return null;
     }
 }
+
+export function getWaitListPosition() {
+    return position + 1;
+}
+export function getWaitListSize() {
+    return waitList.length;
+}

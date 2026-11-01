@@ -49,7 +49,7 @@
     button.primary {
         background-color: var(--primary);
         color: var(--on-primary);
-        box-shadow: 0 2px 4px var(--primary), 0 0 24px rgb(from var(--primary) r g b / 0.5);
+        box-shadow: 0 2px 4px var(--primary), 0 0 24px rgb(from var(--primary) r g b / 0.25);
     }
     button.primary:hover {
         background-color: var(--primary-darker-1);
