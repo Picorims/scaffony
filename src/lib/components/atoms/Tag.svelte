@@ -267,5 +267,9 @@
         div.tag.normal:not(.classify).force-shrink :global(svg) {
             margin-left: 0;
         }
+
+        div.tag.shrinkable::after {
+            font-size: 1.5rem;
+        }
     }
 </style>
