@@ -20,6 +20,8 @@
         onStatusChange?: (newStatus: "yes" | "no" | "unknown") => void;
         size: "header" | "normal";
         shrinkable: boolean;
+        expandable?: boolean;
+        noMobileView?: boolean;
         forceShrink?: boolean;
         forceDisplayCategory?: boolean;
         hideCategory?: boolean;
@@ -33,6 +35,8 @@
         onStatusChange = () => {},
         size = "normal",
         shrinkable,
+        expandable = false,
+        noMobileView = false,
         forceShrink = false,
         forceDisplayCategory = false,
         hideCategory = false,
@@ -47,8 +51,10 @@
     class:header={size === "header"}
     class:normal={size === "normal"}
     class:classify={mode === "classify"}
-    class:shrinkable={shrinkable}
+    class:shrinkable
+    class:expandable
     class:force-shrink={forceShrink}
+    class:no-mobile-view={noMobileView}
     class:exclusive={isCategoryExclusive(getTagCategory(tag.name))}
 >
     <div class="icon-label">
@@ -137,6 +143,9 @@
         height: 1.2em;
         margin-right: 0.3em;
     }
+    div.tag.expandable div.icon-label {
+        flex: 1 1 auto;
+    }
 
     span.label {
         overflow: hidden;
@@ -145,6 +154,10 @@
         line-clamp: 2;
         -webkit-box-orient: vertical;
         text-overflow: ellipsis;
+    }
+    div.tag.no-mobile-view span.label {
+        line-clamp: 1;
+        -webkit-line-clamp: 1;
     }
 
     span.buttons {
@@ -239,19 +252,22 @@
     @media screen and (width <= 600px) {
         div.tag {
             font-size: 0.75em;
-            flex-wrap: wrap;
             overflow: hidden;
+
+            &:not(.no-mobile-view) {
+                flex-wrap: wrap;
+            }
         }
-        div.tag.classify {
+        div.tag.classify:not(.no-mobile-view) {
             justify-content: stretch;
             padding: 0;
             padding-top: 0.2em;
             border-radius: 0.25em;
         }
-        div.tag.normal {
+        div.tag.normal:not(.no-mobile-view) {
             width: min-content;
         }
-        span.buttons {
+        div.tag:not(.no-mobile-view) span.buttons {
             flex: 1;
             border-left: 0px;
             margin-left: 0;
@@ -267,7 +283,7 @@
         div.icon-label > :global(svg) {
             margin-left: 0.2em;
         }
-        div.tag.classify span.label {
+        div.tag.classify:not(.no-mobile-view) span.label {
             min-width: 0;
             max-width: calc(100% - 1.2rem);
         }

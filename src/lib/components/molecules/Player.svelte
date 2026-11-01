@@ -27,6 +27,7 @@
     import IconButton from "../atoms/IconButton.svelte";
     import { convertFileSrc } from "@tauri-apps/api/core";
     import {
+    getCategoryIcon,
         getConfig,
         getEntryAudioPathWithBestExtension,
         getTagCategory,
@@ -50,10 +51,11 @@
     import Tag from "../atoms/Tag.svelte";
     import Button from "../atoms/Button.svelte";
     import { getMetadata } from "$lib/metadata";
-    import { minutesSeconds } from "$lib/string";
+    import { fromKebabToPascalCase, minutesSeconds } from "$lib/string";
     import ScrollingSpan from "../atoms/ScrollingSpan.svelte";
     import ShrunkTagsByCategory from "./ShrunkTagsByCategory.svelte";
     import AboutModal from "./AboutModal.svelte";
+    import LucideIcon from "../atoms/LucideIcon.svelte";
 
     const DEFAULT_VOLUME = 0.2;
     const POSITION_REFRESH_INTERVAL_MS = 500;
@@ -254,26 +256,35 @@
 {/snippet}
 <Modal bind:dialog={editTagsDialog} title="Edit tags" buttons={editTagButtons}>
     {@const tags = getConfig().tags}
-    {#each tags as tag, i (tag.name)}
-        {@const state = activeTrack?.tags[tag.name]}
-        <Tag
-            {tag}
-            mode="classify"
-            size="normal"
-            shrinkable={false}
-            forceDisplayCategory
-            status={state === undefined ? "unknown" : state ? "yes" : "no"}
-            onStatusChange={(s) => {
-                if (activeTrack !== null) {
-                    setTagState(activeTrack, tag.name, s);
-                }
-            }}
-        />
-        <br />
-        {#if i + 1 < tags.length && getTagCategory(tags[i + 1].name) !== getTagCategory(tag.name)}
-            <br />
-        {/if}
-    {/each}
+    <div class="edit-tags-container">
+        {#each tags as tag, i (tag.name)}
+            {#if i === 0 || i > 1 && getTagCategory(tags[i - 1].name) !== getTagCategory(tag.name)}
+                <div class="edit-tags-category">
+                    <LucideIcon name={fromKebabToPascalCase(getCategoryIcon(getTagCategory(tag.name)))} />
+                    <span>{getTagCategory(tag.name)}</span>
+                </div>
+            {/if}
+            {@const state = activeTrack?.tags[tag.name]}
+            <Tag
+                {tag}
+                mode="classify"
+                size="normal"
+                shrinkable={false}
+                expandable
+                noMobileView
+                forceDisplayCategory
+                status={state === undefined ? "unknown" : state ? "yes" : "no"}
+                onStatusChange={(s) => {
+                    if (activeTrack !== null) {
+                        setTagState(activeTrack, tag.name, s);
+                    }
+                }}
+            />
+            {#if i + 1 < tags.length && getTagCategory(tags[i + 1].name) !== getTagCategory(tag.name)}
+                <div class="edit-tags-gap"></div>
+            {/if}
+        {/each}
+    </div>
 </Modal>
 
 <div class="container" class:mobile-gap={platform() === "android"} style:--cover-color={activeTrack?.color}>
@@ -694,6 +705,27 @@
 
     div.volume-button {
         display: none;
+    }
+
+    div.edit-tags-container {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    div.edit-tags-gap {
+        height: 1rem;
+    }
+    div.edit-tags-category {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-top: 1px solid var(--background-lighter-3);
+        margin: 0.5rem 0;
+        padding-top: 0.5rem;
+
+        & :global(svg) {
+            stroke: var(--text-darker-3);
+        }
     }
 
     @media screen and (width <= 1200px) {
