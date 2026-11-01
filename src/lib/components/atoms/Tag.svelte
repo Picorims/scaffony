@@ -97,11 +97,12 @@
 <style>
     div.tag {
         --background-color: oklch(from var(--color) max(calc(l - 0.7), 0.15) max(calc(c - 0.1), 0.02) h);
+        --border-color: oklch(from var(--color) min(l, 0.45) c h);
         position: relative;
         display: inline-flex;
         align-items: center;
         padding: 0.2em 0.5em;
-        border: 1px solid var(--color);
+        border: 1px solid var(--border-color);
         border-radius: 1em;
         font-size: 0.875rem;
         letter-spacing: 0.05em;
@@ -112,6 +113,9 @@
     div.tag.classify {
         padding-top: 0;
         padding-bottom: 0;
+        padding-right: 0;
+        border-top-right-radius: 2px;
+        border-bottom-right-radius: 2px;
     }
     div.tag.exclusive {
         border-style: dashed;
@@ -147,14 +151,18 @@
         flex: 0;
         margin-left: 0.5em;
         padding-left: 0.5em;
-        border-left: 1px solid var(--color);
+        border-left: 1px solid var(--border-color);
         display: flex;
+        background-color: black;
     }
     
     div.tag.normal:not(.classify) span.buttons {
         display: none;
     }
 
+    span.icon-toggled {
+        border: 1px solid transparent;
+    }
     span.icon-toggled.active {
         border: 1px solid;
         border-radius: 2px;
