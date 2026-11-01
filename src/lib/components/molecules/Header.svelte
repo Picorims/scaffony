@@ -69,5 +69,6 @@
     }
     span.logo {
         padding: 0.2em 1em;
+        padding-top: 0;
     }
 </style>
