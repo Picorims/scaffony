@@ -12,6 +12,7 @@
         ActivitySquare,
         Disc3,
         Icon,
+        Info,
         Pause,
         Play,
         SkipBack,
@@ -51,14 +52,16 @@
     import Modal from "../atoms/Modal.svelte";
     import Tag from "../atoms/Tag.svelte";
     import Button from "../atoms/Button.svelte";
-    import { getMetadata } from "$lib/metadata";
+    import { getMetadata, type Metadata } from "$lib/metadata";
     import { minutesSeconds } from "$lib/string";
     import ScrollingSpan from "../atoms/ScrollingSpan.svelte";
     import ShrunkTagsByCategory from "./ShrunkTagsByCategory.svelte";
+    import AboutModal from "./AboutModal.svelte";
 
     const DEFAULT_VOLUME = 0.2;
     const POSITION_REFRESH_INTERVAL_MS = 500;
 
+    let aboutDialog: HTMLDialogElement = $state(document.createElement("dialog"));
     let paused = $state(true);
     let audioElement = $state<HTMLAudioElement | null>(null);
     let rangePositionElement = $state<HTMLInputElement | null>(null);
@@ -66,6 +69,7 @@
     let volume = $state(DEFAULT_VOLUME);
     let imageOnError = $state(false);
     let activeTrack = $state<LibraryEntry | null>(null);
+    let metadataPromise = $derived(getTrackMetadata(activeTrack));
     let unknownTagsCount = $derived(() => {
         const activeTagsSet = new Set(Object.keys(activeTrack?.tags ?? {}));
         const allTagsSet = new Set(getConfig().tags.map((e) => e.name));
@@ -296,7 +300,7 @@
         </div>
         <div class="meta-text">
             {#if appState.libraryPath !== null && activeTrack !== null}
-                {#await getTrackMetadata(activeTrack) then metadata}
+                {#await metadataPromise then metadata}
                     {@const disc = metadata?.disc_number}
                     {@const track = metadata?.track_number}
                     {@const title = `${metadata?.title ?? activeTrack?.name ?? "-"}`}
@@ -378,6 +382,9 @@
             <div class="gap"></div>
             
             {#if activeTrack !== null}
+                <IconButton onClick={() => aboutDialog.showModal()}>
+                    <Info />
+                </IconButton>
                 <IconButton onClick={requestTagEdit}>
                     <Tags />
                 </IconButton>
@@ -442,6 +449,7 @@
         />
     </div>
 </div>
+
 <audio
     bind:this={audioElement}
     src=""
@@ -462,6 +470,10 @@
         }
     }}
 ></audio>
+
+{#if activeTrack}
+    <AboutModal bind:dialog={aboutDialog} entry={activeTrack} {metadataPromise} />
+{/if}
 
 <style>
     div.container {
@@ -706,6 +718,9 @@
         }
 
         div.controls-m-buttons {
+            gap: 0.4rem;
+        }
+        div.emphasis-player-buttons {
             gap: 0.5rem;
         }
         div.gap {

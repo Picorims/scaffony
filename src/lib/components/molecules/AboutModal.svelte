@@ -20,7 +20,7 @@
     interface Props {
         dialog: HTMLDialogElement;
         entry: LibraryEntry;
-        metadataPromise?: Promise<Metadata>;
+        metadataPromise?: Promise<Metadata | undefined>;
     }
 
     let { dialog = $bindable(), metadataPromise, entry }: Props = $props();
