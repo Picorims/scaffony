@@ -75,11 +75,18 @@
     }
 
     @media screen and (width <= 600px) {
+        span.category-icon > :global(svg) {
+            margin-right: 0rem;
+        }
         span.tag-category-spacing {
-            width: 1.25rem;
+            width: 0;
+
+            &::after {
+                left: 0;
+            }
         }
         :global(.tag-overlap) {
-            margin-left: -0.5rem !important;
+            margin-left: -0.75rem !important;
         }
     }
 </style>

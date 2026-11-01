@@ -9,9 +9,7 @@
 
     import { appState } from "$lib/app_state.svelte";
     import {
-        ActivitySquare,
         Disc3,
-        Icon,
         Info,
         Pause,
         Play,
@@ -31,7 +29,6 @@
     import {
         getConfig,
         getEntryAudioPathWithBestExtension,
-        getTag,
         getTagCategory,
         setTagState,
         type LibraryEntry,
@@ -52,7 +49,7 @@
     import Modal from "../atoms/Modal.svelte";
     import Tag from "../atoms/Tag.svelte";
     import Button from "../atoms/Button.svelte";
-    import { getMetadata, type Metadata } from "$lib/metadata";
+    import { getMetadata } from "$lib/metadata";
     import { minutesSeconds } from "$lib/string";
     import ScrollingSpan from "../atoms/ScrollingSpan.svelte";
     import ShrunkTagsByCategory from "./ShrunkTagsByCategory.svelte";
@@ -67,6 +64,7 @@
     let rangePositionElement = $state<HTMLInputElement | null>(null);
     let rangeVolumeElement = $state<HTMLInputElement | null>(null);
     let volume = $state(DEFAULT_VOLUME);
+    let volumeVisible = $state(false);
     let imageOnError = $state(false);
     let activeTrack = $state<LibraryEntry | null>(null);
     let metadataPromise = $derived(getTrackMetadata(activeTrack));
@@ -79,7 +77,6 @@
     let editTagsDialog = $state<HTMLDialogElement>(
         document.createElement("dialog"),
     );
-    let titleSpan = $state<HTMLSpanElement>(document.createElement("span"));
 
     let currentTimeDisplay = $state("00 : 00");
     let durationDisplay = $state("00 : 00");
@@ -382,6 +379,11 @@
             <div class="gap"></div>
             
             {#if activeTrack !== null}
+                <div class="volume-button">
+                    <IconButton onClick={() => volumeVisible = !volumeVisible}>
+                        <Volume2 />
+                    </IconButton>
+                </div>
                 <IconButton onClick={() => aboutDialog.showModal()}>
                     <Info />
                 </IconButton>
@@ -422,7 +424,7 @@
             {/if}
         </div>
     </div>
-    <div class="controls-side">
+    <div class="controls-side" class:hidden={!volumeVisible}>
         <span class="volume">{Math.ceil(volume * 100)}</span>
         {#if volume === 0}
             <VolumeX />
@@ -690,12 +692,40 @@
         width: 2rem;
     }
 
-    @media screen and (max-width: 800px) {
+    div.volume-button {
+        display: none;
+    }
+
+    @media screen and (width <= 1200px) {
+        div.controls-m-buttons {
+            gap: 0.4rem;
+        }
+        div.emphasis-player-buttons {
+            gap: 0.5rem;
+        }
+        div.gap {
+            width: 0;
+        }
+        div.controls-side.hidden {
+            display: none;
+        }
+        div.volume-button {
+            display: initial;
+        }
+    }
+    
+    @media screen and (800px < width <= 1200px) {
+        div.container:has(div.controls-side.hidden) {
+            grid-template-columns: repeat(2, 1fr) 0;
+        }
+    }
+
+    @media screen and (width <= 800px) {
         div.container {
             grid-template-columns: 1fr;
             grid-template-rows: auto auto auto;
-            gap: 0.25rem;
-            padding-bottom: 0.5rem 1rem;
+            gap: 0;
+            padding-bottom: 0.25rem;
         }
 
         div.gradient {
