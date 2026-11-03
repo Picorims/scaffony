@@ -7,11 +7,14 @@
   }
   let { name, ...props }: Props & Omit<IconProps, "iconNode"> = $props();
 
-  const Icon = (icons as unknown as Record<string, unknown>)[(() => name)()] as unknown as typeof IconType;
+  // const Icon = (icons as unknown as Record<string, unknown>)[(() => name)()] as unknown as typeof IconType;
+  const Icon = $derived((icons as unknown as Record<string, unknown>)[name] as unknown as typeof IconType);
 
-  if (!Icon) {
-    console.error(`LucideIcon: Icon with name "${(() => name)()}" does not exist.`);
-  }
+  $effect(() => {
+    if (!Icon) {
+      console.error(`LucideIcon: Icon with name "${(() => name)()}" does not exist.`);
+    }
+  });
 </script>
 
 {#if Icon}

@@ -23,7 +23,7 @@
     }
 </script>
 
-{#key tagKeys}
+<!-- {#key tagKeys} -->
     {#each tagKeys as tagName, index}
         {#if index === 0}
             <span class="category-icon">
@@ -44,7 +44,7 @@
             {/if}
         {/if}
     {/each}
-{/key}
+<!-- {/key} -->
 
 <style>
     :global(.tag-overlap) {
