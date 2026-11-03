@@ -218,7 +218,7 @@
         height: calc(var(--height) - 2px);
         margin: 0.05rem 0;
         object-fit: cover;
-        box-shadow: 0 0 4px var(--cover-color, #00000000);
+        box-shadow: 0 0 4px oklch(from var(--cover-color, #00000000) max(l, 1.0) c h);
     }
     :global(svg.placeholder) {
         width: calc(var(--height) - 2px);
@@ -237,7 +237,8 @@
         background: linear-gradient(
             to right,
             var(--background),
-            oklch(from var(--background) calc(l - 0.1) calc(c - 0.02) calc(h - 30))
+            oklch(from var(--background) max(calc(l - 0.1), 0.2) calc(c - 0.01) calc(h - 5)) 35%,
+            oklch(from var(--background) max(calc(l - 0.2), 0.1) calc(c - 0.02) calc(h - 10))
         );
         box-shadow: 0 0 4px var(--cover-color, #00000000);
     }
