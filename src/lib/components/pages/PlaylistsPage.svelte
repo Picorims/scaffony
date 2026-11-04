@@ -7,7 +7,7 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
-    import { addPlaylist, deletePlaylist, editPlaylist, getConfig, getPlaylistLibraryEntries, getTagCategories, type Filter, type FilterExcludesCategory, type FilterExcludesTag, type FilterIncludesCategory, type FilterIncludesTag, type PlaylistEntry } from "$lib/user_data.svelte";
+    import { addPlaylist, deletePlaylist, editPlaylist, getCategoryByName, getConfig, getPlaylistLibraryEntries, getTagCategories, type Filter, type FilterExcludesCategory, type FilterExcludesTag, type FilterIncludesCategory, type FilterIncludesTag, type PlaylistEntry } from "$lib/user_data.svelte";
     import { ListVideo, Pencil, Trash } from "@lucide/svelte";
     import IconButton from "../atoms/IconButton.svelte";
     import Modal from "../atoms/Modal.svelte";
@@ -184,11 +184,14 @@
     </fieldset>
 {/snippet}
 
-<datalist id="tag-names-list">
+{#snippet tagOptions()}
     {#each getConfig().tags as tag}
-        <option value={tag.name}></option>
+        <option style:--option-color={tag.colorHex} value={tag.name}>
+            <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
+            <span>{tag.name.replace(":", " / ")}</span>
+        </option>
     {/each}
-</datalist>
+{/snippet}
 
 <datalist id="tag-categories-list">
     {#each getTagCategories() as category}
@@ -204,11 +207,9 @@
         {#if filter.type === "includes_tag" || filter.type === "excludes_tag"}
             <label
                 >Tag Name:
-                <input
-                    type="text"
-                    bind:value={(filter as FilterIncludesTag | FilterExcludesTag).tag}
-                    list="tag-names-list"
-                />
+                <select bind:value={(filter as FilterIncludesTag | FilterExcludesTag).tag}>
+                    {@render tagOptions()}
+                </select>
             </label>
         {/if}
 

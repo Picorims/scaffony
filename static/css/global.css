@@ -123,6 +123,24 @@ input[type="range"].monochrome::after {
 select {
     min-width: 10em;
 }
+select, ::picker(select) {
+    appearance: base-select;
+}
+option {
+    --background-color: oklch(from var(--option-color, initial) max(calc(l - 0.5), 0.15) c h);
+    background-color: var(--background-color, initial);
+    border-left: 8px solid var(--option-color, initial);
+    padding: 0.25em 1em;
+    padding-left: 0.5em;
+    color: var(--text);
+    
+    & ::checkmark {
+        font-weight: 900;
+    }
+    & > svg {
+        stroke: oklch(from var(--option-color) max(l, 0.7) c h);
+    }
+}
 
 fieldset {
     border: 1px solid var(--background-lighter-2);
