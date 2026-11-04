@@ -128,11 +128,21 @@ export interface FilterExcludesTag {
     type: "excludes_tag";
     tag: string;
 }
+export interface FilterAll {
+    type: "all";
+    children: Filter[];
+}
+export interface FilterAny {
+    type: "any";
+    children: Filter[];
+}
 export type Filter =
     | FilterIncludesCategory
     | FilterIncludesTag
     | FilterExcludesCategory
-    | FilterExcludesTag;
+    | FilterExcludesTag
+    | FilterAny
+    | FilterAll;
 
 export interface IConfig {
     version: 1;
@@ -349,26 +359,81 @@ export function getPlaylistLibraryEntries(playlistName: string): LibraryEntry[] 
         console.warn(`Playlist '${playlistName}' not found, returning empty list of library entries.`);
         return [];
     }
+    
+    return getFilteredEntries(playlist.filters);
+}
+
+export function getFilteredEntries(filters: Filter[], level = 0): LibraryEntry[] {
     let result = [...config.library];
-    for (const filter of playlist.filters) {
+    const logPrefix = "| ".repeat(level + 1);
+    if (level === 0) {
+        console.group("getFilteredEntries");
+    }
+
+    for (const filter of filters) {
         switch (filter.type) {
+            case "all": {
+                if (filter.children.length === 0) {
+                    break;
+                }
+
+                const results: Set<LibraryEntry>[] = [];
+                for (const child of filter.children) {
+                    results.push(new Set(getFilteredEntries([child], level + 1)));
+                }
+
+                let intersect = results[0];
+                for (let i = 1; i < results.length; i++) {
+                    intersect = intersect.intersection(results[i]);
+                }
+                result = Array.from(intersect);
+                console.log(`${logPrefix} all: intersection of `, results, "give", result);
+                
+                break;
+            }
+            case "any": {
+                if (filter.children.length === 0) {
+                    break;
+                }
+                
+                const results: Set<LibraryEntry>[] = [];
+                for (const child of filter.children) {
+                    results.push(new Set(getFilteredEntries([child], level + 1)));
+                }
+                
+                let union = results[0];
+                for (let i = 1; i < results.length; i++) {
+                    union = union.union(results[i]);
+                }
+                result = Array.from(union);
+                console.log(`${logPrefix} any: union of `, results, "give", result);
+                
+                break;
+            }
             case "includes_category": {
                 result = result.filter((entry) => hasTagWithCategory(entry, filter.category));
+                console.log(`${logPrefix} includes_category (${filter.category}): `, result);
                 break;
             }
             case "excludes_category": {
                 result = result.filter((entry) => !hasTagWithCategory(entry, filter.category));
+                console.log(`${logPrefix} excludes_category (${filter.category}): `, result);
                 break;
             }
             case "includes_tag": {
                 result = result.filter((entry) => hasTag(entry, filter.tag));
+                console.log(`${logPrefix} includes_tag (${filter.tag}): `, result);
                 break;
             }
             case "excludes_tag": {
                 result = result.filter((entry) => !hasTag(entry, filter.tag));
+                console.log(`${logPrefix} excludes_tag (${filter.tag}): `, result);
                 break;
             }
         }
+    }
+    if (level === 0) {
+        console.groupEnd();
     }
     return result;
 }
