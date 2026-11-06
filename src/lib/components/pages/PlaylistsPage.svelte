@@ -16,6 +16,7 @@
     import LucideIcon from "../atoms/LucideIcon.svelte";
     import { fromKebabToPascalCase } from "$lib/string";
     import { navigateTo } from "$lib/app_state.svelte";
+    import Filters from "../molecules/Filters.svelte";
 
     let dialog = $state<HTMLDialogElement>(document.createElement('dialog'));
     let dialogMode = $state<"add" | "edit">("add");
@@ -95,7 +96,7 @@
             {/each}
         </datalist>
 
-        {@render filters("filters-select", editedPlaylist.filters)}
+        <Filters selectId="filters-select" mutableFiltersList={editedPlaylist.filters} />
     {/if}
 
     {#snippet buttons()}
@@ -128,111 +129,8 @@
     {/snippet}
 </Modal>
 
-{#snippet filters(selectId: string, mutableFiltersList: Filter[])}
-    <fieldset class="filters">
-        <legend>
-            <h3>Filters</h3>
-        </legend>
-        <div>
-
-            <select id={selectId}>
-                <option value="" disabled selected>Add filter...</option>
-                <option value="includes_tag">Includes Tag</option>
-                <option value="excludes_tag">Excludes Tag</option>
-                <option value="includes_category">Includes Category</option>
-                <option value="excludes_category">Excludes Category</option>
-                <option value="all">All of...</option>
-                <option value="any">Any of...</option>
-            </select>
-            <Button variant="secondary" text="Add Filter" onclick={() => {
-                const select = document.querySelector(`#${selectId}`) as HTMLSelectElement;
-                const selectedValue = select.value;
-                if (selectedValue) {
-                    let newFilter: unknown; // HACK find a more type-safe way
-                    switch (selectedValue) {
-                        case "includes_tag":
-                            newFilter = { type: "includes_tag", tagName: "" };
-                            break;
-                        case "excludes_tag":
-                            newFilter = { type: "excludes_tag", tagName: "" };
-                            break;
-                        case "includes_category":
-                            newFilter = { type: "includes_category", categoryName: "" };
-                            break;
-                        case "excludes_category":
-                            newFilter = { type: "excludes_category", categoryName: "" };
-                            break;
-                        case "all":
-                            newFilter = { type: "all", children: [] };
-                            break;
-                        case "any":
-                            newFilter = { type: "any", children: [] };
-                            break;
-                    }
-                    if (newFilter) {
-                        mutableFiltersList.push(newFilter as Filter); // HACK find a more type-safe way
-                    }
-                }
-            }} />
-        </div>
-
-        {#each mutableFiltersList as filter, index}
-            {@render filterEntry(filter, selectId, () => {
-                mutableFiltersList.splice(index, 1);
-            })}
-        {/each}
-    </fieldset>
-{/snippet}
-
-{#snippet tagOptions()}
-    {#each getConfig().tags as tag}
-        <option style:--option-color={tag.colorHex} value={tag.name}>
-            <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
-            <span>{tag.name.replace(":", " / ")}</span>
-        </option>
-    {/each}
-{/snippet}
-
-<datalist id="tag-categories-list">
-    {#each getTagCategories() as category}
-        <option value={category}></option>
-    {/each}
-</datalist>
 
 
-{#snippet filterEntry(filter: Filter, namespace: string, onRemove: () => void)}
-    <div class="filter-entry">
-        <h4>{filter.type}</h4>
-
-        {#if filter.type === "includes_tag" || filter.type === "excludes_tag"}
-            <label
-                >Tag Name:
-                <select bind:value={(filter as FilterIncludesTag | FilterExcludesTag).tag}>
-                    {@render tagOptions()}
-                </select>
-            </label>
-        {/if}
-
-        {#if filter.type === "includes_category" || filter.type === "excludes_category"}
-            <label
-                >Category Name:
-                <input
-                    type="text"
-                    bind:value={(filter as FilterIncludesCategory | FilterExcludesCategory).category}
-                    list="tag-categories-list"
-                />
-            </label>
-        {/if}
-
-        {#if filter.type === "all" || filter.type === "any"}
-            {@render filters(`${namespace}-${filter.type}`, filter.children)}
-        {/if}
-            <!-- FIXME any allow that none is true. -->
-        <IconButton onClick={onRemove}>
-            <Trash />
-        </IconButton>
-    </div>
-{/snippet}
 
 <style>
     div.container {
