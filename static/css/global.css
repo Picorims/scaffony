@@ -8,6 +8,8 @@
     --text-darker-2: oklch(from var(--text) calc(l - 0.1) c h);
     --text-darker-3: oklch(from var(--text) calc(l - 0.15) c h);
     --text-darker-4: oklch(from var(--text) calc(l - 0.2) c h);
+    --text-darker-5: oklch(from var(--text) calc(l - 0.25) c h);
+    --text-darker-6: oklch(from var(--text) calc(l - 0.3) c h);
     /* --background: #061c1d; */
     --background: #1d1d1d;
     --background-lighter-0: oklch(from var(--background) calc(l + 0.025) c h);
@@ -128,9 +130,10 @@ select, ::picker(select) {
 }
 option {
     --default: var(--text-darker-4);
-    --background-color: oklch(from var(--option-color, var(--default)) max(calc(l - 0.5), 0.15) c h);
+    --color: var(--option-color, var(--default));
+    --background-color: oklch(from var(--color) max(calc(l - 0.5), 0.15) c h);
     background-color: var(--background-color);
-    border-left: 8px solid var(--option-color, var(--default));
+    border-left: 8px solid var(--color);
     padding: 0.25em 1em;
     padding-left: 0.5em;
     color: var(--text);
@@ -142,15 +145,15 @@ option {
     }
     
     &:checked {
-        border-top: 2px solid var(--option-color, var(--default));
-        border-bottom: 2px solid var(--option-color, var(--default));
-        border-right: 2px solid var(--option-color, var(--default));
+        border-top: 2px solid var(--color);
+        border-bottom: 2px solid var(--color);
+        border-right: 2px solid var(--color);
     }
     & ::checkmark {
         font-weight: 900;
     }
     & > svg {
-        stroke: oklch(from var(--option-color) max(l, 0.7) c h);
+        stroke: oklch(from var(--color) max(l, 0.7) c h);
     }
 }
 

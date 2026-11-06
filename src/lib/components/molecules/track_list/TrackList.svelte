@@ -9,7 +9,7 @@
 
     import IconButton from "$lib/components/atoms/IconButton.svelte";
     import type { LibraryEntry } from "$lib/user_data.svelte";
-    import { ListVideo, Shuffle } from "@lucide/svelte";
+    import { ArrowDownWideNarrow, ListVideo, Shuffle, TagX } from "@lucide/svelte";
     import Track from "./Track.svelte";
     import { setWaitList, requestPlay } from "$lib/playback";
 
@@ -19,7 +19,18 @@
         classifyFilter?: string;
         excludeFilter?: string;
     }
+
+    type SortingOption = "by_missing_tag" | "no_sort";
+
     const { tracks, mode = "playback", classifyFilter, excludeFilter }: Props = $props();
+    let sortingOption: SortingOption = $state("no_sort");
+    let visibleTracks = $derived((() => {
+        if (sortingOption === "by_missing_tag") {
+            return [...tracks].sort((a, b) => Object.keys(a.tags).length - Object.keys(b.tags).length);
+        } else {
+            return tracks;
+        }
+    })());
 
     function playAll() {
         setWaitList(tracks);
@@ -43,6 +54,16 @@
         <IconButton onClick={playRandom}>
             <Shuffle />
         </IconButton>
+        <div class="header-separator"></div>
+        <ArrowDownWideNarrow class="darker-icon" />
+        <select bind:value={sortingOption} >
+            <option value="no_sort" selected>No sort</option>
+            <option value="by_missing_tag">
+                <TagX />
+                <span>by missing tag count</span>
+            </option>
+        </select>
+        <div class="header-separator"></div>
         {#if excludeFilter !== undefined}
             <span>{tracks.filter(track => Object.keys(track.tags).filter(t => track.tags[t] === true).find(v => v.startsWith(excludeFilter)) === undefined).length} tracks</span>
         {:else}
@@ -50,7 +71,7 @@
         {/if}
     </div>
     <div class="track-list" class:classify={mode === "classify"}>
-        {#each tracks as track, index (track.uuid)}
+        {#each visibleTracks as track, index (track.uuid)}
             {@const toExclude = excludeFilter !== undefined && Object.keys(track.tags).filter(t => track.tags[t] === true).find(v => v.startsWith(excludeFilter)) !== undefined}
             {#if !toExclude}
                 <Track entry={track} {index} {mode} {classifyFilter} />
@@ -74,9 +95,17 @@
         margin-left: 1rem;
         display: flex;
         flex-direction: row;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         align-items: center;
         gap: 1rem;
+    }
+    div.header-separator {
+        width: 0;
+        height: 2rem;
+        border-left: 1px solid var(--background-lighter-3)
+    }
+    div.track-list-header :global(svg.darker-icon) {
+        stroke: var(--text-darker-6);
     }
     div.track-list {
         overflow-x: hidden;
