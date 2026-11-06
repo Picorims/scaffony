@@ -9,7 +9,6 @@
     */
 
     import { getCategoryByName, getCategoryIcon, getConfig, getTagCategories, getTagCategory, getTagCompletionRatio, type CategoryEntry, type TagEntry } from "$lib/user_data.svelte";
-    import Button from "../atoms/Button.svelte";
     import LucideIcon from "../atoms/LucideIcon.svelte";
     import Tag from "../atoms/Tag.svelte";
     import TrackList from "../molecules/track_list/TrackList.svelte";

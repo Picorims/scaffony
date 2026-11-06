@@ -360,11 +360,11 @@ export function getPlaylistLibraryEntries(playlistName: string): LibraryEntry[] 
         return [];
     }
     
-    return getFilteredEntries(playlist.filters);
+    return getFilteredEntries(config.library, playlist.filters);
 }
 
-export function getFilteredEntries(filters: Filter[], level = 0): LibraryEntry[] {
-    let result = [...config.library];
+export function getFilteredEntries(base: LibraryEntry[], filters: Filter[], level = 0): LibraryEntry[] {
+    let result = [...base];
     const logPrefix = "| ".repeat(level + 1);
     if (level === 0) {
         console.group("getFilteredEntries");
@@ -379,7 +379,7 @@ export function getFilteredEntries(filters: Filter[], level = 0): LibraryEntry[]
 
                 const results: Set<LibraryEntry>[] = [];
                 for (const child of filter.children) {
-                    results.push(new Set(getFilteredEntries([child], level + 1)));
+                    results.push(new Set(getFilteredEntries(base, [child], level + 1)));
                 }
 
                 let intersect = results[0];
@@ -398,7 +398,7 @@ export function getFilteredEntries(filters: Filter[], level = 0): LibraryEntry[]
                 
                 const results: Set<LibraryEntry>[] = [];
                 for (const child of filter.children) {
-                    results.push(new Set(getFilteredEntries([child], level + 1)));
+                    results.push(new Set(getFilteredEntries(base, [child], level + 1)));
                 }
                 
                 let union = results[0];

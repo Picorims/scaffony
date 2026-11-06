@@ -8,10 +8,13 @@
     */
 
     import IconButton from "$lib/components/atoms/IconButton.svelte";
-    import type { LibraryEntry } from "$lib/user_data.svelte";
-    import { ArrowDownWideNarrow, ListVideo, Shuffle, TagX } from "@lucide/svelte";
+    import { getFilteredEntries, type Filter, type LibraryEntry } from "$lib/user_data.svelte";
+    import { ArrowDownWideNarrow, Funnel, ListVideo, Shuffle, TagX } from "@lucide/svelte";
     import Track from "./Track.svelte";
     import { setWaitList, requestPlay } from "$lib/playback";
+    import Modal from "$lib/components/atoms/Modal.svelte";
+    import Button from "$lib/components/atoms/Button.svelte";
+    import Filters from "../Filters.svelte";
 
     interface Props {
         tracks: LibraryEntry[];
@@ -24,20 +27,25 @@
 
     const { tracks, mode = "playback", classifyFilter, excludeFilter }: Props = $props();
     let sortingOption: SortingOption = $state("no_sort");
+    let filterDialog = $state(document.createElement("dialog"));
+    let filters: Filter[] = $state([]);
+
+    let filteredTracks = $derived(getFilteredEntries(tracks, filters)); 
     let visibleTracks = $derived((() => {
+        let adaptedTrackList = filteredTracks;
         if (sortingOption === "by_missing_tag") {
-            return [...tracks].sort((a, b) => Object.keys(a.tags).length - Object.keys(b.tags).length);
-        } else {
-            return tracks;
+            adaptedTrackList = [...adaptedTrackList].sort((a, b) => Object.keys(a.tags).length - Object.keys(b.tags).length);
         }
+
+        return adaptedTrackList;
     })());
 
     function playAll() {
-        setWaitList(tracks);
+        setWaitList(visibleTracks);
         requestPlay();
     }
     function playRandom() {
-        const shuffled = tracks
+        const shuffled = visibleTracks
             .map(value => ({ value, sort: Math.random() }))
             .sort((a, b) => a.sort - b.sort)
             .map(({ value }) => value);
@@ -46,6 +54,15 @@
     }
 </script>
 
+<Modal bind:dialog={filterDialog} title="Filter Track List">
+    <Filters selectId="track-list-select" mutableFiltersList={filters} />
+
+    {#snippet buttons()}
+        <Button variant="primary" text="OK" onclick={() => filterDialog.close()} />
+        <Button variant="secondary" text="Clear" onclick={() => filters = []} />
+    {/snippet}
+</Modal>
+
 <div class="container">
     <div class="track-list-header">
         <IconButton onClick={playAll}>
@@ -53,6 +70,9 @@
         </IconButton>
         <IconButton onClick={playRandom}>
             <Shuffle />
+        </IconButton>
+        <IconButton onClick={() => filterDialog.showModal()}>
+            <Funnel />
         </IconButton>
         <div class="header-separator"></div>
         <ArrowDownWideNarrow class="darker-icon" />
@@ -65,9 +85,9 @@
         </select>
         <div class="header-separator"></div>
         {#if excludeFilter !== undefined}
-            <span>{tracks.filter(track => Object.keys(track.tags).filter(t => track.tags[t] === true).find(v => v.startsWith(excludeFilter)) === undefined).length} tracks</span>
+            <span>{visibleTracks.filter(track => Object.keys(track.tags).filter(t => track.tags[t] === true).find(v => v.startsWith(excludeFilter)) === undefined).length} tracks</span>
         {:else}
-            <span>{tracks.length} tracks</span>
+            <span>{visibleTracks.length} tracks</span>
         {/if}
     </div>
     <div class="track-list" class:classify={mode === "classify"}>
