@@ -129,3 +129,29 @@
         </option>
     {/each}
 {/snippet}
+
+<style>
+    fieldset.filters {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-left: 1rem;
+
+        & fieldset.filters {
+            background-color: var(--background-lighter-2);
+            & fieldset.filters {
+                background-color: var(--background-lighter-3);
+            }
+        }
+    }
+    div.filter-entry {
+        padding: 0.5rem;
+        padding-left: 1rem;
+        background-color: var(--background);
+        border-radius: 4px;
+        border: 1px solid var(--background-lighter-2);
+    }
+    div.filter-entry h4 {
+        margin-bottom: 0.5em;
+    }
+</style>
