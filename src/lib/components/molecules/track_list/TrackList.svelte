@@ -20,12 +20,11 @@
         tracks: LibraryEntry[];
         mode?: "playback" | "classify";
         classifyFilter?: string;
-        excludeFilter?: string;
     }
 
     type SortingOption = "by_missing_tag" | "no_sort";
 
-    const { tracks, mode = "playback", classifyFilter, excludeFilter }: Props = $props();
+    const { tracks, mode = "playback", classifyFilter }: Props = $props();
     let sortingOption: SortingOption = $state("no_sort");
     let filterDialog = $state(document.createElement("dialog"));
     let filters: Filter[] = $state([]);
@@ -84,18 +83,11 @@
             </option>
         </select>
         <div class="header-separator"></div>
-        {#if excludeFilter !== undefined}
-            <span>{visibleTracks.filter(track => Object.keys(track.tags).filter(t => track.tags[t] === true).find(v => v.startsWith(excludeFilter)) === undefined).length} tracks</span>
-        {:else}
-            <span>{visibleTracks.length} tracks</span>
-        {/if}
+        <span>{visibleTracks.length} tracks</span>
     </div>
     <div class="track-list" class:classify={mode === "classify"}>
         {#each visibleTracks as track, index (track.uuid)}
-            {@const toExclude = excludeFilter !== undefined && Object.keys(track.tags).filter(t => track.tags[t] === true).find(v => v.startsWith(excludeFilter)) !== undefined}
-            {#if !toExclude}
-                <Track entry={track} {index} {mode} {classifyFilter} />
-            {/if}
+            <Track entry={track} {index} {mode} {classifyFilter} />
         {/each}
     </div>
 </div>

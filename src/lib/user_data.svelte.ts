@@ -327,14 +327,10 @@ export function getActiveTagKeysWithCategorySeparators(entry: LibraryEntry) {
     }, [])
 }
 
-export function getTagCompletionRatio(tagName: string, excludeFilter?: string): number {
-    let filteredList = config.library;
-    if (excludeFilter !== undefined) {
-        filteredList = config.library.filter(track => Object.keys(track.tags).find(t => t.startsWith(excludeFilter)) !== undefined);
-    }
-    let total = filteredList.length;
+export function getTagCompletionRatio(tagName: string, base: LibraryEntry[]): number {
+    let total = base.length;
     let count = 0;
-    for (const track of filteredList) {
+    for (const track of base) {
         if (track.tags[tagName] !== undefined) {
             count += 1;
         }

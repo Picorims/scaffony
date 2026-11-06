@@ -8,24 +8,31 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
-    import { getCategoryByName, getCategoryIcon, getConfig, getTagCategories, getTagCategory, getTagCompletionRatio, type CategoryEntry, type TagEntry } from "$lib/user_data.svelte";
+    import { getCategoryByName, getCategoryIcon, getConfig, getFilteredEntries, getTagCategories, getTagCategory, getTagCompletionRatio, type CategoryEntry, type Filter, type TagEntry } from "$lib/user_data.svelte";
+    import { Funnel } from "@lucide/svelte";
+    import IconButton from "../atoms/IconButton.svelte";
     import LucideIcon from "../atoms/LucideIcon.svelte";
     import Tag from "../atoms/Tag.svelte";
     import TrackList from "../molecules/track_list/TrackList.svelte";
+    import Modal from "../atoms/Modal.svelte";
+    import Filters from "../molecules/Filters.svelte";
+    import Button from "../atoms/Button.svelte";
 
+    let filtersDialog = $state(document.createElement("dialog"));
+    let filter: Filter[] = $state([]);
     let categoryFilter = $state("");
     let tagFilter = $state("");
-    let excludeCategoryFilter = $state("");
-    let excludeTagFilter = $state("");
-    let excludeFilter = $derived(excludeTagFilter !== "" ? excludeTagFilter : excludeCategoryFilter !== "" ? excludeCategoryFilter : undefined);
+    let filteredTracks = $derived(getFilteredEntries(getConfig().library, filter));
+    // let excludeCategoryFilter = $state("");
+    // let excludeTagFilter = $state("");
+    // let excludeFilter = $derived(excludeTagFilter !== "" ? excludeTagFilter : excludeCategoryFilter !== "" ? excludeCategoryFilter : undefined);
     let expandClassificationProgress = $state(false);
-    $inspect(excludeFilter, excludeCategoryFilter, excludeTagFilter, categoryFilter);
 
     function getTagsSortedByCompletionRatio(): [TagEntry, number][] {
         const tags = [...getConfig().tags];
         const completionRatios: Record<string, number> = {};
         for (const tag of tags) {
-            completionRatios[tag.name] = getTagCompletionRatio(tag.name, excludeFilter);
+            completionRatios[tag.name] = getTagCompletionRatio(tag.name, filteredTracks);
         }
         tags.sort((a, b) => completionRatios[a.name] - completionRatios[b.name]);
         const finalArray: [TagEntry, number][] = [];
@@ -86,7 +93,10 @@
                 {/each}
             </select>
         </label>
-        <label>
+        <IconButton onClick={() => filtersDialog.showModal()} className="filter-button">
+            <Funnel />
+        </IconButton>
+        <!-- <label>
             <span>Exclude Category:</span>
             <select bind:value={excludeCategoryFilter}>
                 <option value="">--none--</option>
@@ -103,7 +113,7 @@
                     <option value={tag.name}>{tag.name}</option>
                 {/each}
             </select>
-        </label>
+        </label> -->
         <label>
             <span>Expand Classification Progress</span>
             <input type="checkbox" bind:checked={expandClassificationProgress}>
@@ -114,10 +124,9 @@
     </div>
     {#if tagFilter !== "" || categoryFilter !== ""}
         <TrackList
-            tracks={getConfig().library}
+            tracks={filteredTracks}
             mode={"classify"}
             classifyFilter={tagFilter !== "" ? tagFilter : categoryFilter !== "" ? categoryFilter : undefined}
-            {excludeFilter}
         />
     {:else}
         <p class="fallback">
@@ -125,6 +134,15 @@
         </p>
     {/if}
 </div>
+
+<Modal bind:dialog={filtersDialog} title="Classification Filter">
+    <Filters selectId="classify-filter-select" mutableFiltersList={filter} />
+
+    {#snippet buttons()}
+        <Button variant="primary" text="OK" onclick={() => filtersDialog.close()} />
+        <Button variant="secondary" text="Clear" onclick={() => filter = []} />
+    {/snippet}
+</Modal>
 
 {#snippet ratioList()}
     {@const tagRatios = getTagsSortedByCompletionRatio()}
@@ -174,6 +192,11 @@
     p.fallback {
         margin: 0 1rem;
         text-wrap: balance;
+    }
+    div.container :global(.filter-button) {
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 1rem;
     }
     label:has(input[type="checkbox"]) {
         display: inline-flex;

@@ -18,6 +18,7 @@
 		onToggle?: (value: boolean) => void;
 		alt?: string;
 		filled?: boolean;
+		className?: string;
 	}
 
 	let {
@@ -28,7 +29,8 @@
 		toggled = false,
 		onToggle = () => {},
 		alt = '',
-		filled = false
+		filled = false,
+		className = "",
 	}: Props = $props();
 
 	function handleClick() {
@@ -46,7 +48,7 @@
 	role={togglable ? 'switch' : 'button'}
 	aria-checked={togglable ? toggled : undefined}
 	aria-label={alt}
-	class={`icon-button ${variant}`}
+	class={`icon-button ${className} ${variant}`}
 	class:toggled={togglable && toggled}
 	class:filled
 >
