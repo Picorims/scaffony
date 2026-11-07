@@ -36,9 +36,10 @@
         index: number;
         mode: "playback" | "classify";
         classifyFilter?: string;
+        notPlayable?: boolean;
     }
 
-    const { entry, index, mode, classifyFilter }: Props = $props();
+    const { entry, index, mode, classifyFilter, notPlayable = false }: Props = $props();
     let imageInError = $state(false);
     let metadataDefault = $state<Metadata>({
         title: entry.name,
@@ -169,9 +170,11 @@
             <span>Virtual</span>
         {:else}
             <div class="actions">
-                <IconButton onClick={play}>
-                    <Play />
-                </IconButton>
+                {#if !notPlayable}
+                    <IconButton onClick={play}>
+                        <Play />
+                    </IconButton>
+                {/if}
                 <IconButton onClick={about}>
                     <Info />
                 </IconButton>

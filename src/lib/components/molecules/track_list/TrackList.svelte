@@ -20,11 +20,12 @@
         tracks: LibraryEntry[];
         mode?: "playback" | "classify";
         classifyFilter?: string;
+        notPlayable?: boolean;
     }
 
     type SortingOption = "by_missing_tag" | "by_name" | "by_artist" | "by_year" | "by_album" | "no_sort";
 
-    const { tracks, mode = "playback", classifyFilter }: Props = $props();
+    const { tracks, mode = "playback", classifyFilter, notPlayable = false }: Props = $props();
     let sortingOption: SortingOption = $state("no_sort");
     let filterDialog = $state(document.createElement("dialog"));
     let filters: Filter[] = $state([]);
@@ -114,7 +115,7 @@
     </div>
     <div class="track-list" class:classify={mode === "classify"}>
         {#each visibleTracks as track, index (track.uuid)}
-            <Track entry={track} {index} {mode} {classifyFilter} />
+            <Track entry={track} {index} {mode} {classifyFilter} {notPlayable} />
         {/each}
     </div>
 </div>

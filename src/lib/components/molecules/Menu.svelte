@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Icon, LibraryBig, ListMusic, Shapes, Tags } from "@lucide/svelte";
+    import { Icon, LibraryBig, ListMusic, ListOrdered, Shapes, Tags } from "@lucide/svelte";
     import MenuEntry from "../atoms/MenuEntry.svelte";
     import type { PageType } from "./Page.svelte";
     import { appState, navigateTo } from "$lib/app_state.svelte";
@@ -31,6 +31,7 @@
         { text: "Playlists", Icon: ListMusic, page: "playlists" },
         { text: "Tags", Icon: Tags, page: "tags" },
         { text: "Classify", Icon: Shapes, page: "classify" },
+        { text: "Wait List", Icon: ListOrdered, page: "waitlist" },
     ];
 </script>
 
