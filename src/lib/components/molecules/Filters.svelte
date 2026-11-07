@@ -41,16 +41,34 @@
             <h3>Filters</h3>
         </legend>
         <div>
-
             <select id={selectId}>
                 <option value="" disabled selected>Add filter...</option>
-                <option value="includes_tag">Includes Tag</option>
-                <option value="excludes_tag">Excludes Tag</option>
-                <option value="includes_category">Includes Category</option>
-                <option value="excludes_category">Excludes Category</option>
-                <option value="all">All of...</option>
-                <option value="any">Any of...</option>
+                <option value="includes_tag" style:--option-color="var(--tag-color)">
+                    <FilterIcon type="includes_tag" />
+                    <span>Includes Tag</span>
+                </option>
+                <option value="excludes_tag" style:--option-color="var(--tag-color)">
+                    <FilterIcon type="excludes_tag" />
+                    <span>Excludes Tag</span>
+                </option>
+                <option value="includes_category" style:--option-color="var(--category-color)">
+                    <FilterIcon type="includes_category" />
+                    <span>Includes Category</span>
+                </option>
+                <option value="excludes_category" style:--option-color="var(--category-color)">
+                    <FilterIcon type="excludes_category" />
+                    <span>Excludes Category</span>
+                </option>
+                <option value="all" style:--option-color="var(--operation-color)">
+                    <FilterIcon type="all" />
+                    <span>All of...</span>
+                </option>
+                <option value="any" style:--option-color="var(--operation-color)">
+                    <FilterIcon type="any" />
+                    <span>Any of...</span>
+                </option>
             </select>
+
             <Button variant="secondary" text="Add Filter" onclick={() => {
                 const select = document.querySelector(`#${selectId}`) as HTMLSelectElement;
                 const selectedValue = select.value;
