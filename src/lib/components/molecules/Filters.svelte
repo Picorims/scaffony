@@ -15,6 +15,7 @@
     import LucideIcon from "../atoms/LucideIcon.svelte";
     import FilterPreview from "../atoms/FilterPreview.svelte";
     import FilterIcon from "../atoms/FilterIcon.svelte";
+    import TagOptions from "../atoms/TagOptions.svelte";
     
     interface Props {
         selectId: string;
@@ -103,7 +104,7 @@
             <label
                 >Tag Name:
                 <select bind:value={(filter as FilterIncludesTag | FilterExcludesTag).tag}>
-                    {@render tagOptions()}
+                    <TagOptions />
                 </select>
             </label>
         {/if}
@@ -127,15 +128,6 @@
             <Trash />
         </IconButton>
     </div>
-{/snippet}
-
-{#snippet tagOptions()}
-    {#each getConfig().tags as tag}
-        <option style:--option-color={tag.colorHex} value={tag.name}>
-            <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
-            <span>{tag.name.replace(":", " / ")}</span>
-        </option>
-    {/each}
 {/snippet}
 
 <style>

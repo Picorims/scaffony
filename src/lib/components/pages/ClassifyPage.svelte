@@ -18,6 +18,7 @@
     import Filters from "../molecules/Filters.svelte";
     import Button from "../atoms/Button.svelte";
     import FilterPreview from "../atoms/FilterPreview.svelte";
+    import TagOptions from "../atoms/TagOptions.svelte";
 
     let filtersDialog = $state(document.createElement("dialog"));
     let filter: Filter[] = $state([]);
@@ -86,9 +87,7 @@
             <span>Tag:</span>
             <select bind:value={tagFilter}>
                 <option value="">--all--</option>
-                {#each getConfig().tags as tag (tag.name)}
-                    <option value={tag.name}>{tag.name}</option>
-                {/each}
+                <TagOptions />
             </select>
         </label>
         <IconButton onClick={() => filtersDialog.showModal()} className="filter-button">
