@@ -79,7 +79,10 @@
             <select bind:value={categoryFilter}>
                 <option value="">--all--</option>
                 {#each getTagCategories() as category (category)}
-                    <option value={category}>{category}</option>
+                    <option value={category}>
+                        <LucideIcon name={fromKebabToPascalCase(getCategoryIcon(category))} />
+                        <span>{category}</span>
+                    </option>
                 {/each}
             </select>
         </label>
