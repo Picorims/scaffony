@@ -19,6 +19,7 @@
     import { BadgeQuestionMark } from "@lucide/svelte";
     import LucideIcon from "./LucideIcon.svelte";
     import Tag from "./Tag.svelte";
+    import FilterIcon from "./FilterIcon.svelte";
 
     interface Props {
         filter: Filter[];
@@ -36,12 +37,6 @@
     })}
 </details>
 
-<!-- {#snippet tagIcon(tagName: string)}
-    <LucideIcon
-        name={fromKebabToPascalCase(getTag(tagName)?.lucideIcon ?? "")}
-        class="tag-icon"
-    />
-{/snippet} -->
 {#snippet categoryIcon(categoryName: string)}
     {#if !hasCategory(categoryName)}
         <BadgeQuestionMark class="category-icon" />
@@ -57,10 +52,8 @@
     <span class="indent" data-n={n}></span>
 {/snippet}
 
-{#snippet tagF(tagName: string, functionName: string)}
-    <span class="function">{functionName}</span>(
-    <!-- {@render tagIcon(f.tag)}
-        <span class="tag">{f.tag}</span> -->
+{#snippet tagF(tagName: string, functionName: string, type: Filter["type"])}
+    <span class="function">{functionName} <FilterIcon {type} /></span>(
     {@const tag = getTag(tagName)}
     {#if tag}
         <span class="middle"
@@ -70,8 +63,8 @@
     )
 {/snippet}
 
-{#snippet categoryF(categoryName: string, functionName: string)}
-    <span class="function">{functionName}</span>(
+{#snippet categoryF(categoryName: string, functionName: string, type: Filter["type"])}
+    <span class="function">{functionName} <FilterIcon {type} /></span>(
     {@render categoryIcon(categoryName)}
     <span class="category">{categoryName}</span>
     )
@@ -79,9 +72,9 @@
 
 {#snippet filterToStylizedString(f: Filter, level = 1)}
     {#if f.type === "includes_tag" || f.type === "excludes_tag"}
-        {@render tagF(f.tag, f.type)}
+        {@render tagF(f.tag, f.type, f.type)}
     {:else if f.type === "includes_category" || f.type === "excludes_category"}
-        {@render categoryF(f.category, f.type)}
+        {@render categoryF(f.category, f.type, f.type)}
     {:else if f.type === "all"}
         <span class="parenthesis" data-n={((level - 1) % 6) + 1}>(</span>
 
@@ -202,6 +195,12 @@
     }
     span.function {
         color: var(--function-color);
+        & :global(svg) {
+            width: 1em;
+            height: 1em;
+            margin-right: 0.25em;
+            stroke: var(--function-color);
+        }
     }
     /* span.tag {
         color: var(--tag-color);

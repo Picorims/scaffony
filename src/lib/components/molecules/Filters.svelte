@@ -14,6 +14,7 @@
     import { fromKebabToPascalCase } from "$lib/string";
     import LucideIcon from "../atoms/LucideIcon.svelte";
     import FilterPreview from "../atoms/FilterPreview.svelte";
+    import FilterIcon from "../atoms/FilterIcon.svelte";
     
     interface Props {
         selectId: string;
@@ -89,26 +90,12 @@
     </fieldset>
 {/snippet}
 
-{#snippet filterIcon(type: Filter["type"])}
-    {#if type === "includes_tag"}
-        <TagPlus data-type={type} class="filter-icon" />
-    {:else if type === "excludes_tag"}
-        <TagX data-type={type} class="filter-icon" />
-    {:else if type === "includes_category"}
-        <FolderCheck data-type={type} class="filter-icon" />
-    {:else if type === "excludes_category"}
-        <FolderX data-type={type} class="filter-icon" />
-    {:else if type === "all"}
-        <SquaresIntersect data-type={type} class="filter-icon" />
-    {:else if type === "any"}
-        <SquaresUnite data-type={type} class="filter-icon" />
-    {/if}
-{/snippet}
+
 
 {#snippet filterEntry(filter: Filter, namespace: string, onRemove: () => void)}
     <div class="filter-entry">
         <h4>
-            {@render filterIcon(filter.type)}
+            <FilterIcon type={filter.type} />
             {filter.type}
         </h4>
 
