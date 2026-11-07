@@ -45,6 +45,10 @@
     --lvl-4: rgb(241, 88, 241);
     --lvl-5: rgb(251, 255, 0);
     --lvl-6: rgb(111, 0, 255);
+    --tag-color: rgb(252, 196, 43);
+    --category-color: rgb(69, 247, 194);
+    --function-color: rgb(69, 131, 247);
+    --operation-color: rgb(253, 109, 169);
 
     --font-header: "Playwrite DE Grund", sans-serif;
     --font-body: "Quicksand", sans-serif;

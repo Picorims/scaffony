@@ -8,7 +8,7 @@
     */
 
     import { getConfig, type Filter, type FilterIncludesTag, type FilterExcludesTag, type FilterIncludesCategory, type FilterExcludesCategory, getTagCategories } from "$lib/user_data.svelte";
-    import { Trash } from "@lucide/svelte";
+    import { Ampersands, FolderCheck, FolderX, SquaresIntersect, SquaresUnite, TagPlus, TagX, Trash } from "@lucide/svelte";
     import Button from "../atoms/Button.svelte";
     import IconButton from "../atoms/IconButton.svelte";
     import { fromKebabToPascalCase } from "$lib/string";
@@ -89,9 +89,28 @@
     </fieldset>
 {/snippet}
 
+{#snippet filterIcon(type: Filter["type"])}
+    {#if type === "includes_tag"}
+        <TagPlus data-type={type} class="filter-icon" />
+    {:else if type === "excludes_tag"}
+        <TagX data-type={type} class="filter-icon" />
+    {:else if type === "includes_category"}
+        <FolderCheck data-type={type} class="filter-icon" />
+    {:else if type === "excludes_category"}
+        <FolderX data-type={type} class="filter-icon" />
+    {:else if type === "all"}
+        <SquaresIntersect data-type={type} class="filter-icon" />
+    {:else if type === "any"}
+        <SquaresUnite data-type={type} class="filter-icon" />
+    {/if}
+{/snippet}
+
 {#snippet filterEntry(filter: Filter, namespace: string, onRemove: () => void)}
     <div class="filter-entry">
-        <h4>{filter.type}</h4>
+        <h4>
+            {@render filterIcon(filter.type)}
+            {filter.type}
+        </h4>
 
         {#if filter.type === "includes_tag" || filter.type === "excludes_tag"}
             <label
@@ -138,15 +157,29 @@
         flex-direction: column;
         gap: 0.5rem;
         margin-top: 0.5rem;
+        border-color: oklch(from var(--lvl-1) 0.5 c h);
+        border-width: 2px;
 
         &:not(.no-margin-left) {
             margin-left: 1rem;
         }
 
         & fieldset.filters {
-            background-color: var(--background-lighter-2);
+            border-color: oklch(from var(--lvl-2) 0.5 c h);
             & fieldset.filters {
-                background-color: var(--background-lighter-3);
+                border-color: oklch(from var(--lvl-3) 0.5 c h);
+                & fieldset.filters {
+                    border-color: oklch(from var(--lvl-4) 0.5 c h);
+                    & fieldset.filters {
+                        border-color: oklch(from var(--lvl-5) 0.5 c h);
+                        & fieldset.filters {
+                            border-color: oklch(from var(--lvl-6) 0.5 c h);
+                            & fieldset.filters {
+                                border-color: var(--background-lighter-3);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -159,5 +192,24 @@
     }
     div.filter-entry h4 {
         margin-bottom: 0.5em;
+    }
+    div.filter-entry :global(svg.filter-icon) {
+        display: inline-block;
+        margin-right: 0.5em;
+        stroke: var(--text-darker-6);
+        vertical-align: middle;
+
+        &:global([data-type="includes_category"]),
+        &:global([data-type="excludes_category"]) {
+            stroke: var(--category-color);
+        }
+        &:global([data-type="any"]),
+        &:global([data-type="all"]) {
+            stroke: var(--operation-color);
+        }
+        &:global([data-type="includes_tag"]),
+        &:global([data-type="excludes_tag"]) {
+            stroke: var(--tag-color);
+        }
     }
 </style>

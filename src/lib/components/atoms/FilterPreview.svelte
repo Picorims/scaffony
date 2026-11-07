@@ -142,9 +142,6 @@
         min-width: 1rem;
         line-height: 1rem;
 
-        --tag-color: rgb(252, 196, 43);
-        --category-color: rgb(69, 247, 194);
-
         & :global(.tag) {
             margin: 0;
         }
@@ -204,7 +201,7 @@
         vertical-align: middle;
     }
     span.function {
-        color: rgb(69, 131, 247);
+        color: var(--function-color);
     }
     /* span.tag {
         color: var(--tag-color);
@@ -216,7 +213,7 @@
         color: var(--category-color);
     }
     span.operator {
-        color: rgb(253, 109, 169);
+        color: var(--operation-color);
     }
 
     details :global(svg) {
