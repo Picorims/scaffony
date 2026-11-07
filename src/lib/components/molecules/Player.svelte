@@ -221,8 +221,7 @@
         if (appState.libraryPath === null || track === null || track === undefined) {
             return;
         }
-        const path = await getEntryAudioPathWithBestExtension(track);
-        const meta = await getMetadata(path);
+        const meta = await getMetadata(track);
         console.log("got", meta);
         return meta;
     }

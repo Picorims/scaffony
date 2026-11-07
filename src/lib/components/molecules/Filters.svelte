@@ -7,7 +7,7 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
-    import { getConfig, type Filter, type FilterIncludesTag, type FilterExcludesTag, type FilterIncludesCategory, type FilterExcludesCategory, getTagCategories, getCategoryIcon, getTag } from "$lib/user_data.svelte";
+    import { getConfig, type Filter, type FilterIncludesTag, type FilterExcludesTag, type FilterIncludesCategory, type FilterExcludesCategory, getTagCategories, getCategoryIcon, getTag, hasCategory } from "$lib/user_data.svelte";
     import { Ampersands, FolderCheck, FolderX, SquaresIntersect, SquaresUnite, TagPlus, TagX, Trash } from "@lucide/svelte";
     import Button from "../atoms/Button.svelte";
     import IconButton from "../atoms/IconButton.svelte";
@@ -139,7 +139,9 @@
                         </option>
                     {/each}
                 </select>
-                <LucideIcon name={fromKebabToPascalCase(getCategoryIcon(filter.category))} class="tag-categ-icon" style={"--color: var(--category-color)"} />
+                {#if hasCategory(filter.category)}
+                    <LucideIcon name={fromKebabToPascalCase(getCategoryIcon(filter.category))} class="tag-categ-icon" style={"--color: var(--category-color)"} />
+                {/if}
             </label>
         {/if}
 

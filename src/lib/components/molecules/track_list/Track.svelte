@@ -62,9 +62,7 @@
                     metadataPromise === undefined &&
                     visible
                 ) {
-                    metadataPromise = getMetadata(
-                        await getEntryAudioPathWithBestExtension(entry),
-                    );
+                    metadataPromise = getMetadata(entry);
                 }
             } else if (!intersecting && event.intersectionRatio < 0.01) {
                 // avoid flicker by making out condition smaller

@@ -7,6 +7,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
 import { invoke } from "@tauri-apps/api/core";
+import { getEntryAudioPathWithBestExtension, setTrackMetadata, type LibraryEntry } from "./user_data.svelte";
 
 export interface Metadata {
     title: string | null,
@@ -19,15 +20,25 @@ export interface Metadata {
     comment: string | null,
 }
 
-let cache: Record<string, Metadata> = {};
-
-export async function getMetadata(fullPath: string): Promise<Metadata> {
+/**
+ * Returns `track.metadata` if defined, or fetch it from best quality audio file,
+ * cache it, and return it otherwise.
+ * @param track 
+ * @returns 
+ */
+export async function getMetadata(track: LibraryEntry): Promise<Metadata> {
     try {
-        return cache[fullPath] ?? await invoke<Metadata>("get_audio_metadata", { path: fullPath }).then((metadata) => {
-            cache[fullPath] = metadata;
-            return metadata;
-        });
-    } catch {
+        if (track.metadata) {
+            return track.metadata;
+        } else {
+            const fullPath = await getEntryAudioPathWithBestExtension(track);
+            return await invoke<Metadata>("get_audio_metadata", { path: fullPath }).then((metadata) => {
+                setTrackMetadata(track, metadata);
+                return metadata;
+            });
+        }
+    } catch (e) {
+        console.error(`failed to get metadata for ${track.name} (${track.uuid})`, e);
         return {
             title: null,
             artist: null,

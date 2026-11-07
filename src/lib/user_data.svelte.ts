@@ -23,6 +23,7 @@ import { convertFileSrc } from "@tauri-apps/api/core";
 import { toHex } from "./string";
 import { objSortedByKey } from "./object";
 import { getRandomIcon } from "./lucide";
+import type { Metadata } from "./metadata";
 
 const LIBRARY_PATH_FILE_NAME = "scaffony_current_library.txt";
 const DATA_FILE_NAME = "scaffony_data.json";
@@ -75,6 +76,7 @@ export interface LibraryEntry {
      */
     virtual: boolean;
     color?: string;
+    metadata?: Metadata;
 }
 
 /**
@@ -823,6 +825,28 @@ export function deletePlaylist(playlistName: string) {
     config.playlists = config.playlists.filter(
         (playlist) => playlist.name !== playlistName
     );
+    commit();
+}
+
+export function setTrackMetadata(track: LibraryEntry, metadata: Metadata) {
+    // safer to refind in source, in case `track` is not a ref to the source.
+    const editedTrack = config.library.find(e => e.uuid === track.uuid);
+    if (editedTrack) {
+        editedTrack.metadata = {...metadata};
+    }
+    /**
+     * No commit as:
+     * - It's only a cache, not important.
+     * - Already frequent just by playback updating the wait list.
+     */
+}
+
+export function clearMetadataCache() {
+    for (const entry of config.library) {
+        if (entry.metadata !== undefined) {
+            delete entry.metadata;
+        }
+    }
     commit();
 }
 
