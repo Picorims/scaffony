@@ -4,9 +4,11 @@
         getCategoryIcon,
         getCategoryTags,
         getConfig,
+        getFilteredEntries,
         getTag,
         getTagCategories,
         getTagCategory,
+        type Filter,
     } from "$lib/user_data.svelte";
     /*
     Copyright (c) 2025 Charly Schmidt aka Picorims (picorims.contact@gmail.com), all rights reserved.
@@ -19,7 +21,11 @@
     import { Chart, type Plugin } from "chart.js/auto";
     import { onDestroy, onMount } from "svelte";
     import LucideIcon from "../atoms/LucideIcon.svelte";
-    import { Accessibility } from "@lucide/svelte";
+    import { Accessibility, Funnel } from "@lucide/svelte";
+    import Modal from "../atoms/Modal.svelte";
+    import Button from "../atoms/Button.svelte";
+    import Filters from "../molecules/Filters.svelte";
+    import FilterPreview from "../atoms/FilterPreview.svelte";
 
     let charts: Chart[] = $state([]);
     let yearHistogramCanvas = $state(document.createElement("canvas"));
@@ -28,7 +34,10 @@
     let tagHistogramCanvases: HTMLCanvasElement[] = $state(
         getTagCategories().map((_v) => document.createElement("canvas")),
     );
-    let tracks = $state(getConfig().library);
+    let filterDialog = $state(document.createElement("dialog"));
+    let sourceTracks = $state(getConfig().library);
+    let filter: Filter[] = $state([]);
+    let tracks = $derived(getFilteredEntries(sourceTracks, filter));
 
     onMount(() => {
         const style = window.getComputedStyle(document.body);
@@ -37,7 +46,7 @@
         );
         Chart.defaults.color = style.getPropertyValue("--text-darker-3");
         Chart.defaults.font.family = "Quicksand";
-        Chart.defaults.font.size = 14;
+        Chart.defaults.font.size = 16;
         Chart.defaults.datasets.bar.backgroundColor =
             style.getPropertyValue("--secondary");
         Chart.defaults.datasets.bar.hoverBackgroundColor =
@@ -244,10 +253,30 @@
             );
         }
     }
+
+    function applyFilter() {
+        filterDialog.close();
+        clearCharts();
+        createCharts();
+    }
 </script>
+
+<Modal bind:dialog={filterDialog} title="Filter">
+    <Filters selectId="stats-filter" mutableFiltersList={filter} />
+    {#snippet buttons()}
+        <Button variant="primary" text="OK" onclick={applyFilter} />
+        <Button variant="secondary" text="Clear" onclick={() => filter = []} />
+    {/snippet}
+</Modal>
 
 <div class="container">
     <h1>Statistics</h1>
+
+    <div class="header">
+        <Button className="filter-button" variant="secondary" text="Filter" onclick={() => filterDialog.showModal()} />
+        <Funnel class="filter-icon" />
+        <FilterPreview {filter} />
+    </div>
 
     <h2>Tracks by year</h2>
     <canvas bind:this={yearHistogramCanvas} id="year-histogram"></canvas>
@@ -284,6 +313,21 @@
         height: 100%;
         overflow-y: scroll;
         padding-left: 1rem;
+    }
+
+    div.header {
+        margin-top: 1rem;
+        border: 1px solid var(--background-lighter-3);
+        padding: 0.25rem;
+        border-radius: 4px;
+        width: min-content;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        & :global(svg.filter-icon) {
+            stroke: var(--text-darker-6);
+        }
     }
 
     h2, h3 {

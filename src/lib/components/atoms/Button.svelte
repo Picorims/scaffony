@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { ClefBassIcon } from "@lucide/svelte";
+
     /*
     Copyright (c) 2025 Charly Schmidt aka Picorims (picorims.contact@gmail.com), all rights reserved.
     
@@ -11,14 +13,16 @@
         text: string;
         onclick?: () => void;
         variant: "primary" | "secondary" | "accent";
-        disabled?: boolean
+        disabled?: boolean;
+        className?: string;
     }
 
-    let { text, onclick, variant, disabled = false }: IProps = $props();
+    let { text, onclick, variant, disabled = false, className = "" }: IProps = $props();
 </script>
 
 <button
     {onclick}
+    class={className}
     class:primary={variant === "primary"}
     class:secondary={variant === "secondary"}
     class:accent={variant === "accent"}
