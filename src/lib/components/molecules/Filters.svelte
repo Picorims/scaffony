@@ -7,7 +7,7 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
-    import { getConfig, type Filter, type FilterIncludesTag, type FilterExcludesTag, type FilterIncludesCategory, type FilterExcludesCategory, getTagCategories } from "$lib/user_data.svelte";
+    import { getConfig, type Filter, type FilterIncludesTag, type FilterExcludesTag, type FilterIncludesCategory, type FilterExcludesCategory, getTagCategories, getCategoryIcon, getTag } from "$lib/user_data.svelte";
     import { Ampersands, FolderCheck, FolderX, SquaresIntersect, SquaresUnite, TagPlus, TagX, Trash } from "@lucide/svelte";
     import Button from "../atoms/Button.svelte";
     import IconButton from "../atoms/IconButton.svelte";
@@ -124,17 +124,22 @@
                 <select bind:value={(filter as FilterIncludesTag | FilterExcludesTag).tag}>
                     <TagOptions />
                 </select>
+                <LucideIcon name={fromKebabToPascalCase(getTag(filter.tag)?.lucideIcon ?? "")} class="tag-categ-icon" style={`--color: ${getTag(filter.tag)?.colorHex ?? ""}`} />
             </label>
         {/if}
 
         {#if filter.type === "includes_category" || filter.type === "excludes_category"}
             <label
                 >Category Name:
-                <input
-                    type="text"
-                    bind:value={(filter as FilterIncludesCategory | FilterExcludesCategory).category}
-                    list="tag-categories-list"
-                />
+                <select bind:value={(filter as FilterIncludesCategory | FilterExcludesCategory).category}>
+                    {#each getTagCategories() as categ}
+                        <option value={categ}>
+                            <LucideIcon name={fromKebabToPascalCase(getCategoryIcon(categ))} />
+                            {categ}
+                        </option>
+                    {/each}
+                </select>
+                <LucideIcon name={fromKebabToPascalCase(getCategoryIcon(filter.category))} class="tag-categ-icon" style={"--color: var(--category-color)"} />
             </label>
         {/if}
 
@@ -208,5 +213,10 @@
         &:global([data-type="excludes_tag"]) {
             stroke: var(--tag-color);
         }
+    }
+
+    label :global(svg.tag-categ-icon) {
+        stroke: var(--color, var(--text-darker-6));
+        vertical-align: middle;
     }
 </style>
