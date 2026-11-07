@@ -44,7 +44,7 @@
 {/snippet} -->
 {#snippet categoryIcon(categoryName: string)}
     {#if !hasCategory(categoryName)}
-        <BadgeQuestionMark />
+        <BadgeQuestionMark class="category-icon" />
     {:else}
         <LucideIcon
             name={fromKebabToPascalCase(getCategoryIcon(categoryName))}
@@ -144,13 +144,6 @@
 
         --tag-color: rgb(252, 196, 43);
         --category-color: rgb(69, 247, 194);
-
-        --lvl-1: rgb(7, 120, 165);
-        --lvl-2: rgb(180, 114, 52);
-        --lvl-3: rgb(59, 184, 111);
-        --lvl-4: rgb(241, 88, 241);
-        --lvl-5: rgb(251, 255, 0);
-        --lvl-6: rgb(111, 0, 255);
 
         & :global(.tag) {
             margin: 0;
