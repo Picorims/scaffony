@@ -9,7 +9,7 @@
 
     import IconButton from "$lib/components/atoms/IconButton.svelte";
     import { getFilteredEntries, type Filter, type LibraryEntry } from "$lib/user_data.svelte";
-    import { ArrowDownWideNarrow, Funnel, ListVideo, Shuffle, TagX } from "@lucide/svelte";
+    import { ArrowDownWideNarrow, CalendarDays, Disc3, Funnel, ListVideo, Shuffle, TagX, Type, UserRoundPen } from "@lucide/svelte";
     import Track from "./Track.svelte";
     import { setWaitList, requestPlay } from "$lib/playback";
     import Modal from "$lib/components/atoms/Modal.svelte";
@@ -22,7 +22,7 @@
         classifyFilter?: string;
     }
 
-    type SortingOption = "by_missing_tag" | "no_sort";
+    type SortingOption = "by_missing_tag" | "by_name" | "by_artist" | "by_year" | "by_album" | "no_sort";
 
     const { tracks, mode = "playback", classifyFilter }: Props = $props();
     let sortingOption: SortingOption = $state("no_sort");
@@ -31,9 +31,20 @@
 
     let filteredTracks = $derived(getFilteredEntries(tracks, filters)); 
     let visibleTracks = $derived((() => {
+        // TS is drunk and think it can only be no_sort, because it doesn't understand the `bind:value` on select.
+        // Or there is something I don't understand, Idk. But it works and it's a personal project sooooo....
+        const option = sortingOption as SortingOption;
         let adaptedTrackList = filteredTracks;
-        if (sortingOption === "by_missing_tag") {
+        if (option === "by_missing_tag") {
             adaptedTrackList = [...adaptedTrackList].sort((a, b) => Object.keys(a.tags).length - Object.keys(b.tags).length);
+        } else if (option === "by_name") {
+            adaptedTrackList = [...adaptedTrackList].sort((a, b) => a.metadata?.title?.localeCompare(b.metadata?.title ?? "") ?? 0);
+        } else if (option === "by_artist") {
+            adaptedTrackList = [...adaptedTrackList].sort((a, b) => a.metadata?.artist?.localeCompare(b.metadata?.artist ?? "") ?? 0);
+        } else if (option === "by_year") {
+            adaptedTrackList = [...adaptedTrackList].sort((a, b) => (a.metadata?.year ?? 0) - (b.metadata?.year ?? 0));
+        } else if (option === "by_album") {
+            adaptedTrackList = [...adaptedTrackList].sort((a, b) => a.metadata?.album_name?.localeCompare(b.metadata?.album_name ?? "") ?? 0);
         }
 
         return adaptedTrackList;
@@ -80,6 +91,22 @@
             <option value="by_missing_tag">
                 <TagX />
                 <span>by missing tag count</span>
+            </option>
+            <option value="by_name">
+                <Type />
+                <span>by title</span>
+            </option>
+            <option value="by_artist">
+                <UserRoundPen />
+                <span>by artist</span>
+            </option>
+            <option value="by_album">
+                <Disc3 />
+                <span>by album</span>
+            </option>
+            <option value="by_year">
+                <CalendarDays />
+                <span>by year</span>
             </option>
         </select>
         <div class="header-separator"></div>
