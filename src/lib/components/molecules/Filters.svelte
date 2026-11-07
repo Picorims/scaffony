@@ -13,6 +13,7 @@
     import IconButton from "../atoms/IconButton.svelte";
     import { fromKebabToPascalCase } from "$lib/string";
     import LucideIcon from "../atoms/LucideIcon.svelte";
+    import FilterPreview from "../atoms/FilterPreview.svelte";
     
     interface Props {
         selectId: string;
@@ -23,7 +24,8 @@
 
 </script>
 
-{@render filters(selectId, mutableFiltersList)}
+<FilterPreview filter={mutableFiltersList} indent />
+{@render filters(selectId, mutableFiltersList, true)}
 
 <datalist id="tag-categories-list">
     {#each getTagCategories() as category}
@@ -31,8 +33,8 @@
     {/each}
 </datalist>
 
-{#snippet filters(selectId: string, mutableFiltersList: Filter[])}
-    <fieldset class="filters">
+{#snippet filters(selectId: string, mutableFiltersList: Filter[], noMarginLeft = false)}
+    <fieldset class="filters" class:no-margin-left={noMarginLeft}>
         <legend>
             <h3>Filters</h3>
         </legend>
@@ -135,7 +137,11 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-        margin-left: 1rem;
+        margin-top: 0.5rem;
+
+        &:not(.no-margin-left) {
+            margin-left: 1rem;
+        }
 
         & fieldset.filters {
             background-color: var(--background-lighter-2);

@@ -136,6 +136,11 @@ export interface FilterAny {
     type: "any";
     children: Filter[];
 }
+
+export type FilterByType = {
+    [P in Filter["type"]]: Filter & {type: P}
+}
+
 export type Filter =
     | FilterIncludesCategory
     | FilterIncludesTag
@@ -758,7 +763,7 @@ export function hasCategory(category: string) {
 
 export function editCategory(category: string, exclusive: boolean) {
     if (!hasCategory(category)) {
-        throw new Error("Trying to edit non-existent category.");
+        throw new Error(`Trying to edit non-existent category (${category}).`);
     }
     config.categories[category].exclusive = exclusive;
     console.log(`Category ${category} is now exclusive: ${exclusive}`);
@@ -767,7 +772,7 @@ export function editCategory(category: string, exclusive: boolean) {
 
 export function editCategoryIcon(category: string, icon: string) {
     if (!hasCategory(category)) {
-        throw new Error("Trying to edit non-existent category.");
+        throw new Error(`Trying to edit non-existent category (${category}).`);
     }
     config.categories[category].icon = icon;
     console.log(`Category ${category} icon is now: ${icon}`);
@@ -776,21 +781,21 @@ export function editCategoryIcon(category: string, icon: string) {
 
 export function getCategoryByName(category: string) {
     if (!hasCategory(category)) {
-        throw new Error("Trying to query non-existent category.");
+        throw new Error(`Trying to query non-existent category (${category}).`);
     }
     return config.categories[category];
 }
 
 export function getCategoryIcon(category: string) {
     if (!hasCategory(category)) {
-        throw new Error("Trying to query non-existent category.");
+        throw new Error(`Trying to query non-existent category (${category}).`);
     }
     return config.categories[category].icon;
 }
 
 export function isCategoryExclusive(category: string) {
     if (!hasCategory(category)) {
-        throw new Error("Trying to query non-existent category.");
+        throw new Error(`Trying to query non-existent category (${category}).`);
     }
     return config.categories[category].exclusive;
 } 

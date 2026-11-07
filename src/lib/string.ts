@@ -6,6 +6,8 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 */
 
+import type { Filter, FilterByType } from "./user_data.svelte";
+
 export function fromKebabToPascalCase(str: string) {
     return str
         .split("-")
@@ -66,4 +68,32 @@ export function withLeadingZero(value: number): string {
     } else {
         return `${value}`;
     }
+}
+
+
+type ToStringFilterDict = {[P in Filter["type"]]: (filter: FilterByType[P]) => string}
+
+const singleFilterToString: ToStringFilterDict = {
+    includes_category: function (f) {
+        return `includes_category(${f.category})`;
+    },
+    includes_tag: function (f) {
+        return `includes_tag(${f.tag})`;
+    },
+    excludes_category: function (f) {
+        return `excludes_category(${f.category})`;
+    },
+    excludes_tag: function (f) {
+        return `excludes_tag(${f.tag})`;
+    },
+    any: function (f) {
+        return `(${f.children.map(v => singleFilterToString[v.type](v as unknown as never)).join(" OR ")})`;
+    },
+    all: function (f) {
+        return `(${f.children.map(v => singleFilterToString[v.type](v as unknown as never)).join(" AND ")})`;
+    }
+}
+
+export function filterToString(filter: Filter[]) {
+    return singleFilterToString["all"]({type: "all", children: filter});
 }

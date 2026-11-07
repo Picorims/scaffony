@@ -17,15 +17,13 @@
     import Modal from "../atoms/Modal.svelte";
     import Filters from "../molecules/Filters.svelte";
     import Button from "../atoms/Button.svelte";
+    import FilterPreview from "../atoms/FilterPreview.svelte";
 
     let filtersDialog = $state(document.createElement("dialog"));
     let filter: Filter[] = $state([]);
     let categoryFilter = $state("");
     let tagFilter = $state("");
     let filteredTracks = $derived(getFilteredEntries(getConfig().library, filter));
-    // let excludeCategoryFilter = $state("");
-    // let excludeTagFilter = $state("");
-    // let excludeFilter = $derived(excludeTagFilter !== "" ? excludeTagFilter : excludeCategoryFilter !== "" ? excludeCategoryFilter : undefined);
     let expandClassificationProgress = $state(false);
 
     function getTagsSortedByCompletionRatio(): [TagEntry, number][] {
@@ -96,24 +94,7 @@
         <IconButton onClick={() => filtersDialog.showModal()} className="filter-button">
             <Funnel />
         </IconButton>
-        <!-- <label>
-            <span>Exclude Category:</span>
-            <select bind:value={excludeCategoryFilter}>
-                <option value="">--none--</option>
-                {#each getTagCategories() as category (category)}
-                    <option value={category}>{category}</option>
-                {/each}
-            </select>
-        </label>
-        <label>
-            <span>Exclude Tag:</span>
-            <select bind:value={excludeTagFilter}>
-                <option value="">--none--</option>
-                {#each getConfig().tags as tag (tag.name)}
-                    <option value={tag.name}>{tag.name}</option>
-                {/each}
-            </select>
-        </label> -->
+        <FilterPreview {filter} />
         <label>
             <span>Expand Classification Progress</span>
             <input type="checkbox" bind:checked={expandClassificationProgress}>
