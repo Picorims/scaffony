@@ -138,6 +138,19 @@ select {
 select, ::picker(select) {
     appearance: base-select;
 }
+optgroup {
+    background-color: var(--background-lighter-0);
+    color: var(--text);
+
+    & > legend {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5em;
+        font-size: 1.2rem;
+                color: var(--text-darker-3);
+    }
+}
 option {
     --default: var(--text-darker-4);
     --color: var(--option-color, var(--default));

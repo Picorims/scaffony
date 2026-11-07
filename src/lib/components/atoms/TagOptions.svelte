@@ -1,6 +1,6 @@
 <script lang="ts">
     import { fromKebabToPascalCase } from "$lib/string";
-    import { getConfig } from "$lib/user_data.svelte";
+    import { getCategoryIcon, getConfig, getTagCategories, getTagCategory, hasCategory } from "$lib/user_data.svelte";
     import LucideIcon from "./LucideIcon.svelte";
 
     /*
@@ -12,9 +12,23 @@
     */
 </script>
 
-{#each getConfig().tags as tag}
+{#each getTagCategories() as category}
+    <optgroup>
+        <legend>
+            <LucideIcon name={fromKebabToPascalCase(getCategoryIcon(category))} />
+            <span>{category}</span>
+        </legend>
+        {#each getConfig().tags.filter(v => getTagCategory(v.name) === category) as tag}
+            <option style:--option-color={tag.colorHex} value={tag.name}>
+                <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
+                <span>{tag.name.replace(":", " / ")}</span>
+            </option>
+        {/each}
+    </optgroup>
+{/each}
+<!-- {#each getConfig().tags as tag}
     <option style:--option-color={tag.colorHex} value={tag.name}>
         <LucideIcon name={fromKebabToPascalCase(tag.lucideIcon)} />
         <span>{tag.name.replace(":", " / ")}</span>
     </option>
-{/each}
+{/each} -->
