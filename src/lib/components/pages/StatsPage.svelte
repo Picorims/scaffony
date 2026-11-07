@@ -1,5 +1,13 @@
 <script lang="ts">
-    import { getConfig } from "$lib/user_data.svelte";
+    import { fromKebabToPascalCase } from "$lib/string";
+    import {
+        getCategoryIcon,
+        getCategoryTags,
+        getConfig,
+        getTag,
+        getTagCategories,
+        getTagCategory,
+    } from "$lib/user_data.svelte";
     /*
     Copyright (c) 2025 Charly Schmidt aka Picorims (picorims.contact@gmail.com), all rights reserved.
     
@@ -10,18 +18,31 @@
 
     import { Chart, type Plugin } from "chart.js/auto";
     import { onDestroy, onMount } from "svelte";
+    import LucideIcon from "../atoms/LucideIcon.svelte";
+    import { Accessibility } from "@lucide/svelte";
 
     let charts: Chart[] = $state([]);
-    let yearHistogramDiv = $state(document.createElement("canvas"));
+    let yearHistogramCanvas = $state(document.createElement("canvas"));
+    let artistsHistogramCanvas = $state(document.createElement("canvas"));
+    let genresHistogramCanvas = $state(document.createElement("canvas"));
+    let tagHistogramCanvases: HTMLCanvasElement[] = $state(
+        getTagCategories().map((_v) => document.createElement("canvas")),
+    );
+    let tracks = $state(getConfig().library);
 
     onMount(() => {
         const style = window.getComputedStyle(document.body);
-        Chart.defaults.borderColor = style.getPropertyValue("--background-lighter-1");
+        Chart.defaults.borderColor = style.getPropertyValue(
+            "--background-lighter-1",
+        );
         Chart.defaults.color = style.getPropertyValue("--text-darker-3");
         Chart.defaults.font.family = "Quicksand";
         Chart.defaults.font.size = 14;
-        Chart.defaults.datasets.bar.backgroundColor = style.getPropertyValue("--secondary");
-        Chart.defaults.datasets.bar.hoverBackgroundColor = style.getPropertyValue("--primary");
+        Chart.defaults.datasets.bar.backgroundColor =
+            style.getPropertyValue("--secondary");
+        Chart.defaults.datasets.bar.hoverBackgroundColor =
+            style.getPropertyValue("--primary");
+        Chart.defaults.responsive = true;
         createCharts();
     });
 
@@ -37,48 +58,220 @@
     }
 
     function createCharts() {
-        const yearHistogramData: Record<number, number> = getConfig().library.reduce<Record<number, number>>((acc, e) => {
-            if (e.metadata === undefined) {
-                return acc;
-            }
-            if (e.metadata.year === null) {
-                if (acc[0] === undefined) {
-                    acc[0] = 0;
+        const style = window.getComputedStyle(document.body);
+
+        const yearHistogramData: Record<number, number> =
+            getConfig().library.reduce<Record<number, number>>((acc, e) => {
+                if (e.metadata === undefined) {
+                    return acc;
                 }
-                acc[0]++;
-                return acc;
-            }
-
-            const year = e.metadata.year;
-            if (acc[year] === undefined) {
-                acc[year] = 0;
-            }
-            acc[year]++;
-
-            return acc;
-        }, {});
-
-        charts.push(new Chart(
-            // "TS needs as any": https://www.chartjs.org/docs/latest/getting-started/using-from-node-js.html
-            yearHistogramDiv as any,
-            {
-                type: "bar",
-                data: {
-                    labels: Object.keys(yearHistogramData),
-                    datasets: [{
-                        label: "Number of tracks",
-                        data: Object.values(yearHistogramData),
-
-                    }]
+                if (e.metadata.year === null) {
+                    if (acc[0] === undefined) {
+                        acc[0] = 0;
+                    }
+                    acc[0]++;
+                    return acc;
                 }
-            },
-        ));
+
+                const year = e.metadata.year;
+                if (acc[year] === undefined) {
+                    acc[year] = 0;
+                }
+                acc[year]++;
+
+                return acc;
+            }, {});
+
+        charts.push(
+            new Chart(
+                // "TS needs as any": https://www.chartjs.org/docs/latest/getting-started/using-from-node-js.html
+                yearHistogramCanvas as any,
+                {
+                    type: "bar",
+                    data: {
+                        labels: Object.keys(yearHistogramData),
+                        datasets: [
+                            {
+                                label: "Number of tracks",
+                                data: Object.values(yearHistogramData),
+                            },
+                        ],
+                    },
+                },
+            ),
+        );
+
+        const artistsHistogram: Record<string, number> =
+            tracks.reduce<Record<string, number>>((acc, e) => {
+                if (e.metadata === undefined || e.metadata.artist === null) {
+                    return acc;
+                }
+                const artists = e.metadata.artist
+                    .split(",")
+                    .map((a) => a.trim());
+                for (const artist of artists) {
+                    if (acc[artist] === undefined) {
+                        acc[artist] = 0;
+                    }
+                    acc[artist]++;
+                }
+
+                return acc;
+            }, {});
+        const artistsHistogramData: [string, number][] = Object.entries(
+            artistsHistogram,
+        )
+            .sort(([_ka, va], [_kb, vb]) => vb - va)
+            .slice(0, 20);
+
+        charts.push(
+            new Chart(
+                // "TS needs as any": https://www.chartjs.org/docs/latest/getting-started/using-from-node-js.html
+                artistsHistogramCanvas as any,
+                {
+                    type: "bar",
+                    data: {
+                        labels: artistsHistogramData.map((v) => v[0]),
+                        datasets: [
+                            {
+                                label: "Number of tracks",
+                                data: artistsHistogramData.map((v) => v[1]),
+                            },
+                        ],
+                    },
+                },
+            ),
+        );
+
+        const genresHistogram: Record<string, number> =
+            tracks.reduce<Record<string, number>>((acc, e) => {
+                if (e.metadata === undefined || e.metadata.genre === null) {
+                    return acc;
+                }
+                const genres = e.metadata.genre.split(",").map((a) => a.trim());
+                for (const genre of genres) {
+                    if (acc[genre] === undefined) {
+                        acc[genre] = 0;
+                    }
+                    acc[genre]++;
+                }
+
+                return acc;
+            }, {});
+        const genresHistogramData: [string, number][] = Object.entries(
+            genresHistogram,
+        )
+            .sort(([_ka, va], [_kb, vb]) => vb - va)
+            .slice(0, 20);
+
+        charts.push(
+            new Chart(
+                // "TS needs as any": https://www.chartjs.org/docs/latest/getting-started/using-from-node-js.html
+                genresHistogramCanvas as any,
+                {
+                    type: "bar",
+                    data: {
+                        labels: genresHistogramData.map((v) => v[0]),
+                        datasets: [
+                            {
+                                label: "Number of tracks",
+                                data: genresHistogramData.map((v) => v[1]),
+                            },
+                        ],
+                    },
+                },
+            ),
+        );
+
+        type TagDataDict = Record<string, {yes: number, maybe: number}>;
+
+        const categories = getTagCategories()
+        for (let i = 0; i < categories.length; i++) {
+            const category = categories[i];
+            const tagData = getCategoryTags(category)
+                .reduce<TagDataDict>((acc, tag) => {
+                    acc[tag.name] = {yes: 0, maybe: 0};
+                    return acc;
+                }, {});
+
+            for (const track of tracks) {
+                const tags = Object.keys(track.tags);
+                for (const tag of tags) {
+                    if (getTagCategory(tag) === category) {
+                        if (track.tags[tag] === true) {
+                            tagData[tag].yes++;
+                        }
+                    }
+                }
+                for (const {name} of getCategoryTags(category)) {
+                    if (!tags.includes(name)) {
+                        tagData[name].maybe++;
+                    }
+                }
+            }
+
+            charts.push(
+                new Chart(
+                    // "TS needs as any": https://www.chartjs.org/docs/latest/getting-started/using-from-node-js.html
+                    tagHistogramCanvases[i] as any,
+                    {
+                        type: "bar",
+                        data: {
+                            labels: Object.keys(tagData),
+                            datasets: [
+                                {
+                                    label: "Yes",
+                                    data: Object.values(tagData).map(d => d.yes),
+                                    backgroundColor: Object.keys(tagData).map(t => getTag(t)?.colorHex + "55"),
+                                    borderColor: Object.keys(tagData).map(t => getTag(t)?.colorHex),
+                                    borderWidth: 1,
+                                    hoverBackgroundColor: Object.keys(tagData).map(t => getTag(t)?.colorHex),
+                                    stack: "stack",
+                                },
+                                {
+                                    label: "Maybe",
+                                    data: Object.values(tagData).map(d => d.maybe),
+                                    stack: "stack",
+                                    backgroundColor: "#55555511",
+                                    hoverBackgroundColor: "#555555",
+                                    borderColor: "#555555",
+                                    borderWidth: 1,
+                                },
+                            ],
+                        },
+                    },
+                ),
+            );
+        }
     }
 </script>
 
 <div class="container">
     <h1>Statistics</h1>
-    <canvas bind:this={yearHistogramDiv} id="year-histogram"></canvas>
+
+    <h2>Tracks by year</h2>
+    <canvas bind:this={yearHistogramCanvas} id="year-histogram"></canvas>
+
+    <h2>Most represented artists</h2>
+    <canvas bind:this={artistsHistogramCanvas} id="artists-histogram"></canvas>
+
+    <h2>
+        Most represented genres (default platforms metadata is not accurate)
+    </h2>
+    <canvas bind:this={genresHistogramCanvas} id="genres-histogram"></canvas>
+
+    <h2>Tags</h2>
+    {#each getTagCategories() as category, i}
+        <h3>
+            <LucideIcon
+                class="category-icon"
+                name={fromKebabToPascalCase(getCategoryIcon(category))}
+            />
+            {category}
+        </h3>
+        <canvas bind:this={tagHistogramCanvases[i]} id="genres-histogram"
+        ></canvas>
+    {/each}
 </div>
 
 <style>
@@ -89,15 +282,27 @@
         flex-wrap: nowrap;
         width: 100%;
         height: 100%;
+        overflow-y: scroll;
+        padding-left: 1rem;
     }
 
-    h1 {
-        margin-left: 1rem;
+    h2, h3 {
+        margin-top: 1rem;
+    }
+
+    h3 :global(svg.category-icon) {
+        vertical-align: middle;
+        stroke: var(--text-darker-6);
+    }
+
+    canvas {
+        max-height: 50vh;
     }
 
     @media screen and (width <= 600px) {
         div.container {
             padding-top: 0.5rem;
+            padding-left: 0.5rem;
         }
     }
 </style>
