@@ -683,7 +683,8 @@
         flex: 1 1 auto;
         min-width: min-content;
         height: 1rem;
-        padding: 0.1rem;
+        padding: 0 0.25rem;
+        vertical-align: middle;
     }
 
     div.controls-m-buttons {
