@@ -6,13 +6,16 @@
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
-
+    import { type LucideIconNode } from "@lucide/svelte";
     import { appState } from "$lib/app_state.svelte";
     import {
         Disc3,
+        Ear,
+        Icon,
         Info,
         Pause,
         Play,
+        Settings,
         SkipBack,
         SkipForward,
         Square,
@@ -393,7 +396,21 @@
             {#if activeTrack !== null}
                 <div class="volume-button">
                     <IconButton onClick={() => volumeVisible = !volumeVisible}>
-                        <Volume2 />
+                        <Icon>
+                            <!-- https://studio.lucide.dev/edit?value=1.LIRgDAdAnAzAHAAgEwggNiiAgjCBWBXAsBMENBEOfUA6vAQxEtNLAFpiA3EBpZViHAIALAFsQeCEiSJyEOHhjtoSZRHgwJUmXKgQQIqCqhqNcLfJEB2SiI1g05pKstPF-JJGvX1m1eIg%2BoZyOkj6miZqEvpKyKgY1irwSFHiXhA%2BMJTuSgHJFmIZWZTBRgHmMMAU9EwsJEIg2STWECIIre0kZCpqlApwaADaQwBEAMYAlgBO4wA2AKajADQA3hMAHqMAXFTLEwCeO1QQYGT70zswAL4AurdAA&name=ear-cog&source=more -->
+                            <path d="M10.938 21.691A3.5 3.5 0 016 18.5" />
+                            <path d="M15 8.5a1 1 0 00-5 0v1a2 2 0 110 4" />
+                            <path d="m15.228 16.853-.923-.383" />
+                            <path d="m15.228 19.149-.923.383" />
+                            <path d="m16.47 14.306.382.923" />
+                            <path d="m16.852 20.773-.383.924" />
+                            <path d="m19.148 15.229.383-.923" />
+                            <path d="m19.53 21.697-.382-.924" />
+                            <path d="m20.773 16.853.924-.383" />
+                            <path d="m20.773 19.149.924.383" />
+                            <path d="M6 8.5a1 1 0 1113 0 7.4 7.4 0 01-.23 1.886" />
+                            <circle cx="18" cy="18.001" r="3" />
+                        </Icon>
                     </IconButton>
                 </div>
                 <IconButton onClick={() => aboutDialog.showModal()}>
@@ -514,7 +531,7 @@
         background-color: var(--background-darker-1);
 
         display: grid;
-        grid-template-columns: repeat(2, 1fr) 128px;
+        grid-template-columns: 0.75fr 1.25fr 128px;
         gap: 1.5rem;
         border-top: 2px solid var(--bright-color);
         box-shadow: 0 0 4px rgb(from var(--bright-color) r g b / 0.75),
