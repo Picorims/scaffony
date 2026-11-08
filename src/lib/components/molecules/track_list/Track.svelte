@@ -284,7 +284,7 @@
         width: min-content;
     }
 
-    @media screen and (width <= 600px) {
+    @media screen and (width <= 1400px) {
         div.container {
             --base-height: 1rem;
             --height: calc(var(--base-height) * 3);

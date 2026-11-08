@@ -2,6 +2,7 @@
     import { fromKebabToPascalCase } from "$lib/string";
     import { getActiveTagKeysWithCategorySeparators, getCategoryIcon, getTag, getTagCategory, type LibraryEntry } from "$lib/user_data.svelte";
     import LucideIcon from "../atoms/LucideIcon.svelte";
+    import ScrollingSpan from "../atoms/ScrollingSpan.svelte";
     import Tag from "../atoms/Tag.svelte";
 
     /*
@@ -23,28 +24,26 @@
     }
 </script>
 
-<!-- {#key tagKeys} -->
-    {#each tagKeys as tagName, index}
-        {#if index === 0}
+{#each tagKeys as tagName, index}
+    {#if index === 0}
+        <span class="category-icon">
+            <LucideIcon name={tagToCategoryToIcon(tagName)} />
+        </span>
+    {/if}
+    {#if tagName !== " " && entry.tags[tagName] === true}
+        {@const tagEntry = getTag(tagName)}
+        {#if tagEntry !== null}
+            <Tag tag={tagEntry} size="normal" shrinkable forceShrink className={"tag-overlap"} />
+        {/if}
+    {:else if tagName === " "}
+        <span class="tag-category-spacing"></span>
+        {#if index + 1 < tagKeys.length}
             <span class="category-icon">
-                <LucideIcon name={tagToCategoryToIcon(tagName)} />
+                <LucideIcon name={tagToCategoryToIcon(tagKeys[index + 1])} />
             </span>
         {/if}
-        {#if tagName !== " " && entry.tags[tagName] === true}
-            {@const tagEntry = getTag(tagName)}
-            {#if tagEntry !== null}
-                <Tag tag={tagEntry} size="normal" shrinkable forceShrink className={"tag-overlap"} />
-            {/if}
-        {:else if tagName === " "}
-            <span class="tag-category-spacing"></span>
-            {#if index + 1 < tagKeys.length}
-                <span class="category-icon">
-                    <LucideIcon name={tagToCategoryToIcon(tagKeys[index + 1])} />
-                </span>
-            {/if}
-        {/if}
-    {/each}
-<!-- {/key} -->
+    {/if}
+{/each}
 
 <style>
     :global(.tag-overlap) {
@@ -70,7 +69,7 @@
             left: 0.3rem;
             width: 0;
             height: 100%;
-            border-right: 1px dashed var(--text-darker-4);
+            border-right: 1px solid var(--background-lighter-5);
         }
     }
 

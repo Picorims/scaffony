@@ -156,13 +156,13 @@
         border-radius: 4px;
 
         display: grid;
-        grid-template-columns: 2rem 1.25fr 10rem 1.25fr 3.5rem;
+        grid-template-columns: 2rem 1fr 10rem 1.5fr 3.5rem;
         grid-auto-rows: min-content;
     }
     div.track-list.classify {
         grid-template-columns: 5.5rem 1fr 0.5fr 1.5fr 3.5rem;
     }
-    @media screen and (width <= 600px) {
+    @media screen and (width <= 1400px) {
         div.track-list {
             grid-template-columns: 3.25rem repeat(3, 1fr) 3rem;
         }
