@@ -58,7 +58,7 @@
     import LucideIcon from "../atoms/LucideIcon.svelte";
 
     const DEFAULT_VOLUME = 0.2;
-    const POSITION_REFRESH_INTERVAL_MS = 500;
+    const POSITION_REFRESH_INTERVAL_MS = 250;
 
     let aboutDialog: HTMLDialogElement = $state(document.createElement("dialog"));
     let paused = $state(true);
@@ -412,6 +412,7 @@
                 min="0"
                 max="100"
                 value="0.001"
+                step="0.01"
                 data-ratio={(audioElement?.currentTime ?? 0) / (audioElement?.duration ?? 1)}
                 oninput={updatePosition}
                 class={"monochrome"}
