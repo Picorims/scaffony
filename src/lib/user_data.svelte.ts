@@ -367,9 +367,10 @@ export function getPlaylistLibraryEntries(playlistName: string): LibraryEntry[] 
 }
 
 export function getFilteredEntries(base: LibraryEntry[], filters: Filter[], level = 0): LibraryEntry[] {
+    const verbose = false;
     let result = [...base];
     const logPrefix = "| ".repeat(level + 1);
-    if (level === 0) {
+    if (level === 0 && verbose) {
         console.group("getFilteredEntries");
     }
 
@@ -390,7 +391,10 @@ export function getFilteredEntries(base: LibraryEntry[], filters: Filter[], leve
                     intersect = intersect.intersection(results[i]);
                 }
                 result = Array.from(intersect);
-                console.log(`${logPrefix} all: intersection of `, results, "give", result);
+
+                if (verbose) {
+                    console.log(`${logPrefix} all: intersection of `, results, "give", result);
+                }
                 
                 break;
             }
@@ -409,33 +413,44 @@ export function getFilteredEntries(base: LibraryEntry[], filters: Filter[], leve
                     union = union.union(results[i]);
                 }
                 result = Array.from(union);
-                console.log(`${logPrefix} any: union of `, results, "give", result);
+
+                if (verbose) {
+                    console.log(`${logPrefix} any: union of `, results, "give", result);
+                }
                 
                 break;
             }
             case "includes_category": {
                 result = result.filter((entry) => hasTagWithCategory(entry, filter.category));
-                console.log(`${logPrefix} includes_category (${filter.category}): `, result);
+                if (verbose) {
+                    console.log(`${logPrefix} includes_category (${filter.category}): `, result);
+                }
                 break;
             }
             case "excludes_category": {
                 result = result.filter((entry) => !hasTagWithCategory(entry, filter.category));
-                console.log(`${logPrefix} excludes_category (${filter.category}): `, result);
+                if (verbose) {
+                    console.log(`${logPrefix} excludes_category (${filter.category}): `, result);
+                }
                 break;
             }
             case "includes_tag": {
                 result = result.filter((entry) => hasTag(entry, filter.tag));
-                console.log(`${logPrefix} includes_tag (${filter.tag}): `, result);
+                if (verbose) {
+                    console.log(`${logPrefix} includes_tag (${filter.tag}): `, result);
+                }
                 break;
             }
             case "excludes_tag": {
                 result = result.filter((entry) => !hasTag(entry, filter.tag));
-                console.log(`${logPrefix} excludes_tag (${filter.tag}): `, result);
+                if (verbose) {
+                    console.log(`${logPrefix} excludes_tag (${filter.tag}): `, result);
+                }
                 break;
             }
         }
     }
-    if (level === 0) {
+    if (level === 0 && verbose) {
         console.groupEnd();
     }
     return result;

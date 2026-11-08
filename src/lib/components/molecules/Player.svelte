@@ -67,6 +67,7 @@
     let rangeVolumeElement = $state<HTMLInputElement | null>(null);
     let volume = $state(DEFAULT_VOLUME);
     let volumeVisible = $state(false);
+    let playbackSpeed = $state(1);
     let imageOnError = $state(false);
     let activeTrack = $state<LibraryEntry | null>(null);
     let metadataPromise = $derived(getTrackMetadata(activeTrack));
@@ -87,6 +88,7 @@
     $effect(() => {
         if (audioElement) {
             audioElement.volume = volume;
+            audioElement.playbackRate = playbackSpeed;
         }
     });
 
@@ -436,30 +438,45 @@
         </div>
     </div>
     <div class="controls-side" class:hidden={!volumeVisible}>
-        <span class="volume">{Math.ceil(volume * 100)}</span>
-        {#if volume === 0}
-            <VolumeX />
-        {:else if volume < 0.25}
-            <Volume />
-        {:else if volume < 0.5}
-            <Volume1 />
-        {:else}
-            <Volume2 />
-        {/if}
-        <input
-            bind:this={rangeVolumeElement}
-            id="player-volume"
-            type="range"
-            min="0"
-            max="1"
-            value={DEFAULT_VOLUME}
-            data-ratio={volume}
-            step="0.001"
-            oninput={(e) => {
-                volume = rangeVolumeElement?.valueAsNumber ?? 0.5;
-            }}
-            class={"monochrome"}
-        />
+        <div class="volume-container">
+            <span class="volume">{Math.ceil(volume * 100)}</span>
+            {#if volume === 0}
+                <VolumeX />
+            {:else if volume < 0.25}
+                <Volume />
+            {:else if volume < 0.5}
+                <Volume1 />
+            {:else}
+                <Volume2 />
+            {/if}
+            <input
+                bind:this={rangeVolumeElement}
+                id="player-volume"
+                type="range"
+                min="0"
+                max="1"
+                value={DEFAULT_VOLUME}
+                data-ratio={volume}
+                step="0.001"
+                oninput={(e) => {
+                    volume = rangeVolumeElement?.valueAsNumber ?? 0.5;
+                }}
+                class={"monochrome"}
+            />
+        </div>
+        <div class="speed-container">
+            <label>
+                <span>Speed: </span>
+                <select class="speed-select" defaultValue="1" bind:value={playbackSpeed}>
+                    <option value="0.25">x0.25</option>
+                    <option value="0.5">x0.5</option>
+                    <option value="1" selected>x1</option>
+                    <option value="1.5">x1.5</option>
+                    <option value="2">x2</option>
+                    <option value="4">x4</option>
+                </select>
+            </label>
+        </div>
     </div>
 </div>
 
@@ -632,8 +649,7 @@
         justify-content: center;
     }
 
-    div.controls-m-buttons,
-    div.controls-side {
+    div.controls-m-buttons {
         display: flex;
         align-items: center;
         gap: 0.25rem;
@@ -642,6 +658,32 @@
         & :global(svg) {
             flex: 0 0 auto;
         }
+    }
+
+    div.controls-side {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: center;
+        gap: 0.25rem;
+        margin-right: 1rem;
+
+        & :global(svg) {
+            flex: 0 0 auto;
+        }
+    }
+
+    div.volume-container,
+    div.speed-container > label {
+        display: flex;
+        gap: 0.25rem;
+        align-items: center;
+    }
+    select.speed-select {
+        flex: 1 1 auto;
+        min-width: min-content;
+        height: 1rem;
+        padding: 0.1rem;
     }
 
     div.controls-m-buttons {
@@ -775,6 +817,10 @@
         }
 
         div.controls-side {
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
             padding: 0.25rem 0.5rem;
             padding-top: 0;
         }
