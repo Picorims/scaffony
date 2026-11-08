@@ -183,9 +183,9 @@
     {/if}
 </div>
 
-
-<AboutModal bind:dialog={aboutDialog} {metadataPromise} {entry} />
-
+{#if visible}
+    <AboutModal bind:dialog={aboutDialog} {metadataPromise} {entry} />
+{/if}
 
 <style>
     div.container {
