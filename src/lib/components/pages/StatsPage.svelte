@@ -38,6 +38,9 @@
     let sourceTracks = $state(getConfig().library);
     let filter: Filter[] = $state([]);
     let tracks = $derived(getFilteredEntries(sourceTracks, filter));
+    let tracksSorted = $derived([...tracks].sort((a, b) => Object.keys(a.tags).length - Object.keys(b.tags).length))
+    let tagsCount = $derived(getConfig().tags.length);
+    let totalMissingCount = $derived(tracks.reduce<number>((acc, v) => acc + (tagsCount - Object.keys(v.tags).length), 0));
 
     onMount(() => {
         const style = window.getComputedStyle(document.body);
@@ -301,6 +304,23 @@
         <canvas bind:this={tagHistogramCanvases[i]} id="genres-histogram"
         ></canvas>
     {/each}
+
+    <h2>Tags completion per track</h2>
+    
+    <div class="total-completion">
+        <span class="completion-title total-title"><strong>Total</strong></span>
+        <progress class="total-progress" max={tagsCount * tracksSorted.length} value={totalMissingCount}></progress>
+        <span class="completion-count total-count">{totalMissingCount}</span>
+    </div>
+    <div class="tracks-completion">
+        
+        {#each tracksSorted as track (track.uuid)}
+            {@const count = Object.keys(track.tags).length}
+            <span class="completion-title">{track.name}</span>
+            <progress max={tagsCount} value={count}></progress>
+            <span class="completion-count">{tagsCount - count}</span>
+        {/each}
+    </div>
 </div>
 
 <style>
@@ -341,6 +361,69 @@
 
     canvas {
         max-height: 50vh;
+    }
+
+    div.total-completion {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        font-size: 1.5rem;
+        margin: 2rem 0;
+        border: 1px solid var(--background-lighter-4);
+        background-color: var(--background-lighter-1);
+        padding: 1rem;
+        border-radius: 8px;
+
+        & progress {
+            flex: 1 1 auto;
+            max-width: 100%;
+
+            &::-webkit-progress-bar {
+                background-color: var(--background-lighter-2);
+            }
+            &::-webkit-progress-value {
+                background-color: var(--accent);
+            }
+        }
+
+        & .total-count {
+            color: var(--accent);
+            font-weight: bold;
+        }
+    }
+
+    div.tracks-completion {
+        display: grid;
+        grid-template-columns: 1fr min-content 5rem;
+
+        & progress::-webkit-progress-bar {
+            background-color: var(--background-lighter-2);
+        }
+        & progress::-webkit-progress-value {
+            background-color: var(--secondary);
+
+            &:hover {
+                background-color: var(--primary);
+            }
+        }
+        & span.completion-title:hover {
+            background-color: var(--background-lighter-2);
+            & + progress::-webkit-progress-value {
+                background-color: var(--primary);
+
+            }
+
+            & + progress + span.completion-count {
+                color: var(--primary);
+                font-weight: bold;
+            }
+        }
+
+        & span.completion-count {
+            margin-left: 0.5rem;
+            font-size: 1.25rem;
+        }
     }
 
     @media screen and (width <= 600px) {
