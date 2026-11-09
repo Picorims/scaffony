@@ -118,7 +118,7 @@
     {/if}
 </div>
 
-<Modal bind:dialog={filtersDialog} title="Classification Filter">
+<Modal bind:dialog={filtersDialog} title="Classification Filter" stickyButtons>
     <Filters selectId="classify-filter-select" mutableFiltersList={filter} />
 
     {#snippet buttons()}

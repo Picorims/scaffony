@@ -76,7 +76,7 @@
     {/each}
 </div>
 
-<Modal bind:dialog title={dialogMode === "add" ? "Add Playlist" : editedPlaylist ? `Edit Playlist: ${editedPlaylist.name}` : "Edit Playlist"}>
+<Modal bind:dialog title={dialogMode === "add" ? "Add Playlist" : editedPlaylist ? `Edit Playlist: ${editedPlaylist.name}` : "Edit Playlist"} stickyButtons>
     {#if editedPlaylist}
         <label class="modal-field">
             Name:

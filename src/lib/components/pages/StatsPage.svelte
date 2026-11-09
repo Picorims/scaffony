@@ -261,7 +261,7 @@
     }
 </script>
 
-<Modal bind:dialog={filterDialog} title="Filter">
+<Modal bind:dialog={filterDialog} title="Filter" stickyButtons>
     <Filters selectId="stats-filter" mutableFiltersList={filter} />
     {#snippet buttons()}
         <Button variant="primary" text="OK" onclick={applyFilter} />

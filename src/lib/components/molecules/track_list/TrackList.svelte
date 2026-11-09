@@ -65,7 +65,7 @@
     }
 </script>
 
-<Modal bind:dialog={filterDialog} title="Filter Track List">
+<Modal bind:dialog={filterDialog} title="Filter Track List" stickyButtons>
     <Filters selectId="track-list-select" mutableFiltersList={filters} />
 
     {#snippet buttons()}
