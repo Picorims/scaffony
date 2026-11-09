@@ -1,4 +1,11 @@
 <script lang="ts">
+    /*
+    Copyright (c) 2025 Charly Schmidt aka Picorims (picorims.contact@gmail.com), all rights reserved.
+    
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at https://mozilla.org/MPL/2.0/.
+    */
     import { fromKebabToPascalCase } from "$lib/string";
     import {
         getCategoryIcon,
@@ -10,18 +17,11 @@
         getTagCategory,
         type Filter,
     } from "$lib/user_data.svelte";
-    /*
-    Copyright (c) 2025 Charly Schmidt aka Picorims (picorims.contact@gmail.com), all rights reserved.
-    
-    This Source Code Form is subject to the terms of the Mozilla Public
-    License, v. 2.0. If a copy of the MPL was not distributed with this
-    file, You can obtain one at https://mozilla.org/MPL/2.0/.
-    */
 
-    import { Chart, type Plugin } from "chart.js/auto";
+    import { Chart } from "chart.js/auto";
     import { onDestroy, onMount } from "svelte";
     import LucideIcon from "../atoms/LucideIcon.svelte";
-    import { Accessibility, Funnel } from "@lucide/svelte";
+    import { Funnel } from "@lucide/svelte";
     import Modal from "../atoms/Modal.svelte";
     import Button from "../atoms/Button.svelte";
     import Filters from "../molecules/Filters.svelte";

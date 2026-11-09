@@ -24,6 +24,7 @@ import { toHex } from "./string";
 import { objSortedByKey } from "./object";
 import { getRandomIcon } from "./lucide";
 import type { Metadata } from "./metadata";
+import { onConsoleLog } from "./log";
 
 const LIBRARY_PATH_FILE_NAME = "scaffony_current_library.txt";
 const DATA_FILE_NAME = "scaffony_data.json";
@@ -284,6 +285,22 @@ const DEFAULT_CONFIG: IConfig = {
 };
 
 let config = $state<IConfig>(DEFAULT_CONFIG);
+let logs: [string, string][] = [];
+
+onConsoleLog((type, message) => {
+    logs.push([type, message]);
+    if (type === "warn") {
+        try {
+            throw new Error("warn stack");
+        } catch (e) {
+            logs.push([type, (e as Error).stack ?? "no warn stack"]);
+        }
+    }
+});
+
+export function getLogs() {
+    return logs;
+}
 
 export function getConfig(): IConfig {
     return config;

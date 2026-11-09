@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { ChartNoAxesCombined, Icon, LibraryBig, ListMusic, ListOrdered, Shapes, Tags } from "@lucide/svelte";
+    import { ChartNoAxesCombined, Icon, LibraryBig, ListMusic, ListOrdered, ScrollText, Shapes, Tags } from "@lucide/svelte";
     import MenuEntry from "../atoms/MenuEntry.svelte";
     import type { PageType } from "./Page.svelte";
     import { appState, navigateTo } from "$lib/app_state.svelte";
@@ -33,6 +33,7 @@
         { text: "Classify", Icon: Shapes, page: "classify" },
         { text: "Wait List", Icon: ListOrdered, page: "waitlist" },
         { text: "Stats", Icon: ChartNoAxesCombined, page: "stats" },
+        { text: "Logs", Icon: ScrollText, page: "logs" },
     ];
 </script>
 

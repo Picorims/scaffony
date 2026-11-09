@@ -3,7 +3,7 @@
     import type { PageType } from "$lib/components/molecules/Page.svelte";
     import Header from "../lib/components/molecules/Header.svelte";
     import Page from "$lib/components/molecules/Page.svelte";
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import { getCoverColors, readData, scan } from "$lib/user_data.svelte";
     import { forwardConsoleToLogs } from "$lib/log";
     import Player from "$lib/components/molecules/Player.svelte";
@@ -12,9 +12,14 @@
 
     let mounted: boolean = $state<boolean>(false);
 
+        function onError(e: ErrorEvent) {
+            console.error(e.error);
+        }
+
     onMount(async () => {
         if (mounted) return;
         mounted = true;
+        window.addEventListener("error", onError);
         console.log("initializing front...");
         
         forwardConsoleToLogs();
@@ -23,6 +28,10 @@
         console.log("Reading wait list...");
         setWaitListFromData();
         console.log("Scanning for file system updates...");
+    });
+
+    onDestroy(() => {
+        window.removeEventListener("error", onError);
     });
 </script>
 

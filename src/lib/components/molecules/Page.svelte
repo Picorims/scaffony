@@ -7,7 +7,7 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
     
-    export type PageType = "library" | "playlists" | "tags" | "classify" | "tag" | "playlist" | "waitlist" | "stats";
+    export type PageType = "library" | "playlists" | "tags" | "classify" | "tag" | "playlist" | "waitlist" | "stats" | "logs";
 </script>
 
 <script lang="ts">
@@ -16,6 +16,7 @@
     import ClassifyPage from "../pages/ClassifyPage.svelte";
 
     import LibraryPage from "../pages/LibraryPage.svelte";
+    import LogsPage from "../pages/LogsPage.svelte";
     import PlaylistsPage from "../pages/PlaylistsPage.svelte";
     import StatsPage from "../pages/StatsPage.svelte";
     import TagPlaylistPage from "../pages/TagPlaylistPage.svelte";
@@ -46,6 +47,8 @@
         <WaitListPage />
     {:else if activePage === "stats" }
         <StatsPage />
+    {:else if activePage === "logs" }
+        <LogsPage />
     {/if}
 </div>
 
