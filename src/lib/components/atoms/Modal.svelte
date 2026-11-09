@@ -16,6 +16,7 @@
 		 * Use bind:dialog to get the dialog element reference.
 		 */
 		dialog: HTMLDialogElement;
+		stickyButtons?: boolean;
 		onOpen?: () => void;
 	}
 
@@ -24,7 +25,8 @@
 		children,
 		buttons,
 		dialog = $bindable(),
-		onOpen = () => {}
+		stickyButtons = false,
+		onOpen = () => {},
 	}: Props = $props();
 
 	function onToggle() {
@@ -46,7 +48,7 @@
 
 	{@render children?.()}
 
-	<div class="buttons-container">
+	<div class="buttons-container" class:sticky={stickyButtons}>
 		{@render buttons?.()}
 	</div>
 </dialog>
@@ -68,7 +70,7 @@
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		padding: 1em;
+		padding: 1rem;
 		margin: 0;
 		min-width: 300px;
 		max-height: 90vh;
@@ -77,6 +79,10 @@
         background-color: var(--background);
 		border: none;
         border-radius: 4px;
+
+		&:has(.sticky) {
+			padding-bottom: 0;
+		}
 	}
 
 	.title {
@@ -87,7 +93,16 @@
 		width: 100%;
 		display: flex;
 		justify-content: center;
-		margin-top: 1em;
+		margin-top: 1rem;
         gap: 0.5rem;
+
+		&.sticky {
+			padding-bottom: 1rem;
+			margin-top: 2rem;
+			position: sticky;
+			bottom: -0.1rem;
+			background-color: var(--background);
+			box-shadow: 0 1rem 1rem 2rem var(--background);
+		}
 	}
 </style>

@@ -251,14 +251,7 @@
     });
 </script>
 
-{#snippet editTagButtons()}
-    <Button
-        text="OK"
-        variant="primary"
-        onclick={() => editTagsDialog.close()}
-    />
-{/snippet}
-<Modal bind:dialog={editTagsDialog} title="Edit tags" buttons={editTagButtons}>
+<Modal bind:dialog={editTagsDialog} title="Edit tags" stickyButtons>
     {@const tags = getConfig().tags}
     <div class="edit-tags-container">
         {#each tags as tag, i (tag.name)}
@@ -289,6 +282,14 @@
             {/if}
         {/each}
     </div>
+
+    {#snippet buttons()}
+        <Button
+            text="OK"
+            variant="primary"
+            onclick={() => editTagsDialog.close()}
+        />
+    {/snippet}
 </Modal>
 
 <div class="container" class:mobile-gap={platform() === "android"} style:--cover-color={activeTrack?.color}>
