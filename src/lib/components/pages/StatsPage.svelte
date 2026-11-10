@@ -309,8 +309,9 @@
     
     <div class="total-completion">
         <span class="completion-title total-title"><strong>Total</strong></span>
-        <progress class="total-progress" max={tagsCount * tracksSorted.length} value={totalMissingCount}></progress>
-        <span class="completion-count total-count">{totalMissingCount}</span>
+        <progress class="total-progress" max={tagsCount * tracksSorted.length} value={(tagsCount * tracksSorted.length) - totalMissingCount}></progress>
+        <span class="completion-count total-count">{totalMissingCount} left</span>
+        <span class="completion-count">({(tagsCount * tracksSorted.length) - totalMissingCount} / {tagsCount * tracksSorted.length})</span>
     </div>
     <div class="tracks-completion">
         
