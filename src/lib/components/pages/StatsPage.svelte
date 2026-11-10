@@ -316,7 +316,7 @@
         
         {#each tracksSorted as track (track.uuid)}
             {@const count = Object.keys(track.tags).length}
-            <span class="completion-title">{track.name}</span>
+            <span class="completion-title">{track.name}<span class="artist">by {track.metadata?.artist ?? track.artist}</span></span>
             <progress max={tagsCount} value={count}></progress>
             <span class="completion-count">{tagsCount - count}</span>
         {/each}
@@ -412,6 +412,14 @@
         & span.completion-title {
             padding: 0.1em 0.5em;
             border-radius: 4px;
+
+            & span.artist {
+                color: var(--text-darker-6);
+
+                &::before {
+                    content: " - "
+                }
+            }
         }
         & span.completion-title:hover {
             background-color: var(--background-lighter-2);
