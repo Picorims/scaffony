@@ -305,7 +305,7 @@
         ></canvas>
     {/each}
 
-    <h2>Tags completion per track</h2>
+    <h2>Missing tags per track</h2>
     
     <div class="total-completion">
         <span class="completion-title total-title"><strong>Total</strong></span>
@@ -396,7 +396,9 @@
     div.tracks-completion {
         display: grid;
         grid-template-columns: 1fr min-content 5rem;
+        align-items: center;
 
+        
         & progress::-webkit-progress-bar {
             background-color: var(--background-lighter-2);
         }
@@ -407,22 +409,35 @@
                 background-color: var(--primary);
             }
         }
+        & span.completion-title {
+            padding: 0.1em 0.5em;
+            border-radius: 4px;
+        }
         & span.completion-title:hover {
             background-color: var(--background-lighter-2);
+            & + progress {
+                box-shadow: 0 0 0px 4px var(--background-lighter-2);
+                border-radius: 2rem;
+            }
+            & + progress::-webkit-progress-bar {
+                background-color: var(--background-lighter-1);
+            }
             & + progress::-webkit-progress-value {
                 background-color: var(--primary);
-
             }
 
             & + progress + span.completion-count {
                 color: var(--primary);
+                background-color: var(--background-lighter-2);
                 font-weight: bold;
             }
         }
 
         & span.completion-count {
-            margin-left: 0.5rem;
+            padding-left: 0.55rem;
+            margin-left: -0.05rem;
             font-size: 1.25rem;
+            border-radius: 4px;
         }
     }
 
