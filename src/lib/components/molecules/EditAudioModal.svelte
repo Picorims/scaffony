@@ -6,6 +6,7 @@
         setTrackStart,
         type LibraryEntry,
     } from "$lib/user_data.svelte";
+    import { audioDir } from "@tauri-apps/api/path";
     /*
     Copyright (c) 2025 Charly Schmidt aka Picorims (picorims.contact@gmail.com), all rights reserved.
 
@@ -59,6 +60,18 @@
                 onclick={() => clearTrackEnd(track)}
             />
         </div>
+        {#if track.metadata !== undefined && track.metadata.duration !== undefined && track.metadata.duration !== null}
+            <div
+                class="preview"
+                data-start={((start ?? 0) / track.metadata.duration)}
+                data-end={((end ?? track.metadata.duration) /
+                    track.metadata.duration)}
+            >
+                <div class="pre"></div>
+                <div class="mid"></div>
+                <div class="end"></div>
+            </div>
+        {/if}
     </div>
 
     {#snippet buttons()}
@@ -79,10 +92,29 @@
         gap: 1rem;
         margin-top: 1rem;
 
-        & > div {
+        & > div:not(.preview) {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+        }
+    }
+
+    div.preview {
+        position: relative;
+        display: grid;
+        width: 100%;
+        height: 1rem;
+        --start: attr(data-start type(<number>));
+        --end: attr(data-end type(<number>));
+        grid-template-columns: calc(var(--start) * 100%) calc((var(--end) - var(--start)) * 100%) 1fr;
+        
+
+        & div.pre,
+        div.end {
+            background-color: var(--background-lighter-3);
+        }
+        & div.mid {
+            background-color: var(--text);
         }
     }
 </style>
