@@ -78,6 +78,10 @@ export interface LibraryEntry {
     virtual: boolean;
     color?: string;
     metadata?: Metadata;
+    audio?: {
+        start?: number;
+        end?: number;
+    }
 }
 
 /**
@@ -881,6 +885,52 @@ export function clearMetadataCache() {
     }
     commit();
 }
+
+export function setTrackStart(track: LibraryEntry, start: number) {
+    if (track.audio === undefined) {
+        track.audio = {start};
+    } else {
+        track.audio.start = start;
+    }
+    commit();
+}
+
+export function setTrackEnd(track: LibraryEntry, end: number) {
+    if (track.audio === undefined) {
+        track.audio = {end};
+    } else {
+        track.audio.end = end;
+    }
+    commit();
+}
+
+export function clearTrackStart(track: LibraryEntry) {
+    if (track.audio && track.audio.start) {
+        delete track.audio.start;
+    }
+    if (track.audio && !track.audio.end) {
+        delete track.audio;
+    }
+    commit();
+}
+
+export function clearTrackEnd(track: LibraryEntry) {
+    if (track.audio && track.audio.end) {
+        delete track.audio.end;
+    }
+    if (track.audio && !track.audio.start) {
+        delete track.audio;
+    }
+    commit();
+}
+
+
+
+
+
+
+
+
 
 export async function writeData(): Promise<boolean> {
     const libraryPath = await getCurrentLibraryFromCache();

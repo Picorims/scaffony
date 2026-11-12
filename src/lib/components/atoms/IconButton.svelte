@@ -99,20 +99,20 @@
 		}
 	}
 
-	button.icon-button.accent > :global(svg) {
+	button.icon-button.accent :global(svg) {
 		stroke: var(--acent);
 	}
 
-	button.icon-button:hover > :global(svg) {
+	button.icon-button:hover :global(svg) {
 		transition: 0.1s;
 	}
 
-	button.icon-button:hover > :global(svg),
-	button.icon-button.toggled > :global(svg) {
+	button.icon-button:hover :global(svg),
+	button.icon-button.toggled :global(svg) {
 		stroke: var(--icon-btn-dominant-color);
 	}
-	button.icon-button.filled:hover > :global(svg),
-	button.icon-button.filled.toggled > :global(svg) {
+	button.icon-button.filled:hover :global(svg),
+	button.icon-button.filled.toggled :global(svg) {
 		fill: var(--icon-btn-dominant-color);
 	}
 	button.icon-button:active,
@@ -125,7 +125,7 @@
 		border-width: 4px;
 	}
 
-	button.icon-button > :global(svg) {
+	button.icon-button :global(svg) {
 		width: 90%;
 		height: 90%;
 		stroke: var(--text);

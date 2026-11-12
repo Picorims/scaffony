@@ -6,7 +6,7 @@
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
-    import { type LucideIconNode } from "@lucide/svelte";
+    import { AudioLines, Brackets, type LucideIconNode } from "@lucide/svelte";
     import { appState } from "$lib/app_state.svelte";
     import {
         Disc3,
@@ -59,9 +59,10 @@
     import ShrunkTagsByCategory from "./ShrunkTagsByCategory.svelte";
     import AboutModal from "./AboutModal.svelte";
     import LucideIcon from "../atoms/LucideIcon.svelte";
+    import EditAudioModal from "./EditAudioModal.svelte";
 
     const DEFAULT_VOLUME = 0.2;
-    const POSITION_REFRESH_INTERVAL_MS = 250;
+    const POSITION_REFRESH_INTERVAL_MS = 100;
 
     let aboutDialog: HTMLDialogElement = $state(document.createElement("dialog"));
     let paused = $state(true);
@@ -71,6 +72,7 @@
     let volume = $state(DEFAULT_VOLUME);
     let volumeVisible = $state(false);
     let playbackSpeed = $state(1);
+    let playerPositionForAudioModal = $state(0);
     let imageOnError = $state(false);
     let activeTrack = $state<LibraryEntry | null>(null);
     let metadataPromise = $derived(getTrackMetadata(activeTrack));
@@ -81,6 +83,9 @@
         return unknownTagsSet.size;
     });
     let editTagsDialog = $state<HTMLDialogElement>(
+        document.createElement("dialog"),
+    );
+    let editAudioStartEndDialog = $state<HTMLDialogElement>(
         document.createElement("dialog"),
     );
 
@@ -155,6 +160,7 @@
                             audioElement.currentTime.toString();
                         currentTimeDisplay = minutesSeconds(audioElement.currentTime);
                         durationDisplay = minutesSeconds(duration);
+                        playerPositionForAudioModal = audioElement.currentTime;
                     }
                 }
             }, POSITION_REFRESH_INTERVAL_MS);
@@ -495,6 +501,13 @@
                 </select>
             </label>
         </div>
+        <div class="other-audio-controls-container">
+            <IconButton onClick={() => editAudioStartEndDialog.showModal()}>
+                <Brackets>
+                    <AudioLines size=14 x=5 y=5 absoluteStrokeWidth />
+                </Brackets>
+            </IconButton>
+        </div>
     </div>
 </div>
 
@@ -519,7 +532,9 @@
     }}
 ></audio>
 
+
 {#if activeTrack}
+    <EditAudioModal bind:dialog={editAudioStartEndDialog} track={activeTrack} playerPosition={playerPositionForAudioModal} />
     <AboutModal bind:dialog={aboutDialog} entry={activeTrack} {metadataPromise} />
 {/if}
 

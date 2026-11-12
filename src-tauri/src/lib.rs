@@ -62,6 +62,7 @@ fn get_audio_metadata(path: String) -> Result<serde_json::Value, serde_json::Val
     let disc_number = tag.disc_number();
     let genre = tag.genre();
     let comment = tag.comment();
+    let duration = tag.duration();
 
     let title_json = match title {
         Some(t) if !t.is_empty() => json!(t),
@@ -95,6 +96,10 @@ fn get_audio_metadata(path: String) -> Result<serde_json::Value, serde_json::Val
         Some(c) if !c.is_empty() => json!(c),
         _ => Null,
     };
+    let duration_json = match duration {
+        Some(d) => json!(d),
+        _ => Null,
+    };
 
     Ok(json!({
         "title": title_json,
@@ -104,6 +109,7 @@ fn get_audio_metadata(path: String) -> Result<serde_json::Value, serde_json::Val
         "track_number": track_number_json,
         "disc_number": disc_number_json,
         "genre": genre_json,
-        "comment": comment_json
+        "comment": comment_json,
+        "duration": duration_json
     }))
 }

@@ -84,6 +84,7 @@ button {
 
 input[type="text"],
 input[type="color"],
+input[type="number"],
 select {
     padding: 0.5rem;
     border: none;

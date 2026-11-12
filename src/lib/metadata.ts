@@ -18,6 +18,7 @@ export interface Metadata {
     disc_number: number | null,
     genre: string | null,
     comment: string | null,
+    duration: number | null,
 }
 
 /**
@@ -48,6 +49,7 @@ export async function getMetadata(track: LibraryEntry): Promise<Metadata> {
             disc_number: null,
             genre: null,
             comment: null,
+            duration: null,
         }
     }
 }
