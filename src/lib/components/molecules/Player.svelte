@@ -699,7 +699,7 @@
     }
     select.speed-select {
         flex: 1 1 auto;
-        min-width: min-content;
+        min-width: 3rem;
         height: 1rem;
         padding: 0 0.25rem;
         vertical-align: middle;
