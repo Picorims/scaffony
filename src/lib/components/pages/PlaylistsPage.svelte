@@ -14,7 +14,7 @@
     import { getRandomIcon, ICON_NAMES_KEBAB } from "$lib/lucide";
     import Button from "../atoms/Button.svelte";
     import LucideIcon from "../atoms/LucideIcon.svelte";
-    import { fromKebabToPascalCase } from "$lib/string";
+    import { fromKebabToPascalCase, hourMinutesLetters } from "$lib/string";
     import { navigateTo } from "$lib/app_state.svelte";
     import Filters from "../molecules/Filters.svelte";
 
@@ -38,13 +38,18 @@
     </div>
 
     {#each getConfig().playlists as playlist}
+        {@const entries = getPlaylistLibraryEntries(playlist.name)}
         <div class="playlist-entry">
             <div class="meta">
                 <div class="cover" style:--color={playlist.colorHex}>
                     <LucideIcon name={fromKebabToPascalCase(playlist.lucideIcon)} />
                 </div>
                 <span>{playlist.name}</span>
-                <span class="tracks"><strong>{getPlaylistLibraryEntries(playlist.name).length}</strong> tracks</span>
+                <span class="tracks-info"><strong>{entries.length}</strong> tracks</span>
+                <span class="tracks-info">~ {hourMinutesLetters(entries.reduce<number>((acc, e) => {
+                    acc += e.metadata?.duration ?? 150;
+                    return acc;
+                }, 0))}</span>
             </div>
 
             <div class="playlist-actions">
@@ -190,7 +195,7 @@
         stroke: var(--color);
     }
 
-    span.tracks {
+    span.tracks-info {
         margin-top: 0.1em;
         margin-left: 1em;
         font-size: 0.9rem;

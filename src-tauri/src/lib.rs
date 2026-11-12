@@ -96,10 +96,6 @@ fn get_audio_metadata(path: String) -> Result<serde_json::Value, serde_json::Val
         Some(c) if !c.is_empty() => json!(c),
         _ => Null,
     };
-    let duration_json = match duration {
-        Some(d) => json!(d),
-        _ => Null,
-    };
 
     Ok(json!({
         "title": title_json,
@@ -110,6 +106,5 @@ fn get_audio_metadata(path: String) -> Result<serde_json::Value, serde_json::Val
         "disc_number": disc_number_json,
         "genre": genre_json,
         "comment": comment_json,
-        "duration": duration_json
     }))
 }

@@ -70,6 +70,12 @@ export function withLeadingZero(value: number): string {
     }
 }
 
+export function hourMinutesLetters(durationSeconds: number): string {
+    let hours = Math.floor(durationSeconds / 3600);
+    let minutes = Math.floor((durationSeconds / 60) % 60);
+    return `${hours}h ${minutes}m`;
+}
+
 
 type ToStringFilterDict = {[P in Filter["type"]]: (filter: FilterByType[P]) => string}
 

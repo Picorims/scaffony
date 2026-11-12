@@ -34,6 +34,7 @@ export async function getMetadata(track: LibraryEntry): Promise<Metadata> {
         } else {
             const fullPath = await getEntryAudioPathWithBestExtension(track);
             return await invoke<Metadata>("get_audio_metadata", { path: fullPath }).then((metadata) => {
+                metadata.duration = null;
                 setTrackMetadata(track, metadata);
                 return metadata;
             });

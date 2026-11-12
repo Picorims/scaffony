@@ -28,7 +28,7 @@
     import Button from "../atoms/Button.svelte";
     import { appState, navigateTo } from "$lib/app_state.svelte";
     import LucideIcon from "../atoms/LucideIcon.svelte";
-    import { fromKebabToPascalCase } from "$lib/string";
+    import { fromKebabToPascalCase, hourMinutesLetters } from "$lib/string";
 
     let categories = $state<string[]>([]);
     let tags = $state<TagEntry[]>([]);
@@ -93,13 +93,18 @@
         </label>
     {/if}
     {#each tags.filter((tag) => tag.name.startsWith(category + ":")) as tag (tag.name)}
+        {@const entries = getTagLibraryEntries(tag.name)}
         <div class="tag-entry">
             <!-- force refresh when edited tag value changes -->
             <div class="meta">
                 {#key editedTag}
                     <Tag {tag} size="normal" shrinkable={false} />
                 {/key}
-                <span class="tracks"><strong>{getTagLibraryEntries(tag.name).length}</strong> tracks</span>
+                <span class="tracks-info"><strong>{entries.length}</strong> tracks</span>
+                <span class="tracks-info">~ {hourMinutesLetters(entries.reduce<number>((acc, e) => {
+                    acc += e.metadata?.duration ?? 150;
+                    return acc;
+                }, 0))}</span>
             </div>
             <div class="tag-actions">
                 <IconButton onClick={() => {
@@ -277,7 +282,7 @@
         display: flex;
         align-items: center;
     }
-    span.tracks {
+    span.tracks-info {
         margin-left: 1em;
         font-size: 0.9rem;
         color: var(--text-darker-4);
