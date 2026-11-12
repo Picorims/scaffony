@@ -387,7 +387,11 @@ export function getPlaylistLibraryEntries(playlistName: string): LibraryEntry[] 
     return getFilteredEntries(config.library, playlist.filters);
 }
 
-export function getFilteredEntries(base: LibraryEntry[], filters: Filter[], level = 0): LibraryEntry[] {
+export function getFilteredEntries(base: LibraryEntry[], filters: Filter[]): LibraryEntry[] {
+    return _getFilteredEntries(base, [{type: "all", children: filters}]);
+}
+
+function _getFilteredEntries(base: LibraryEntry[], filters: Filter[], level = 0): LibraryEntry[] {
     const verbose = false;
     let result = [...base];
     const logPrefix = "| ".repeat(level + 1);
@@ -404,7 +408,7 @@ export function getFilteredEntries(base: LibraryEntry[], filters: Filter[], leve
 
                 const results: Set<LibraryEntry>[] = [];
                 for (const child of filter.children) {
-                    results.push(new Set(getFilteredEntries(base, [child], level + 1)));
+                    results.push(new Set(_getFilteredEntries(base, [child], level + 1)));
                 }
 
                 let intersect = results[0];
@@ -426,7 +430,7 @@ export function getFilteredEntries(base: LibraryEntry[], filters: Filter[], leve
                 
                 const results: Set<LibraryEntry>[] = [];
                 for (const child of filter.children) {
-                    results.push(new Set(getFilteredEntries(base, [child], level + 1)));
+                    results.push(new Set(_getFilteredEntries(base, [child], level + 1)));
                 }
                 
                 let union = results[0];

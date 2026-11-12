@@ -132,8 +132,12 @@
                         audioElement.src = convertFileSrc(audioPath);
                     }
                     audioElement.load();
+                    if (activeTrack.audio && activeTrack.audio.start) {
+                        audioElement.currentTime = activeTrack.audio.start;
+                    }
                     if (!paused) {
-                        audioElement.play();
+                        await audioElement.play();
+                        tryCachingDuration();
                     }
                 } catch (error) {
                     const errorStr =
@@ -152,15 +156,21 @@
         let interval: number;
         if (audioElement && rangePositionElement) {
             interval = setInterval(() => {
-                if (audioElement && rangePositionElement) {
-                    const duration = audioElement.duration;
-                    if (!isNaN(duration) && duration > 0) {
-                        rangePositionElement.max = duration.toString();
-                        rangePositionElement.value =
-                            audioElement.currentTime.toString();
-                        currentTimeDisplay = minutesSeconds(audioElement.currentTime);
-                        durationDisplay = minutesSeconds(duration);
-                        playerPositionForAudioModal = audioElement.currentTime;
+                if (audioElement) {
+                    if (rangePositionElement) {
+                        const duration = audioElement.duration;
+                        if (!isNaN(duration) && duration > 0) {
+                            rangePositionElement.max = duration.toString();
+                            rangePositionElement.value =
+                                audioElement.currentTime.toString();
+                            currentTimeDisplay = minutesSeconds(audioElement.currentTime);
+                            durationDisplay = minutesSeconds(duration);
+                            playerPositionForAudioModal = audioElement.currentTime;
+                        }
+                    }
+                    const end = activeTrack?.audio?.end ?? audioElement.duration;
+                    if (!paused && audioElement.currentTime > 1 && audioElement.currentTime > end) {
+                        playNextTrack();
                     }
                 }
             }, POSITION_REFRESH_INTERVAL_MS);
@@ -172,13 +182,23 @@
         };
     });
 
+    function tryCachingDuration() {
+        if (audioElement && activeTrack && activeTrack.metadata && activeTrack.metadata.duration === null) {
+            // Not always provided when requesting all metadata,
+            // so override cache as the info in known at play time for sure.
+            activeTrack.metadata.duration = audioElement.duration;
+        }
+    }
+
     function togglePause() {
         paused = !paused;
         if (audioElement) {
             if (paused) {
                 audioElement.pause();
             } else {
-                audioElement.play();
+                audioElement.play().then(() => {
+                    tryCachingDuration();
+                });
             }
         }
     }
@@ -187,18 +207,18 @@
         paused = true;
         if (audioElement) {
             audioElement.pause();
-            audioElement.currentTime = 0;
+            audioElement.currentTime = activeTrack?.audio?.start ?? 0;
         }
     }
 
     function seekToStart() {
         if (audioElement) {
-            audioElement.currentTime = 0;
+            audioElement.currentTime = activeTrack?.audio?.start ?? 0;
         }
     }
     function seekToEnd() {
         if (audioElement) {
-            audioElement.currentTime = audioElement.duration;
+            audioElement.currentTime = activeTrack?.audio?.end ?? audioElement.duration;
         }
     }
 
@@ -206,12 +226,16 @@
         const newTrack = getNextWaitListEntry();
         if (newTrack !== null) {
             activeTrack = newTrack;
+        } else {
+            paused = true;
         }
     }
     function playPreviousTrack() {
         const newTrack = getPreviousWaitListEntry();
         if (newTrack !== null) {
             activeTrack = newTrack;
+        } else {
+            paused = true;
         }
     }
 
@@ -444,6 +468,13 @@
                 class={"monochrome"}
             />
             <span class="duration">{durationDisplay}</span>
+            {#if activeTrack && activeTrack.audio && activeTrack.metadata && activeTrack.metadata.duration}
+                {@const audioStart = activeTrack.audio.start ?? 0}
+                {@const audioEnd = activeTrack.audio.end ?? activeTrack.metadata.duration}
+                {@const audioDuration = activeTrack.metadata.duration}
+                <div class="track-start-disabled" data-relative-start={audioStart / audioDuration}></div>
+                <div class="track-end-disabled" data-relative-end={(audioDuration - audioEnd) / audioDuration}></div>
+            {/if}
         </div>
         <div class="tags-list">
             {#if activeTrack !== null}
@@ -523,12 +554,7 @@
         // https://github.com/Sandakan/Nora/issues/280
     }}
     onended={() => {
-        const newTrack = getNextWaitListEntry();
-        if (newTrack !== null) {
-            activeTrack = newTrack;
-        } else {
-            paused = true;
-        }
+        playNextTrack();
     }}
 ></audio>
 
@@ -754,9 +780,36 @@
 
         & input {
             flex: 1 1 auto;
+            anchor-name: --player-range;
         }
         & span {
             flex: 0 0 auto;
+        }
+
+        & .track-start-disabled,
+        & .track-end-disabled {
+            position: absolute;
+            position-anchor: --player-range;
+            position-area: center center;
+            height: 6px;
+            background-color: #00000099;
+            pointer-events: none;
+        }
+        & .track-start-disabled {
+            --start: calc(attr(data-relative-start type(<number>)) * 100%);
+            width: var(--start);
+            /* background-color: #00ff0055; */
+            left: 0;
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+        & .track-end-disabled {
+            --end: calc(attr(data-relative-end type(<number>)) * 100%);
+            width: var(--end);
+            /* background-color: #0000ff55; */
+            right: 0;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
         }
     }
 
