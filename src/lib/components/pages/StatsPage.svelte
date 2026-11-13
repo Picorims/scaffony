@@ -476,6 +476,10 @@
                     content: " - "
                 }
             }
+
+            &:nth-child(even) {
+                background-color: var(--background-darker-1);
+            }
         }
         & span.completion-title:hover {
             background-color: var(--background-lighter-2);
@@ -502,6 +506,10 @@
             margin-left: -0.05rem;
             font-size: 1.25rem;
             border-radius: 4px;
+
+            &:nth-child(even) {
+                background-color: var(--background-darker-1);
+            }
         }
     }
 
