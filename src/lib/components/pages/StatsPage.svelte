@@ -6,7 +6,7 @@
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
-    import { fromKebabToPascalCase } from "$lib/string";
+    import { fromKebabToPascalCase, minutesSeconds } from "$lib/string";
     import {
         getCategoryIcon,
         getCategoryTags,
@@ -19,6 +19,7 @@
     } from "$lib/user_data.svelte";
 
     import { Chart } from "chart.js/auto";
+    import ChartDataLabels from 'chartjs-plugin-datalabels';
     import { onDestroy, onMount } from "svelte";
     import LucideIcon from "../atoms/LucideIcon.svelte";
     import { Funnel } from "@lucide/svelte";
@@ -31,6 +32,7 @@
     let yearHistogramCanvas = $state(document.createElement("canvas"));
     let artistsHistogramCanvas = $state(document.createElement("canvas"));
     let genresHistogramCanvas = $state(document.createElement("canvas"));
+    let tracksDurationHistogramCanvas = $state(document.createElement("canvas"));
     let tagHistogramCanvases: HTMLCanvasElement[] = $state(
         getTagCategories().map((_v) => document.createElement("canvas")),
     );
@@ -43,6 +45,7 @@
     let totalMissingCount = $derived(tracks.reduce<number>((acc, v) => acc + (tagsCount - Object.keys(v.tags).length), 0));
 
     onMount(() => {
+        Chart.register(ChartDataLabels);
         const style = window.getComputedStyle(document.body);
         Chart.defaults.borderColor = style.getPropertyValue(
             "--background-lighter-1",
@@ -55,6 +58,10 @@
         Chart.defaults.datasets.bar.hoverBackgroundColor =
             style.getPropertyValue("--primary");
         Chart.defaults.responsive = true;
+        if (Chart.defaults.plugins.datalabels) {
+            Chart.defaults.plugins.datalabels.anchor = "end";
+            Chart.defaults.plugins.datalabels.align = "end";
+        }
         createCharts();
     });
 
@@ -70,8 +77,6 @@
     }
 
     function createCharts() {
-        const style = window.getComputedStyle(document.body);
-
         const yearHistogramData: Record<number, number> =
             getConfig().library.reduce<Record<number, number>>((acc, e) => {
                 if (e.metadata === undefined) {
@@ -195,6 +200,46 @@
             ),
         );
 
+        const durationHistogram: Record<string, number> =
+            tracks.reduce<Record<string, number>>((acc, e) => {
+                let duration = e.metadata?.duration ?? -1;
+                let sectionNumber = duration === -1 ? -1 : Math.floor(duration / 30);
+                let section = `${sectionNumber}`;
+                if (acc[section] === undefined) {
+                    acc[section] = 0;
+                }
+                acc[section]++;
+                return acc;
+            }, {});
+        const durationHistogramData: [string, number][] = Object.entries(
+            durationHistogram,
+        ).sort(([ka, _va], [kb, _vb]) => parseInt(ka) - parseInt(kb));
+
+        charts.push(
+            new Chart(
+                // "TS needs as any": https://www.chartjs.org/docs/latest/getting-started/using-from-node-js.html
+                tracksDurationHistogramCanvas as any,
+                {
+                    type: "bar",
+                    data: {
+                        labels: durationHistogramData.map((v) => {
+                            if (v[0] === "-1") {
+                                return "Unknown";
+                            }
+                            const intSection = parseInt(v[0]);
+                            return `[${minutesSeconds(intSection * 30).replaceAll(" ", "")} , ${minutesSeconds(intSection * 30 + 30).replaceAll(" ", "")}]`;
+                        }),
+                        datasets: [
+                            {
+                                label: "Number of tracks",
+                                data: durationHistogramData.map((v) => v[1]),
+                            },
+                        ],
+                    },
+                },
+            ),
+        );
+
         type TagDataDict = Record<string, {yes: number, maybe: number}>;
 
         const categories = getTagCategories()
@@ -291,6 +336,11 @@
         Most represented genres (default platforms metadata is not accurate)
     </h2>
     <canvas bind:this={genresHistogramCanvas} id="genres-histogram"></canvas>
+    
+    <h2>
+        Track durations
+    </h2>
+    <canvas bind:this={tracksDurationHistogramCanvas} id="tracks-duration-histogram"></canvas>
 
     <h2>Tags</h2>
     {#each getTagCategories() as category, i}
