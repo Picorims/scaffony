@@ -274,7 +274,7 @@
                     {
                         type: "bar",
                         data: {
-                            labels: Object.keys(tagData),
+                            labels: Object.keys(tagData).map(t => t.replace(":", " / ")),
                             datasets: [
                                 {
                                     label: "Yes",
