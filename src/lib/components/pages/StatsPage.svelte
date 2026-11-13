@@ -293,6 +293,11 @@
                                     hoverBackgroundColor: "#555555",
                                     borderColor: "#555555",
                                     borderWidth: 1,
+                                    datalabels: {
+                                        // padding: 24,
+                                        color: "#999999",
+                                        display: "auto",
+                                    }
                                 },
                             ],
                         },
