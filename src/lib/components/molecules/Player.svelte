@@ -137,6 +137,7 @@
                     }
                     if (!paused) {
                         await audioElement.play();
+                        audioElement.playbackRate = playbackSpeed;
                         tryCachingDuration();
                     }
                 } catch (error) {
@@ -529,6 +530,8 @@
                     <option value="1.5">x1.5</option>
                     <option value="2">x2</option>
                     <option value="4">x4</option>
+                    <option value="8">x8</option>
+                    <option value="16">x16</option>
                 </select>
             </label>
         </div>
