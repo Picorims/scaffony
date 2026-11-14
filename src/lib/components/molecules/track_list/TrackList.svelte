@@ -15,6 +15,7 @@
     import Modal from "$lib/components/atoms/Modal.svelte";
     import Button from "$lib/components/atoms/Button.svelte";
     import Filters from "../Filters.svelte";
+    import { hourMinutesLetters } from "$lib/string";
 
     interface Props {
         tracks: LibraryEntry[];
@@ -112,6 +113,10 @@
         </select>
         <div class="header-separator"></div>
         <span>{visibleTracks.length} tracks</span>
+        <span>~ {hourMinutesLetters(visibleTracks.reduce<number>((acc, e) => {
+            acc += e.metadata?.duration ?? 150;
+            return acc;
+        }, 0))}</span>
     </div>
     <div class="track-list" class:classify={mode === "classify"}>
         {#each visibleTracks as track, index (track.uuid)}
