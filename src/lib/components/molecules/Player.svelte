@@ -72,7 +72,7 @@
     let volume = $state(DEFAULT_VOLUME);
     let volumeVisible = $state(false);
     let playbackSpeed = $state(1);
-    let playerPositionForAudioModal = $state(0);
+    let playerPositionReadOnly = $state(0);
     let imageOnError = $state(false);
     let activeTrack = $state<LibraryEntry | null>(null);
     let metadataPromise = $derived(getTrackMetadata(activeTrack));
@@ -166,7 +166,7 @@
                                 audioElement.currentTime.toString();
                             currentTimeDisplay = minutesSeconds(audioElement.currentTime);
                             durationDisplay = minutesSeconds(duration);
-                            playerPositionForAudioModal = audioElement.currentTime;
+                            playerPositionReadOnly = audioElement.currentTime;
                         }
                     }
                     const end = activeTrack?.audio?.end ?? audioElement.duration;
@@ -464,7 +464,7 @@
                 max="100"
                 value="0.001"
                 step="0.01"
-                data-ratio={(audioElement?.currentTime ?? 0) / (audioElement?.duration ?? 1)}
+                data-ratio={(playerPositionReadOnly) / (audioElement?.duration ?? 1)}
                 oninput={updatePosition}
                 class={"monochrome"}
             />
@@ -563,7 +563,7 @@
 
 
 {#if activeTrack}
-    <EditAudioModal bind:dialog={editAudioStartEndDialog} track={activeTrack} playerPosition={playerPositionForAudioModal} />
+    <EditAudioModal bind:dialog={editAudioStartEndDialog} track={activeTrack} playerPosition={playerPositionReadOnly} />
     <AboutModal bind:dialog={aboutDialog} entry={activeTrack} {metadataPromise} />
 {/if}
 
