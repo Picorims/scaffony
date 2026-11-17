@@ -189,8 +189,8 @@
 
 <style>
     div.container {
-        --base-height: 1.85rem;
-        --height: var(--base-height);
+        --base-height: 1.1rem;
+        --height: calc(var(--base-height) * 3);
         position: relative;
         height: var(--height);
         border-bottom: 1px solid var(--background-lighter-2);
@@ -202,7 +202,7 @@
         align-items: center;
     }
     div.container.classify {
-        --height: calc(3 * var(--base-height));
+        --height: calc(var(--base-height) * 6);
     }
     div.container.odd {
         background-color: var(--background-lighter-0);
@@ -220,10 +220,12 @@
         margin: 0.05rem 0;
         object-fit: cover;
         box-shadow: 0 0 4px oklch(from var(--cover-color, #00000000) max(l, 1.0) c h);
+        grid-row: 1 / span 3;
     }
     :global(svg.placeholder) {
         width: calc(var(--height) - 2px);
         height: calc(var(--height) - 2px);
+        grid-row: 1 / span 3;
     }
 
     div.gradient {
@@ -249,26 +251,40 @@
 
     span.artist,
     span.name {
-        padding: 0 0.5rem;
+        padding: 0.25rem 0.5rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    span.name {
+        grid-row: 1;
+        grid-column: 2 / span 2;
+        padding-left: 1rem;
+        font-weight: bold;
+    }
     span.artist {
         font-size: 0.875rem;
         color: var(--text-darker-1);
+        grid-row: 1;
+        grid-column: 4 / span 1;
+        min-width: 8rem;
     }
 
     div.tags {
         padding: 0 0.5rem;
-        padding-left: 0.75rem;
+        padding-left: 1rem;
+        height: calc(1.75 * var(--base-height));
         text-wrap: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
+        grid-column: 2 / span 3;
+        grid-row: 2 / span 2;
     }
     div.tags.classify {
         margin: 0.5rem;
+        margin-top: 0.25rem;
         padding: 0.5rem;
+        height: calc(var(--base-height) * 4);
         text-wrap: initial;
         max-height: calc(var(--height) - 1rem);
         overflow-y: auto;
@@ -282,32 +298,20 @@
         justify-content: center;
         height: calc(var(--height) - 2px);
         width: min-content;
+        grid-row: 1 / span 3;
     }
 
-    @media screen and (width <= 1400px) {
-        div.container {
-            --base-height: 1rem;
-            --height: calc(var(--base-height) * 3);
-        }
+    @media screen and (width <= 640px) {
         div.container.classify {
             --height: calc(var(--base-height) * 8);
         }
         span.name {
-            font-size: 0.875rem;
-            grid-row: 1;
-            grid-column: 2 / span 2;
+            font-size: 0.9rem;
+            padding-left: 0.5rem;
+            font-weight: 500;
         }
         span.artist {
             font-size: 0.8rem;
-            grid-row: 1;
-            grid-column: 4 / span 1;
-            min-width: 8rem;
-        }
-        div.tags {
-            grid-column: 2 / span 3;
-            grid-row: 2 / span 2;
-            height: calc(1.75 * var(--base-height));
-            padding-left: 1rem;
         }
         div.tags.classify {
             height: calc(var(--base-height) * 6);
@@ -315,9 +319,6 @@
             padding: 0.25rem;
             margin: 0.25rem;
             margin-top: -0.25rem;
-        }
-        img.cover, :global(svg.placeholder), div.actions {
-            grid-row: 1 / span 3;
         }
         div.container.classify img.cover, div.container.classify :global(svg.placeholder) {
             max-width: calc(var(--base-height) * 3);
