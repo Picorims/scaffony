@@ -221,7 +221,7 @@
         height: calc(var(--height) - 2px);
         margin: 0.05rem 0;
         object-fit: cover;
-        box-shadow: 0 0 4px oklch(from var(--cover-color, #00000000) max(l, 1.0) c h);
+        /* box-shadow: 0 0 4px oklch(from var(--cover-color, #00000000) max(l, 1.0) c h); */
         grid-row: 1 / span 3;
     }
     :global(svg.placeholder) {
@@ -249,6 +249,17 @@
     }
     div.container.odd div.gradient {
         --background: oklch(from var(--altered-color) calc(l - 0.05) calc(c - 0.02) h);
+    }
+    div.container.classify div.gradient {
+        background: linear-gradient(
+            to left,
+            var(--background),
+            oklch(from var(--background) max(calc(l - 0.1), 0.2) calc(c - 0.01) calc(h - 5)) 10%,
+            oklch(from var(--background) max(calc(l - 0.2), 0.1) calc(c - 0.02) calc(h - 10)) 25%,
+            oklch(from var(--background) max(calc(l - 0.2), 0.1) calc(c - 0.02) calc(h - 10)) calc(100% - 12rem),
+            var(--background) calc(100% - 7rem),
+            var(--background) 100%
+        );
     }
 
     span.artist,
