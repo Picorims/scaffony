@@ -398,6 +398,18 @@ export function hasPlaylist(playlistName: string): boolean {
     return getPlaylist(playlistName) !== null;
 }
 
+function renameTagInFilters(filters: Filter[], oldName: string, newName: string) {
+    for (const filter of filters) {
+        if (filter.type === "includes_tag" || filter.type === "excludes_tag" || filter.type === "tag_undefined") {
+            if (filter.tag === oldName) {
+                filter.tag = newName;
+            }
+        } else if (filter.type === "all" || filter.type === "any") {
+            renameTagInFilters(filter.children, oldName, newName);
+        }
+    }
+}
+
 export function getTagLibraryEntries(tagName: string): LibraryEntry[] {
     return config.library.filter((entry => entry.tags[tagName] === true));
 }
@@ -812,8 +824,12 @@ export function editTag(oldTagName: string, newTag: TagEntry) {
             entry.tags[newTag.name] = value;
         }
     }
+    for (const playlist of config.playlists) {
+        renameTagInFilters(playlist.filters, oldTagName, newTag.name);
+    }
     commit();
 }
+
 
 export function deleteTag(tagName: string) {
     config.tags = config.tags.filter((tag) => tag.name !== tagName);
