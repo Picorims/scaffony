@@ -20,9 +20,10 @@
     interface Props {
         selectId: string;
         mutableFiltersList: Filter[];
+        editedPlaylist?: string;
     }
 
-    const {selectId, mutableFiltersList}: Props = $props();
+    const {selectId, mutableFiltersList, editedPlaylist}: Props = $props();
 
 </script>
 
@@ -167,10 +168,12 @@
                 Playlist Name:
                 <select bind:value={(filter as FilterIncludesPlaylist).playlist}>
                     {#each getConfig().playlists as playlist}
-                        <option value={playlist.name}>
-                            <LucideIcon name={fromKebabToPascalCase(playlist.lucideIcon)} />
-                            {playlist.name}
-                        </option>
+                        {#if playlist.name !== editedPlaylist}
+                            <option value={playlist.name}>
+                                <LucideIcon name={fromKebabToPascalCase(playlist.lucideIcon)} />
+                                {playlist.name}
+                            </option>
+                        {/if}
                     {/each}
                 </select>
                 {#if hasPlaylist(filter.playlist)}

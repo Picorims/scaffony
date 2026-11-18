@@ -101,7 +101,7 @@
             {/each}
         </datalist>
 
-        <Filters selectId="filters-select" mutableFiltersList={editedPlaylist.filters} />
+        <Filters selectId="filters-select" mutableFiltersList={editedPlaylist.filters} editedPlaylist={editedPlaylist.name} />
     {/if}
 
     {#snippet buttons()}
