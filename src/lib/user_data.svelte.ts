@@ -436,6 +436,14 @@ export function getPlaylistLibraryEntries(playlistName: string): LibraryEntry[] 
     return getFilteredEntries(config.library, playlist.filters);
 }
 
+
+// FIXME playlist_can_reference_each_other
+/**
+ * Note: will cause an infinite loop if playlists reference each other!
+ * @param base 
+ * @param filters 
+ * @returns 
+ */
 export function getFilteredEntries(base: LibraryEntry[], filters: Filter[]): LibraryEntry[] {
     return _getFilteredEntries(base, [{type: "all", children: filters}]);
 }

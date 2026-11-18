@@ -168,6 +168,7 @@
                 Playlist Name:
                 <select bind:value={(filter as FilterIncludesPlaylist).playlist}>
                     {#each getConfig().playlists as playlist}
+                        <!-- FIXME playlist_can_reference_each_other -->
                         {#if playlist.name !== editedPlaylist}
                             <option value={playlist.name}>
                                 <LucideIcon name={fromKebabToPascalCase(playlist.lucideIcon)} />
