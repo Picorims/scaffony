@@ -105,7 +105,7 @@
 
 <style>
     div.tag {
-        /* --background-color: oklch(from var(--color) max(calc(l - 0.7), 0.15) max(calc(c - 0.1), 0.02) h); */
+        --background-color: oklch(from var(--color) max(calc(l - 0.7), 0.15) max(calc(c - 0.1), 0.02) h);
         /* --border-color: oklch(from var(--color) min(l, 0.45) c h); */
         position: relative;
         display: inline-flex;
