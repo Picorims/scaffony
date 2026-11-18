@@ -135,6 +135,10 @@ export interface FilterExcludesTag {
     type: "excludes_tag";
     tag: string;
 }
+export interface FilterTagUndefined {
+    type: "tag_undefined";
+    tag: string;
+}
 export interface FilterAll {
     type: "all";
     children: Filter[];
@@ -153,6 +157,7 @@ export type Filter =
     | FilterIncludesTag
     | FilterExcludesCategory
     | FilterExcludesTag
+    | FilterTagUndefined
     | FilterAny
     | FilterAll;
 
@@ -470,6 +475,13 @@ function _getFilteredEntries(base: LibraryEntry[], filters: Filter[], level = 0)
                 result = result.filter((entry) => !hasTag(entry, filter.tag));
                 if (verbose) {
                     console.log(`${logPrefix} excludes_tag (${filter.tag}): `, result);
+                }
+                break;
+            }
+            case "tag_undefined": {
+                result = result.filter((entry) => entry.tags[filter.tag] === undefined);
+                if (verbose) {
+                    console.log(`${logPrefix} tag_undefined (${filter.tag}): `, result);
                 }
                 break;
             }

@@ -7,7 +7,7 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
-    import { getConfig, type Filter, type FilterIncludesTag, type FilterExcludesTag, type FilterIncludesCategory, type FilterExcludesCategory, getTagCategories, getCategoryIcon, getTag, hasCategory } from "$lib/user_data.svelte";
+    import { getConfig, type Filter, type FilterIncludesTag, type FilterExcludesTag, type FilterIncludesCategory, type FilterExcludesCategory, getTagCategories, getCategoryIcon, getTag, hasCategory, type FilterTagUndefined } from "$lib/user_data.svelte";
     import { Ampersands, FolderCheck, FolderX, SquaresIntersect, SquaresUnite, TagPlus, TagX, Trash } from "@lucide/svelte";
     import Button from "../atoms/Button.svelte";
     import IconButton from "../atoms/IconButton.svelte";
@@ -51,6 +51,10 @@
                     <FilterIcon type="excludes_tag" />
                     <span>Excludes Tag</span>
                 </option>
+                <option value="tag_undefined" style:--option-color="var(--tag-color)">
+                    <FilterIcon type="tag_undefined" />
+                    <span>Tag Undefined</span>
+                </option>
                 <option value="includes_category" style:--option-color="var(--category-color)">
                     <FilterIcon type="includes_category" />
                     <span>Includes Category</span>
@@ -80,6 +84,9 @@
                             break;
                         case "excludes_tag":
                             newFilter = { type: "excludes_tag", tagName: "" };
+                            break;
+                        case "tag_undefined":
+                            newFilter = { type: "tag_undefined", tagName: "" };
                             break;
                         case "includes_category":
                             newFilter = { type: "includes_category", categoryName: "" };
@@ -118,10 +125,10 @@
             {filter.type}
         </h4>
 
-        {#if filter.type === "includes_tag" || filter.type === "excludes_tag"}
+        {#if filter.type === "includes_tag" || filter.type === "excludes_tag" || filter.type === "tag_undefined"}
             <label
                 >Tag Name:
-                <select bind:value={(filter as FilterIncludesTag | FilterExcludesTag).tag}>
+                <select bind:value={(filter as FilterIncludesTag | FilterExcludesTag | FilterTagUndefined).tag}>
                     <TagOptions />
                 </select>
                 <LucideIcon name={fromKebabToPascalCase(getTag(filter.tag)?.lucideIcon ?? "")} class="tag-categ-icon" style={`--color: ${getTag(filter.tag)?.colorHex ?? ""}`} />
@@ -212,7 +219,8 @@
             stroke: var(--operation-color);
         }
         &:global([data-type="includes_tag"]),
-        &:global([data-type="excludes_tag"]) {
+        &:global([data-type="excludes_tag"]),
+        &:global([data-type="tag_undefined"]) {
             stroke: var(--tag-color);
         }
     }

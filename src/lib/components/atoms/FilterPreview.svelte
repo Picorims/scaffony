@@ -71,7 +71,7 @@
 {/snippet}
 
 {#snippet filterToStylizedString(f: Filter, level = 1)}
-    {#if f.type === "includes_tag" || f.type === "excludes_tag"}
+    {#if f.type === "includes_tag" || f.type === "excludes_tag" || f.type === "tag_undefined"}
         {@render tagF(f.tag, f.type, f.type)}
     {:else if f.type === "includes_category" || f.type === "excludes_category"}
         {@render categoryF(f.category, f.type, f.type)}
