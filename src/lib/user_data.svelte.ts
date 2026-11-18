@@ -410,6 +410,18 @@ function renameTagInFilters(filters: Filter[], oldName: string, newName: string)
     }
 }
 
+function renamePlaylistInFilters(filters: Filter[], oldName: string, newName: string) {
+        for (const filter of filters) {
+        if (filter.type === "includes_playlist") {
+            if (filter.playlist === oldName) {
+                filter.playlist = newName;
+            }
+        } else if (filter.type === "all" || filter.type === "any") {
+            renamePlaylistInFilters(filter.children, oldName, newName);
+        }
+    }
+}
+
 export function getTagLibraryEntries(tagName: string): LibraryEntry[] {
     return config.library.filter((entry => entry.tags[tagName] === true));
 }
@@ -908,6 +920,11 @@ export function editPlaylist(
     if (playlistIndex === -1) {
         throw new Error(`Playlist with name ${oldPlaylistName} not found.`);
     }
+
+    for (const playlist of config.playlists) {
+        renamePlaylistInFilters(playlist.filters, oldPlaylistName, newPlaylist.name);
+    }
+
     config.playlists[playlistIndex] = newPlaylist;
     commit();
 }
