@@ -194,7 +194,7 @@
         --height: calc(var(--base-height) * 3);
         position: relative;
         height: var(--height);
-        border-bottom: 1px solid var(--background-lighter-2);
+        border-bottom: 2px solid var(--background-lighter-2);
         color: var(--text);
         grid-column: span 5;
 
@@ -237,14 +237,14 @@
         --background: var(--altered-color);
         position: absolute;
         width: 100%;
-        height: 100%;
+        height: 104%;
         background: linear-gradient(
-            to right,
+            to left,
             var(--background),
-            oklch(from var(--background) max(calc(l - 0.1), 0.2) calc(c - 0.01) calc(h - 5)) 35%,
-            oklch(from var(--background) max(calc(l - 0.2), 0.1) calc(c - 0.02) calc(h - 10))
+            oklch(from var(--background) max(calc(l - 0.1), 0.2) calc(c - 0.01) calc(h - 5)) 10%,
+            oklch(from var(--background) max(calc(l - 0.2), 0.1) calc(c - 0.02) calc(h - 10)) 25%,
+            transparent 50%
         );
-        box-shadow: 0 0 4px var(--cover-color, #00000000);
     }
     div.container.odd div.gradient {
         --background: oklch(from var(--altered-color) calc(l - 0.05) calc(c - 0.02) h);
