@@ -348,17 +348,22 @@
     <canvas bind:this={tracksDurationHistogramCanvas} id="tracks-duration-histogram"></canvas>
 
     <h2>Tags</h2>
-    {#each getTagCategories() as category, i}
-        <h3>
-            <LucideIcon
-                class="category-icon"
-                name={fromKebabToPascalCase(getCategoryIcon(category))}
-            />
-            {category}
-        </h3>
-        <canvas bind:this={tagHistogramCanvases[i]} id="genres-histogram"
-        ></canvas>
-    {/each}
+    <details>
+        <summary>Reveal</summary>
+        <div class="content">
+            {#each getTagCategories() as category, i}
+                <h3>
+                    <LucideIcon
+                        class="category-icon"
+                        name={fromKebabToPascalCase(getCategoryIcon(category))}
+                    />
+                    {category}
+                </h3>
+                <canvas bind:this={tagHistogramCanvases[i]} id="genres-histogram"
+                ></canvas>
+            {/each}
+        </div>
+    </details>
 
     <h2>Missing tags per track</h2>
     
@@ -510,6 +515,23 @@
             &:nth-child(even) {
                 background-color: var(--background-darker-1);
             }
+        }
+    }
+
+    details {
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+        background-color: var(--background-lighter-3);
+        border-radius: 4px;
+
+        & summary {
+            cursor: pointer;
+        }
+
+        & div.content {
+            background-color: var(--background);
+            padding: 0.5rem;
+            border-radius: 4px;
         }
     }
 
