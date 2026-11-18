@@ -10,8 +10,10 @@
     import { fromKebabToPascalCase } from "$lib/string";
     import {
         getCategoryIcon,
+        getPlaylist,
         getTag,
         hasCategory,
+        hasPlaylist,
         type Filter,
         type FilterByType,
         type FilterIncludesCategory,
@@ -48,6 +50,17 @@
     {/if}
 {/snippet}
 
+{#snippet playlistIcon(playlistName: string)}
+    {#if !hasPlaylist(playlistName)}
+        <BadgeQuestionMark class="playlist-icon" />
+    {:else}
+        <LucideIcon
+            name={fromKebabToPascalCase(getPlaylist(playlistName)!.lucideIcon)}
+            class="playlist-icon"
+        />
+    {/if}
+{/snippet}
+
 {#snippet indentedBy(n: number)}
     <span class="indent" data-n={n}></span>
 {/snippet}
@@ -70,11 +83,20 @@
     )
 {/snippet}
 
+{#snippet playlistF(playlistName: string, functionName: string, type: Filter["type"])}
+    <span class="function">{functionName} <FilterIcon {type} /></span>(
+    {@render playlistIcon(playlistName)}
+    <span class="playlist">{playlistName}</span>
+    )
+{/snippet}
+
 {#snippet filterToStylizedString(f: Filter, level = 1)}
     {#if f.type === "includes_tag" || f.type === "excludes_tag" || f.type === "tag_undefined"}
         {@render tagF(f.tag, f.type, f.type)}
     {:else if f.type === "includes_category" || f.type === "excludes_category"}
         {@render categoryF(f.category, f.type, f.type)}
+    {:else if f.type === "includes_playlist"}
+        {@render playlistF(f.playlist, f.type, f.type)}
     {:else if f.type === "all"}
         <span class="parenthesis" data-n={((level - 1) % 6) + 1}>(</span>
 
@@ -211,6 +233,9 @@
     span.category {
         color: var(--category-color);
     }
+    span.playlist {
+        color: var(--playlist-color);
+    }
     span.operator {
         color: var(--operation-color);
     }
@@ -225,6 +250,9 @@
         }
         &:global(.category-icon) {
             stroke: var(--category-color);
+        }
+        &:global(.playlist-icon) {
+            stroke: var(--playlist-color);
         }
     }
 </style>

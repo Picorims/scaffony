@@ -65,7 +65,7 @@
                     <span>Excludes Category</span>
                 </option>
                 <option value="includes_playlist" style:--option-color="var(--playlist-color)">
-                    <FilterIcon type="excludes_category" />
+                    <FilterIcon type="includes_playlist" />
                     <span>Includes Playlist</span>
                 </option>
                 <option value="all" style:--option-color="var(--operation-color)">
@@ -178,7 +178,7 @@
                     {/each}
                 </select>
                 {#if hasPlaylist(filter.playlist)}
-                    <LucideIcon name={fromKebabToPascalCase(getPlaylist(filter.playlist)!.lucideIcon)} class="tag-categ-icon" style={"--color: var(--category-color)"} />
+                    <LucideIcon name={fromKebabToPascalCase(getPlaylist(filter.playlist)!.lucideIcon)} class="tag-categ-icon" style={`--color: ${getPlaylist(filter.playlist)?.colorHex ?? ""}`} />
                 {/if}
 
             </label>
