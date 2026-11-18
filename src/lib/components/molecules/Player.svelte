@@ -33,6 +33,7 @@
     getCategoryIcon,
         getConfig,
         getEntryAudioPathWithBestExtension,
+        getTagCategories,
         getTagCategory,
         setTagState,
         type LibraryEntry,
@@ -284,34 +285,47 @@
 
 <Modal bind:dialog={editTagsDialog} title="Edit tags" stickyButtons>
     {@const tags = getConfig().tags}
-    <div class="edit-tags-container">
-        {#each tags as tag, i (tag.name)}
-            {#if i === 0 || i > 1 && getTagCategory(tags[i - 1].name) !== getTagCategory(tag.name)}
-                <div class="edit-tags-category">
-                    <LucideIcon name={fromKebabToPascalCase(getCategoryIcon(getTagCategory(tag.name)))} />
-                    <span>{getTagCategory(tag.name)}</span>
-                </div>
-            {/if}
-            {@const state = activeTrack?.tags[tag.name]}
-            <Tag
-                {tag}
-                mode="classify"
-                size="normal"
-                shrinkable={false}
-                expandable
-                noMobileView
-                forceDisplayCategory
-                status={state === undefined ? "unknown" : state ? "yes" : "no"}
-                onStatusChange={(s) => {
-                    if (activeTrack !== null) {
-                        setTagState(activeTrack, tag.name, s);
-                    }
-                }}
-            />
-            {#if i + 1 < tags.length && getTagCategory(tags[i + 1].name) !== getTagCategory(tag.name)}
-                <div class="edit-tags-gap"></div>
-            {/if}
-        {/each}
+    <div class="edit-tags-menu-and-list-container">
+        <nav class="categories-menu">
+            {#each getTagCategories() as category}
+                <button onclick={() => document.querySelector(`#${category}`)?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                })}>
+                    <LucideIcon name={fromKebabToPascalCase(getCategoryIcon(category))} />
+                    {category}
+                </button>
+            {/each}
+        </nav>
+        <div class="edit-tags-container">
+            {#each tags as tag, i (tag.name)}
+                {#if i === 0 || i > 0 && getTagCategory(tags[i - 1].name) !== getTagCategory(tag.name)}
+                    <div class="edit-tags-category" id={getTagCategory(tag.name)}>
+                        <LucideIcon name={fromKebabToPascalCase(getCategoryIcon(getTagCategory(tag.name)))} />
+                        <span>{getTagCategory(tag.name)}</span>
+                    </div>
+                {/if}
+                {@const state = activeTrack?.tags[tag.name]}
+                <Tag
+                    {tag}
+                    mode="classify"
+                    size="normal"
+                    shrinkable={false}
+                    expandable
+                    // noMobileView
+                    forceDisplayCategory
+                    status={state === undefined ? "unknown" : state ? "yes" : "no"}
+                    onStatusChange={(s) => {
+                        if (activeTrack !== null) {
+                            setTagState(activeTrack, tag.name, s);
+                        }
+                    }}
+                />
+                {#if i + 1 < tags.length && getTagCategory(tags[i + 1].name) !== getTagCategory(tag.name)}
+                    <div class="edit-tags-gap"></div>
+                {/if}
+            {/each}
+        </div>
     </div>
 
     {#snippet buttons()}
@@ -839,6 +853,45 @@
         display: none;
     }
 
+    div.edit-tags-menu-and-list-container {
+        display: grid;
+        grid-template-columns: min-content 1fr;
+        gap: 1rem;
+    }
+    nav.categories-menu {
+        position: sticky;
+        top: 0;
+        height: min-content;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        border-right: 1px solid var(--background-lighter-3);
+        padding-top: 0.5rem;
+        padding-right: 0.5rem;
+
+        > button {
+            padding: 0.25rem 0.5rem;
+            background-color: transparent;
+            border: none;
+            border-radius: 4px;
+            color: var(--text-darker-1);
+            font-size: 1rem;
+            text-align: left;
+            user-select: none;
+
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+
+            &:hover {
+                background-color: var(--background-lighter-3);
+            }
+
+            :global(svg) {
+                stroke: var(--text-darker-3);
+            }
+        }
+    }
     div.edit-tags-container {
         display: flex;
         flex-direction: column;
@@ -927,5 +980,26 @@
         div.gap {
             width: 0;
         }
+
+        div.edit-tags-menu-and-list-container {
+            gap: 0.5rem;
+        }
+        nav.categories-menu {
+            padding-right: 0;
+
+            > button {
+                padding: 0;
+                padding-right: 0.25rem;
+                font-size: 0.8rem;
+                gap: 0.25rem;
+
+                :global(svg) {
+                    width: 16px;
+                }
+            }
+        }
+        /* div.edit-tags-container > :global(.tag .label) {
+            max-height: 2lh;
+        } */
     }
 </style>

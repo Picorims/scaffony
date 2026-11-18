@@ -19,6 +19,10 @@
 		alt?: string;
 		filled?: boolean;
 		className?: string;
+		/**
+		 * Disable button shrink on mobile view
+		 */
+		noShrink?: boolean;
 	}
 
 	let {
@@ -31,6 +35,7 @@
 		alt = '',
 		filled = false,
 		className = "",
+		noShrink = false,
 	}: Props = $props();
 
 	function handleClick() {
@@ -51,6 +56,7 @@
 	class={`icon-button ${className} ${variant}`}
 	class:toggled={togglable && toggled}
 	class:filled
+	class:no-shrink={noShrink}
 >
 	{@render children?.()}
 </button>
@@ -93,7 +99,7 @@
 	}
 
 	@media screen and (width <= 600px) {
-		button.icon-button {
+		button.icon-button:not(.no-shrink) {
 			width: 1.3rem;
 			height: 1.3rem;
 		}

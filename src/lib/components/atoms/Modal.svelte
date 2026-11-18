@@ -105,4 +105,10 @@
 			box-shadow: 0 1rem 1rem 2rem var(--background);
 		}
 	}
+
+	@media screen and (width < 620px) {
+		dialog.modal {
+			padding: 0.5rem 0.25rem;
+		}
+	}
 </style>

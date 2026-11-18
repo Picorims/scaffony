@@ -71,6 +71,7 @@
         <span class="buttons">
             <span class="icon-toggled yes" class:active={status === "yes"}>
                 <IconButton
+                noShrink
                     variant="correct"
                     onClick={() => onStatusChange("yes")}
                 >
@@ -79,6 +80,7 @@
             </span>
             <span class="icon-toggled no" class:active={status === "no"}>
                 <IconButton
+                noShrink
                     variant="error"
                     onClick={() => onStatusChange("no")}
                 >
@@ -90,6 +92,7 @@
                 class:active={status === "unknown"}
             >
                 <IconButton
+                noShrink
                     variant="warning"
                     onClick={() => onStatusChange("unknown")}
                 >
@@ -266,9 +269,9 @@
             padding-top: 0.2em;
             border-radius: 0.25em;
         }
-        div.tag.normal:not(.no-mobile-view) {
+        /* div.tag.normal:not(.no-mobile-view) {
             width: min-content;
-        }
+        } */
         div.tag:not(.no-mobile-view) span.buttons {
             flex: 1;
             border-left: 0px;
@@ -276,6 +279,9 @@
             padding-left: 0;
             margin-top: 0.3em;
             border-top: 1px solid var(--color);
+
+            display: flex;
+            justify-content: flex-end;
         }
         span.label {
             position: relative;
