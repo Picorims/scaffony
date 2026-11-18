@@ -50,6 +50,7 @@
         track_number: 0,
         disc_number: 0,
         year: 0,
+        duration: 0,
     });
     let metadataPromise = $state<Promise<Metadata>>();
     let scrollObserver = new IntersectionObserver(async (e) => {
