@@ -102,26 +102,28 @@
 
 <style>
     div.tag {
-        --background-color: oklch(from var(--color) max(calc(l - 0.7), 0.15) max(calc(c - 0.1), 0.02) h);
-        --border-color: oklch(from var(--color) min(l, 0.45) c h);
+        /* --background-color: oklch(from var(--color) max(calc(l - 0.7), 0.15) max(calc(c - 0.1), 0.02) h); */
+        /* --border-color: oklch(from var(--color) min(l, 0.45) c h); */
         position: relative;
         display: inline-flex;
         align-items: center;
         padding: 0.2em 0.5em;
-        border: 1px solid var(--border-color);
+        border: 1px solid var(--background-lighter-2);
         border-radius: 1em;
         font-size: 0.875rem;
         letter-spacing: 0.05em;
         color: var(--text);
-        background-color: var(--background-color);
+        background-color: var(--background-darker-2);
         margin: 0.2em;
     }
     div.tag.classify {
         padding-top: 0;
         padding-bottom: 0;
         padding-right: 0;
-        border-top-right-radius: 2px;
-        border-bottom-right-radius: 2px;
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+        border-right: 4px solid var(--color);
+        padding-right: 0.5em;
     }
     div.tag.exclusive {
         border-style: dashed;
@@ -173,24 +175,24 @@
         display: none;
     }
 
-    span.icon-toggled {
+    /* span.icon-toggled {
         border: 1px solid transparent;
-    }
+    } */
     span.icon-toggled.active {
-        border: 1px solid;
+        /* border: 2px solid; */
         border-radius: 2px;
     }
     span.icon-toggled.yes.active {
-        border-color: oklch(from var(--correct) calc(l - 0.3) c h);
-        background-color: oklch(from var(--correct) calc(l - 0.5) c h);
+        /* border-color: oklch(from var(--correct) calc(l - 0.3) c h); */
+        background-color: oklch(from var(--correct) calc(l - 0.3) c h);
     }
     span.icon-toggled.no.active {
-        border-color: oklch(from var(--error) calc(l - 0.3) c h);
-        background-color: oklch(from var(--error) calc(l - 0.5) c h);
+        /* border-color: oklch(from var(--error) calc(l - 0.3) c h); */
+        background-color: oklch(from var(--error) calc(l - 0.3) c h);
     }
     span.icon-toggled.unknown.active {
-        border-color: oklch(from var(--warning) calc(l - 0.3) c h);
-        background-color: oklch(from var(--warning) calc(l - 0.5) c h);
+        /* border-color: oklch(from var(--warning) calc(l - 0.3) c h); */
+        background-color: oklch(from var(--warning) calc(l - 0.3) c h);
     }
     div.tag.normal:not(.classify).force-shrink span.label {
             display: none;

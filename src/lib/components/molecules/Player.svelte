@@ -843,6 +843,9 @@
         display: flex;
         flex-direction: column;
         align-items: stretch;
+        > :global(.tag) {
+            margin-bottom: 0.5rem;
+        }
     }
     div.edit-tags-gap {
         height: 1rem;

@@ -150,6 +150,7 @@
                     <Tag
                         {tag}
                         mode="classify"
+                        expandable
                         status={Object.keys(entry.tags).includes(tag.name)
                             ? entry.tags[tag.name]
                                 ? "yes"
@@ -282,6 +283,10 @@
         grid-row: 2 / span 2;
     }
     div.tags.classify {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+        grid-auto-rows: min-content;
+        gap: 0.25rem;
         margin: 0.5rem;
         margin-top: 0.25rem;
         padding: 0.5rem;
@@ -290,6 +295,7 @@
         max-height: calc(var(--height) - 1rem);
         overflow-y: auto;
         border-radius: 4px;
+        background-color: var(--background);
         box-shadow: inset 0 0 8px var(--background-darker-2);
     }
 
