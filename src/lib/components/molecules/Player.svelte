@@ -33,6 +33,7 @@
     getCategoryIcon,
         getConfig,
         getEntryAudioPathWithBestExtension,
+        getMissingTagsCountForCategory,
         getTagCategories,
         getTagCategory,
         setTagState,
@@ -294,6 +295,10 @@
                 })}>
                     <LucideIcon name={fromKebabToPascalCase(getCategoryIcon(category))} />
                     {category}
+                    {#if activeTrack}
+                        {@const missingCount = getMissingTagsCountForCategory(activeTrack, category)}
+                        <span class="category-missing-tags-count" class:non-zero={missingCount > 0}>{missingCount}</span>
+                    {/if}
                 </button>
             {/each}
         </nav>
@@ -913,6 +918,18 @@
 
         & :global(svg) {
             stroke: var(--text-darker-3);
+        }
+    }
+
+    span.category-missing-tags-count {
+        color: var(--text-darker-3);
+
+        &.non-zero {
+            color: var(--warning);
+            font-weight: 900;
+            padding: 0 0.2em;
+            background-color: oklch(from var(--warning) 0.3 c h);
+            border-radius: 2px;
         }
     }
 

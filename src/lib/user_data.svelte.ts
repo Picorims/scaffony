@@ -371,6 +371,17 @@ export function getTagCompletionRatio(tagName: string, base: LibraryEntry[]): nu
     return count / total;
 }
 
+export function getMissingTagsCountForCategory(track: LibraryEntry, category: string) {
+    const tags = getCategoryTags(category);
+    let count = 0;
+    for (const t of tags) {
+        if (track.tags[t.name] === undefined) {
+            count++;
+        }
+    }
+    return count;
+}
+
 export function getPlaylist(playlistName: string): PlaylistEntry | null {
     const playlist = config.playlists.find(
         (playlist) => playlist.name === playlistName
