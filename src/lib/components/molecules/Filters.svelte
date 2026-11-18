@@ -7,7 +7,7 @@
     file, You can obtain one at https://mozilla.org/MPL/2.0/.
     */
 
-    import { getConfig, type Filter, type FilterIncludesTag, type FilterExcludesTag, type FilterIncludesCategory, type FilterExcludesCategory, getTagCategories, getCategoryIcon, getTag, hasCategory, type FilterTagUndefined } from "$lib/user_data.svelte";
+    import { getConfig, type Filter, type FilterIncludesTag, type FilterExcludesTag, type FilterIncludesCategory, type FilterExcludesCategory, getTagCategories, getCategoryIcon, getTag, hasCategory, type FilterTagUndefined, type FilterIncludesPlaylist, hasPlaylist, getPlaylist } from "$lib/user_data.svelte";
     import { Ampersands, FolderCheck, FolderX, SquaresIntersect, SquaresUnite, TagPlus, TagX, Trash } from "@lucide/svelte";
     import Button from "../atoms/Button.svelte";
     import IconButton from "../atoms/IconButton.svelte";
@@ -30,7 +30,7 @@
 {@render filters(selectId, mutableFiltersList, true)}
 
 <datalist id="tag-categories-list">
-    {#each getTagCategories() as category}
+    {#each getTagCategories() as category (category)}
         <option value={category}></option>
     {/each}
 </datalist>
@@ -63,6 +63,10 @@
                     <FilterIcon type="excludes_category" />
                     <span>Excludes Category</span>
                 </option>
+                <option value="includes_playlist" style:--option-color="var(--playlist-color)">
+                    <FilterIcon type="excludes_category" />
+                    <span>Includes Playlist</span>
+                </option>
                 <option value="all" style:--option-color="var(--operation-color)">
                     <FilterIcon type="all" />
                     <span>All of...</span>
@@ -77,22 +81,26 @@
                 const select = document.querySelector(`#${selectId}`) as HTMLSelectElement;
                 const selectedValue = select.value;
                 if (selectedValue) {
-                    let newFilter: unknown; // HACK find a more type-safe way
-                    switch (selectedValue) {
+                    const typedSelectedValue = selectedValue as Filter["type"];
+                    let newFilter: Filter;
+                    switch (typedSelectedValue) {
                         case "includes_tag":
-                            newFilter = { type: "includes_tag", tagName: "" };
+                            newFilter = { type: "includes_tag", tag: "" };
                             break;
                         case "excludes_tag":
-                            newFilter = { type: "excludes_tag", tagName: "" };
+                            newFilter = { type: "excludes_tag", tag: "" };
                             break;
                         case "tag_undefined":
-                            newFilter = { type: "tag_undefined", tagName: "" };
+                            newFilter = { type: "tag_undefined", tag: "" };
                             break;
                         case "includes_category":
-                            newFilter = { type: "includes_category", categoryName: "" };
+                            newFilter = { type: "includes_category", category: "" };
                             break;
                         case "excludes_category":
-                            newFilter = { type: "excludes_category", categoryName: "" };
+                            newFilter = { type: "excludes_category", category: "" };
+                            break;
+                        case "includes_playlist":
+                            newFilter = { type: "includes_playlist", playlist: "" };
                             break;
                         case "all":
                             newFilter = { type: "all", children: [] };
@@ -100,9 +108,11 @@
                         case "any":
                             newFilter = { type: "any", children: [] };
                             break;
+                        default:
+                            throw new Error("Unknown filter type: " + typedSelectedValue);
                     }
                     if (newFilter) {
-                        mutableFiltersList.push(newFilter as Filter); // HACK find a more type-safe way
+                        mutableFiltersList.push(newFilter);
                     }
                 }
             }} />
@@ -149,6 +159,24 @@
                 {#if hasCategory(filter.category)}
                     <LucideIcon name={fromKebabToPascalCase(getCategoryIcon(filter.category))} class="tag-categ-icon" style={"--color: var(--category-color)"} />
                 {/if}
+            </label>
+        {/if}
+
+        {#if filter.type === "includes_playlist"}
+            <label>
+                Playlist Name:
+                <select bind:value={(filter as FilterIncludesPlaylist).playlist}>
+                    {#each getConfig().playlists as playlist}
+                        <option value={playlist.name}>
+                            <LucideIcon name={fromKebabToPascalCase(playlist.lucideIcon)} />
+                            {playlist.name}
+                        </option>
+                    {/each}
+                </select>
+                {#if hasPlaylist(filter.playlist)}
+                    <LucideIcon name={fromKebabToPascalCase(getPlaylist(filter.playlist)!.lucideIcon)} class="tag-categ-icon" style={"--color: var(--category-color)"} />
+                {/if}
+
             </label>
         {/if}
 
@@ -222,6 +250,9 @@
         &:global([data-type="excludes_tag"]),
         &:global([data-type="tag_undefined"]) {
             stroke: var(--tag-color);
+        }
+        &:global([data-type="includes_playlist"]) {
+            stroke: var(--playlist-color);
         }
     }
 

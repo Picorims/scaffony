@@ -147,6 +147,10 @@ export interface FilterAny {
     type: "any";
     children: Filter[];
 }
+export interface FilterIncludesPlaylist {
+    type: "includes_playlist",
+    playlist: string,
+}
 
 export type FilterByType = {
     [P in Filter["type"]]: Filter & {type: P}
@@ -159,7 +163,8 @@ export type Filter =
     | FilterExcludesTag
     | FilterTagUndefined
     | FilterAny
-    | FilterAll;
+    | FilterAll
+    | FilterIncludesPlaylist;
 
 export interface IConfig {
     version: 1;
@@ -389,6 +394,10 @@ export function getPlaylist(playlistName: string): PlaylistEntry | null {
     return playlist || null;
 }
 
+export function hasPlaylist(playlistName: string): boolean {
+    return getPlaylist(playlistName) !== null;
+}
+
 export function getTagLibraryEntries(tagName: string): LibraryEntry[] {
     return config.library.filter((entry => entry.tags[tagName] === true));
 }
@@ -495,6 +504,9 @@ function _getFilteredEntries(base: LibraryEntry[], filters: Filter[], level = 0)
                     console.log(`${logPrefix} tag_undefined (${filter.tag}): `, result);
                 }
                 break;
+            }
+            case "includes_playlist": {
+                result = _getFilteredEntries(base, getPlaylist(filter.playlist)?.filters ?? [], level + 1);
             }
         }
     }

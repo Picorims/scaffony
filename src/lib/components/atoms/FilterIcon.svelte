@@ -8,7 +8,7 @@
     */
    
     import type { Filter } from '$lib/user_data.svelte';
-    import { TagPlus, TagX, FolderCheck, FolderX, SquaresIntersect, SquaresUnite, Icon } from '@lucide/svelte';
+    import { TagPlus, TagX, FolderCheck, FolderX, SquaresIntersect, SquaresUnite, Icon, ListPlus } from '@lucide/svelte';
 
     interface Props {
         type: Filter["type"]
@@ -35,6 +35,8 @@
         <FolderCheck data-type={type} class="filter-icon" />
     {:else if type === "excludes_category"}
         <FolderX data-type={type} class="filter-icon" />
+    {:else if type === "includes_playlist"}
+        <ListPlus data-type={type} class="filter-icon" />
     {:else if type === "all"}
         <SquaresIntersect data-type={type} class="filter-icon" />
     {:else if type === "any"}
