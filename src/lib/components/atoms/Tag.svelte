@@ -141,12 +141,13 @@
         align-items: center;
     }
     div.icon-label > :global(svg) {
+        --size: 1.15rem;
         stroke: oklch(from var(--color) max(l, 0.65) c h);
-        min-width: 1.2em;
-        width: 1.2em;
-        min-height: 1.2em;
-        height: 1.2em;
-        margin-right: 0.3em;
+        min-width: var(--size);
+        width: var(--size);
+        min-height: var(--size);
+        height: var(--size);
+        margin-right: 0.5rem;
     }
     div.tag.expandable div.icon-label {
         flex: 1 1 auto;
