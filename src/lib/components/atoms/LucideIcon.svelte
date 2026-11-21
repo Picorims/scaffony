@@ -30,6 +30,8 @@
     "scaffony-lucide-draft-trumpet": scaffonyLucideDraftTrumpet,
     "scaffony-lucide-draft-violin": scaffonyLucideDraftViolin,
     "scaffony-lucide-draft-xylophone": scaffonyLucideDraftXylophone,
+    "scaffony-custom-banjo": scaffonyCustomBanjo,
+    "scaffony-custom-bagpipes": scaffonyCustomBagpipes,
   }
 
   const customIconProps: IconProps = {
@@ -197,6 +199,25 @@
   <path d="M17 3.946v7.306" />
   <path d="M5 22V2.361c5.705-1.964 5.705 4.91 13.31.982 1.902-.982 3.804.982 1.902 3.928L8.328 22" />
   <path d="M9 2.47v18.696" />
+{/snippet}
+
+{#snippet scaffonyCustomBanjo()}
+  <path d="M15.416 8.584A2 2 157.5 0116.826 8h1.75a2 2 157.5 001.408-.583l1.71-1.71a1 1 90 000-1.414l-1.986-1.986a1 1 180 00-1.414 0l-1.71 1.71A2 2 112.5 0016 5.425v1.75a2 2 112.5 01-.583 1.408" />
+  <path d="m15.417 8.583-4.881 4.881" />
+  <path d="m6 17 1 1" />
+  <circle cx="7" cy="17" r="5" />
+{/snippet}
+
+{#snippet scaffonyCustomBagpipes()}
+  <path d="M10 2h2" />
+  <path d="M11 13V2" />
+  <path d="m11 8 4 2 3 3" />
+  <path d="m13 14 4-8" />
+  <path d="m15 16 6-6" />
+  <path d="m16 5.5 2 1" />
+  <path d="m20 9 2 2" />
+  <path d="M4.586 15.414a2 2 0 012.828 0L14 22l3-3-6-6H7.83a2 2 157.5 00-1.417.587L4 16v5" />
+  <path d="M8 13 2 7" />
 {/snippet}
 
 {#if Icon}

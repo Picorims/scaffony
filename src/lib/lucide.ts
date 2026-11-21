@@ -23,6 +23,8 @@ export const CUSTOM_ICON_NAMES = [
     "scaffony-lucide-draft-violin",
     "scaffony-lucide-draft-xylophone",
     "scaffony-lucide-draft-lyre",
+    "scaffony-custom-banjo",
+    "scaffony-custom-bagpipes",
 ] as const;
 
 export const ICON_NAMES_KEBAB: string[] = Object.keys(icons)
