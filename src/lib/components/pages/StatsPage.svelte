@@ -28,6 +28,8 @@
     import Filters from "../molecules/Filters.svelte";
     import FilterPreview from "../atoms/FilterPreview.svelte";
 
+    const DEFAULT_FONT_SIZE = 16;
+
     let charts: Chart[] = $state([]);
     let yearHistogramCanvas = $state(document.createElement("canvas"));
     let artistsHistogramCanvas = $state(document.createElement("canvas"));
@@ -52,12 +54,13 @@
         );
         Chart.defaults.color = style.getPropertyValue("--text-darker-3");
         Chart.defaults.font.family = "Quicksand";
-        Chart.defaults.font.size = 16;
+        Chart.defaults.font.size = DEFAULT_FONT_SIZE;
         Chart.defaults.datasets.bar.backgroundColor =
             style.getPropertyValue("--secondary");
         Chart.defaults.datasets.bar.hoverBackgroundColor =
             style.getPropertyValue("--primary");
         Chart.defaults.responsive = true;
+        Chart.defaults.maintainAspectRatio = false;
         if (Chart.defaults.plugins.datalabels) {
             Chart.defaults.plugins.datalabels.anchor = "end";
             Chart.defaults.plugins.datalabels.align = "end";
@@ -77,6 +80,14 @@
     }
 
     function createCharts() {
+        let indexAxis: "x" | "y" = "x";
+        if (window.innerWidth < 640) {
+            indexAxis = "y";
+            Chart.defaults.font.size = 12;
+        } else {
+            Chart.defaults.font.size = DEFAULT_FONT_SIZE;
+        }
+
         const yearHistogramData: Record<number, number> =
             getConfig().library.reduce<Record<number, number>>((acc, e) => {
                 if (e.metadata === undefined) {
@@ -114,6 +125,9 @@
                             },
                         ],
                     },
+                    options: {
+                        indexAxis,
+                    }
                 },
             ),
         );
@@ -139,7 +153,7 @@
             artistsHistogram,
         )
             .sort(([_ka, va], [_kb, vb]) => vb - va)
-            .slice(0, 20);
+            .slice(0, 40);
 
         charts.push(
             new Chart(
@@ -156,6 +170,9 @@
                             },
                         ],
                     },
+                    options: {
+                        indexAxis,
+                    }
                 },
             ),
         );
@@ -179,7 +196,7 @@
             genresHistogram,
         )
             .sort(([_ka, va], [_kb, vb]) => vb - va)
-            .slice(0, 20);
+            .slice(0, 40);
 
         charts.push(
             new Chart(
@@ -196,6 +213,9 @@
                             },
                         ],
                     },
+                    options: {
+                        indexAxis,
+                    }
                 },
             ),
         );
@@ -236,6 +256,9 @@
                             },
                         ],
                     },
+                    options: {
+                        indexAxis,
+                    }
                 },
             ),
         );
@@ -301,6 +324,17 @@
                                 },
                             ],
                         },
+                        options: {
+                            indexAxis,
+                            scales: {
+                                x: { // mobile / horizontal
+                                    max: tracks.length
+                                },
+                                y: { // desktop / vertical
+                                    max: tracks.length
+                                }
+                            }
+                        },
                     },
                 ),
             );
@@ -332,20 +366,28 @@
     </div>
 
     <h2>Tracks by year</h2>
-    <canvas bind:this={yearHistogramCanvas} id="year-histogram"></canvas>
+    <div class="chart-container">
+        <canvas bind:this={yearHistogramCanvas} id="year-histogram"></canvas>
+    </div>
 
     <h2>Most represented artists</h2>
-    <canvas bind:this={artistsHistogramCanvas} id="artists-histogram"></canvas>
+    <div class="chart-container">
+        <canvas bind:this={artistsHistogramCanvas} id="artists-histogram"></canvas>
+    </div>
 
     <h2>
         Most represented genres (default platforms metadata is not accurate)
     </h2>
-    <canvas bind:this={genresHistogramCanvas} id="genres-histogram"></canvas>
+    <div class="chart-container">
+        <canvas bind:this={genresHistogramCanvas} id="genres-histogram"></canvas>
+    </div>
     
     <h2>
         Track durations
     </h2>
-    <canvas bind:this={tracksDurationHistogramCanvas} id="tracks-duration-histogram"></canvas>
+    <div class="chart-container">
+        <canvas bind:this={tracksDurationHistogramCanvas} id="tracks-duration-histogram"></canvas>
+    </div>
 
     <h2>Tags</h2>
     <details>
@@ -359,8 +401,9 @@
                     />
                     {category}
                 </h3>
-                <canvas bind:this={tagHistogramCanvases[i]} id="genres-histogram"
-                ></canvas>
+                <div class="chart-container tag-chart">
+                    <canvas bind:this={tagHistogramCanvases[i]} id="genres-histogram"></canvas>
+                </div>
             {/each}
         </div>
     </details>
@@ -420,8 +463,8 @@
         stroke: var(--text-darker-6);
     }
 
-    canvas {
-        max-height: 50vh;
+    div.chart-container {
+        min-height: 400px;
     }
 
     div.total-completion {
@@ -535,10 +578,18 @@
         }
     }
 
-    @media screen and (width <= 600px) {
+    @media screen and (width <= 640px) {
         div.container {
             padding-top: 0.5rem;
             padding-left: 0.5rem;
+        }
+
+        div.chart-container {
+            min-height: 800px;
+
+            &.tag-chart {
+                min-height: 500px;
+            }
         }
     }
 </style>
