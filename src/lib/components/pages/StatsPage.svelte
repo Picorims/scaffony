@@ -50,7 +50,7 @@
         Chart.register(ChartDataLabels);
         const style = window.getComputedStyle(document.body);
         Chart.defaults.borderColor = style.getPropertyValue(
-            "--background-lighter-1",
+            "--background-lighter-3",
         );
         Chart.defaults.color = style.getPropertyValue("--text-darker-3");
         Chart.defaults.font.family = "Quicksand";
@@ -434,7 +434,9 @@
         flex-direction: column;
         flex-wrap: nowrap;
         width: 100%;
+        max-width: 100%;
         height: 100%;
+        overflow-x: hidden;
         overflow-y: scroll;
         padding-left: 1rem;
     }
@@ -455,7 +457,8 @@
     }
 
     h2, h3 {
-        margin-top: 1rem;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
     }
 
     h3 :global(svg.category-icon) {
@@ -465,6 +468,9 @@
 
     div.chart-container {
         min-height: 400px;
+        background-color: var(--background-lighter-1);
+        border-radius: 4px;
+        padding: 0.5rem;
     }
 
     div.total-completion {
@@ -498,16 +504,22 @@
     }
 
     div.tracks-completion {
+        width: 100%;
+        flex: 0 0 auto;
         display: grid;
         grid-template-columns: 1fr min-content 5rem;
         align-items: center;
 
-        
+        & progress {
+            transition: 0.05s;
+        }
         & progress::-webkit-progress-bar {
             background-color: var(--background-lighter-2);
+            transition: 0.05s;
         }
         & progress::-webkit-progress-value {
             background-color: var(--secondary);
+            transition: 0.05s;
 
             &:hover {
                 background-color: var(--primary);
@@ -516,6 +528,7 @@
         & span.completion-title {
             padding: 0.1em 0.5em;
             border-radius: 4px;
+            transition: 0.05s;
 
             & span.artist {
                 color: var(--text-darker-6);
@@ -531,12 +544,15 @@
         }
         & span.completion-title:hover {
             background-color: var(--background-lighter-2);
+            padding-left: 1rem;
+            font-weight: 900;
+
             & + progress {
                 box-shadow: 0 0 0px 4px var(--background-lighter-2);
                 border-radius: 2rem;
             }
             & + progress::-webkit-progress-bar {
-                background-color: var(--background-lighter-1);
+                background-color: var(--background-lighter-4);
             }
             & + progress::-webkit-progress-value {
                 background-color: var(--primary);
@@ -554,6 +570,7 @@
             margin-left: -0.05rem;
             font-size: 1.25rem;
             border-radius: 4px;
+            transition: 0.05s;
 
             &:nth-child(even) {
                 background-color: var(--background-darker-1);
@@ -589,6 +606,13 @@
 
             &.tag-chart {
                 min-height: 500px;
+            }
+        }
+
+        div.tracks-completion {
+        grid-template-columns: minmax(10px, 1fr) min-content 3rem;
+            progress {
+                width: 3rem;
             }
         }
     }
