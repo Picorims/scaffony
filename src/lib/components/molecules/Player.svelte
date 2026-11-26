@@ -622,7 +622,7 @@
             var(--background),
             oklch(from var(--background) max(calc(l - 0.3), 0.1) calc(c - 0.02) calc(h - 30))
         );
-        box-shadow: inset 0 0 8px rgb(from var(--bright-color) r g b / 0.75);
+        box-shadow: inset 0 0 4px rgb(from var(--bright-color) r g b / 0.4);
     }
     div.container > :not(.gradient) {
         z-index: 1;
