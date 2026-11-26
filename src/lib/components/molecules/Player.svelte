@@ -888,6 +888,8 @@
             align-items: center;
             gap: 0.5rem;
 
+            transition: 0.05s;
+
             &:hover {
                 background-color: var(--background-lighter-3);
             }
@@ -915,6 +917,7 @@
         border-top: 1px solid var(--background-lighter-3);
         margin: 0.5rem 0;
         padding-top: 0.5rem;
+        font-weight: bold;
 
         & :global(svg) {
             stroke: var(--text-darker-3);
